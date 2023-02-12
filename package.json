@@ -1,0 +1,53 @@
+{
+  "name": "sparks-nmn-desktop",
+  "version": "0.1.0",
+  "description": "Desktop application of SparksNMN, a natural text format for composing numbered music notation scores.",
+  "author": "yezhiyi9670",
+  "license": "MIT",
+  "main": "dist/main/index.js",
+  "targets": {
+    "main": false
+  },
+  "staticFiles": [
+    {
+      "staticPath": "public/static",
+      "staticOutPath": "static",
+      "env": {
+        "ELECTRON_COMPONENT": "renderer"
+      }
+    }
+  ],
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.5",
+    "@electron-forge/maker-deb": "^6.0.5",
+    "@electron-forge/maker-rpm": "^6.0.5",
+    "@electron-forge/maker-squirrel": "^6.0.5",
+    "@electron-forge/maker-zip": "^6.0.5",
+    "@types/node": "^18.13.0",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "concurrently": "^7.6.0",
+    "cross-env": "^7.0.3",
+    "electron": "^23.0.0",
+    "parcel": "^2.8.3",
+    "parcel-reporter-static-files-copy": "^1.5.0",
+    "process": "^0.11.10",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "start": "concurrently npm:start:renderer npm:start:main",
+    "start:renderer": "cross-env ELECTRON_COMPONENT=renderer parcel --port 8497 --dist-dir dist/public-dev/ --public-url / public/template.html",
+    "start:main": "node config/compile.mjs && electron .",
+    "clean": "node config/clean.mjs",
+    "build": "npm run clean && npm run build:renderer && npm run build:main",
+    "build:renderer": "cross-env ELECTRON_COMPONENT=renderer parcel build --dist-dir dist/public/ --public-url ./ public/template.html",
+    "build:main": "node config/compile.mjs",
+    "package": "npm run build && electron-forge package",
+    "make": "npm run build && electron-forge make"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
