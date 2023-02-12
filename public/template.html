@@ -5,11 +5,20 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+	<link rel="stylesheet" href="./style/normalize.css" />
+	<style>
+		html {
+			height: calc(100vh);
+		}
+		body {
+			height: calc(100vh);
+		}
+	</style>
 	<title>Document</title>
 </head>
 
 <body>
-	<div id="root"></div>
+	<div id="root" style="height:100%"></div>
 	<script src="../src/renderer/index.tsx" type="module"></script>
 </body>
 

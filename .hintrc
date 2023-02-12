@@ -3,6 +3,7 @@
     "development"
   ],
   "hints": {
-    "axe/language": "off"
+    "axe/language": "off",
+    "no-inline-styles": "off"
   }
 }

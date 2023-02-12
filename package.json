@@ -32,11 +32,13 @@
     "parcel": "^2.8.3",
     "parcel-reporter-static-files-copy": "^1.5.0",
     "process": "^0.11.10",
+    "react-icons": "^4.7.1",
+    "react-jss": "^10.10.0",
     "typescript": "^4.9.5"
   },
   "scripts": {
     "start": "concurrently npm:start:renderer npm:start:main",
-    "start:renderer": "cross-env ELECTRON_COMPONENT=renderer parcel --port 8497 --dist-dir dist/public-dev/ --public-url / public/template.html",
+    "start:renderer": "cross-env ELECTRON_COMPONENT=renderer parcel --no-hmr --port 8497 --dist-dir dist/public-dev/ --public-url / public/template.html",
     "start:main": "node config/compile.mjs && electron .",
     "clean": "node config/clean.mjs",
     "build": "npm run clean && npm run build:renderer && npm run build:main",

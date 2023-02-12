@@ -1,10 +1,6 @@
 import { app, ipcRenderer } from 'electron'
 
-const JSBridge = {
-	test: () => {
-		console.log('Hello, bridge!')
-	}
-}
+const JSBridge = {}
 
 export default {
 	JSBridge

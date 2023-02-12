@@ -13,8 +13,8 @@ const windowSizePref = PrefBackend.createPrefStorage('window-size')
 // 创建窗口
 function createWindow() {
 	const win = new BrowserWindow({
-		width: windowSizePref.getValue('number', 'windowWidth', 800),
-		height: windowSizePref.getValue('number', 'windowHeight', 600),
+		width: windowSizePref.getValue('number', 'windowWidth', 1536),
+		height: windowSizePref.getValue('number', 'windowHeight', 864),
 		show: false,
 		webPreferences: {
 			nodeIntegration: true,
@@ -22,6 +22,7 @@ function createWindow() {
 			preload: distPath('preload/index.js')
 		}
 	})
+	win.setMenu(null)
 	return win
 }
 
@@ -38,7 +39,7 @@ app.whenReady().then(() => {
 	win.webContents.on('dom-ready', () => {
 		win.show()
 		if(!app.isPackaged) {
-			win.webContents.openDevTools({mode: 'detach'})
+			win.webContents.openDevTools({mode: 'right'})
 		}
 	})
 	// 记住窗口大小
