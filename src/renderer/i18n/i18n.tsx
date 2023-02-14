@@ -1,5 +1,5 @@
 import React from 'react'
-import { zipArray } from '../../util/array'
+import { iterateFirstKey, iterateMap, zipArray } from '../../util/array'
 import { randomToken } from '../../util/random'
 import { multiReplace, replaceAll } from '../../util/string'
 import lang_en_us from './lang/en_us'
@@ -11,6 +11,28 @@ interface I18nProviderProps {
 }
 
 export type LanguageFunction = (key: string, ...args: any[]) => string
+
+type RawI18nData = {[_: string]: string | RawI18nData}
+type FlattenedI18nData = {[_: string]: string}
+/**
+ * 拉平多语言数组
+ */
+export function flattenI18nData(data: RawI18nData) {
+	function writeData(prefix: string, data: RawI18nData, dst: FlattenedI18nData) {
+		iterateMap(data, (item, key) => {
+			const writeKey = prefix + key
+			if(typeof item == 'string') {
+				dst[writeKey] = item
+			} else {
+				writeData(writeKey + '.', item, dst)
+			}
+		})
+	}
+
+	const ret: FlattenedI18nData = {}
+	writeData('', data, ret)
+	return ret
+}
 
 /**
  * 提供多语言的上下文
@@ -115,7 +137,7 @@ export function getLanguageValue(languageKey: string, itemKey: string, ...args: 
 export function getAvailableLanguages() {
 	return {
 		'void': 'void (debug only)',
-		...zipArray(['zh_cn', 'en_us'].map((key) => {
+		...zipArray(['zh_cn'].map((key) => {
 			return [ key, getLanguageValue(key, 'i18n.self_name') ]
 		}))
 	}

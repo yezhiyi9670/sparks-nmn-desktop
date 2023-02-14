@@ -2,6 +2,9 @@ import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
 import { PrefTypes } from './types'
+import { PrefDataGetter } from './PrefDataGetter'
+import { FileLock } from './FileLock'
+import { DataStore } from '../dataStore'
 
 export class PrefBackend {
 	static dataPath: string = ''
@@ -9,20 +12,7 @@ export class PrefBackend {
 	 * 初始化数据目录
 	 */
 	static initialize() {
-		this.dataPath = (() => {
-			if(app.isPackaged) {
-				if(process.platform == 'win32') {
-					// Windows 平台下使用安装路径下的 data 目录
-					return path.join(path.dirname(app.getPath('exe')), 'data/prefs')
-				} else {
-					// Linux/Mac 平台使用主目录中的 .config
-					return path.join(app.getPath('home'), '.config/sparks-nmn-desktop/prefs')
-				}
-			} else {
-				// 开发时使用工作目录下的 data 目录
-				return path.join(app.getAppPath(), 'data/prefs')
-			}
-		})()
+		this.dataPath = path.join(DataStore.getDataPath(), 'prefs')
 		if(!fs.existsSync(this.dataPath)) {
 			fs.mkdirSync(this.dataPath, {recursive: true})
 		}
@@ -36,12 +26,14 @@ export class PrefBackend {
 	/**
 	 * 获取数据存储
 	 */
-	static createPrefStorage(namespace: string) {
-		return new PrefStorage(this.dataPath, namespace)
+	static async createPrefStorage(namespace: string, readOnSet: boolean) {
+		const ret = new PrefStorage(this.dataPath, namespace, readOnSet)
+		await ret.initializeAsync()
+		return ret
 	}
 }
 
-type PrefData = {
+export type PrefData = {
 	[key: string]: {
 		type: PrefTypes.TypeDescriptor
 		value: PrefTypes.ValueTypes
@@ -51,51 +43,64 @@ type PrefData = {
 export class PrefStorage {
 	dataPath: string = ''
 	storePath: string = ''
+	lockPath: string = ''
+	readOnSet: boolean = false
 	data: PrefData = {}
-	constructor(dataPath: string, namespace: string) {
+	isDirty: boolean = false
+	constructor(dataPath: string, namespace: string, readOnSet: boolean) {
 		this.dataPath = dataPath
 		this.storePath = path.join(dataPath, `${namespace}.json`)
-		this.initialize()
+		this.lockPath = path.join(dataPath, `${namespace}.lock`)
+		this.readOnSet = readOnSet
+		this.isDirty = false
 	}
 	/**
 	 * 初始化存储文件
 	 */
-	initialize() {
+	async initializeAsync() {
 		if(!fs.existsSync(this.storePath)) {
 			fs.writeFileSync(this.storePath, '{}')
-		} else {
-			this.data = JSON.parse(fs.readFileSync(this.storePath).toString()) as any
 		}
+		await this.readDataAsync()
+	}
+	/**
+	 * 读取数据
+	 */
+	async readDataAsync() {
+		await FileLock.waitAsync(this.lockPath)
+		const fileHandle = await fs.promises.open(this.storePath, 'r')
+		this.data = JSON.parse((await fileHandle.readFile()).toString())
+		await fileHandle.close()
+		this.isDirty = false
+		return
 	}
 	/**
 	 * 保存数据
 	 */
 	async saveDataAsync() {
-		await fs.promises.writeFile(this.storePath, JSON.stringify(this.data, undefined, "\t"))
+		await FileLock.waitAsync(this.lockPath)
+		await FileLock.lockAsync(this.lockPath)
+		const fileHandle = await fs.promises.open(this.storePath, 'w')
+		await fileHandle.writeFile(JSON.stringify(this.data, undefined, "\t"))
+		await fileHandle.close()
+		await FileLock.unlockAsync(this.lockPath)
+		this.isDirty = false
+		return
 	}
 	/**
 	 * 获取数值
 	 */
 	getValue<T extends PrefTypes.ValueTypes>(demandedType: PrefTypes.TypeDescriptor, key: string, defaultValue: T): T {
-		if(!PrefTypes.validate(demandedType, defaultValue)) {
-			throw new Error(`Inconsistent type ${demandedType} and value ${JSON.stringify(defaultValue)} on key ${key}`)
-		}
-		if(key in {}) {
-			throw new Error(`String ${key} cannot be a preference key`)
-		}
-		if(key in this.data) {
-			let result = this.data[key]
-			if(result.type != demandedType) {
-				throw new Error(`Inconsistent type ${demandedType} and type ${result.type} on key ${key}`)
-			}
-			return result.value as T
-		}
-		return defaultValue
+		return PrefDataGetter.getPrefItem(this.data, demandedType, key, defaultValue)
 	}
 	/**
 	 * 存储数值
 	 */
-	setValue<T extends PrefTypes.ValueTypes>(demandedType: PrefTypes.TypeDescriptor, key: string, value: T) {
+	async setValueAsync<T extends PrefTypes.ValueTypes>(demandedType: PrefTypes.TypeDescriptor, key: string, value: T) {
+		if(this.readOnSet && !this.isDirty) {
+			await this.readDataAsync()
+		}
+		this.isDirty = true
 		if(!PrefTypes.validate(demandedType, value)) {
 			throw new Error(`Inconsistent type ${demandedType} and value ${JSON.stringify(value)} on key ${key}`)
 		}

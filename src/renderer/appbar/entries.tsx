@@ -35,8 +35,8 @@ export default {
 			icon: <AntIcons.AiOutlineSetting />
 		},
 		{
-			key: 'help',
-			icon: <AntIcons.AiOutlineQuestionCircle />
+			key: 'about',
+			icon: <AntIcons.AiOutlineInfoCircle />
 		}
 	]
 }

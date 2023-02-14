@@ -17,7 +17,7 @@ export function StatusDisplayMode(props: {
 			return <button type='button' className={[
 				classes.pill,
 				...(props.value == mode ? ['active'] : [])
-			].join(' ')} key={mode} onClick={() => props.onChange(mode)}>
+			].join(' ')} key={mode} onClick={() => props.onChange(mode as any)}>
 				{LNG(i18nPrefix + mode)}
 			</button>
 		})}

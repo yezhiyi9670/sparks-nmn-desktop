@@ -28,7 +28,7 @@ export function findIndexWithKey<T>(arr: T[], key: string, value: any): number {
  * 根据键值对数组创建关联数组
  */
 export function zipArray<T>(arr: [string, T][]): {[_: string]: T} {
-	let ret = {}
+	let ret: {[_: string]: T} = {}
 	arr.forEach((item) => {
 		ret[item[0]] = item[1]
 	})

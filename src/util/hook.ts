@@ -1,16 +1,6 @@
 import React from 'react'
 import { randomToken } from './random'
 
-/**
- * 记忆回调函数
- */
-export function useCallback<T>(val: T, deps: React.DependencyList, updateCall?: () => void) {
-	return React.useMemo(() => {
-		if(updateCall) updateCall()
-		return val
-	}, deps)
-}
-
 const realFunctionDb: {[_: string]: Function} = {}
 const implFunctionDb: {[_: string]: Function} = {}
 

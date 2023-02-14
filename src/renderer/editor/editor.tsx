@@ -25,6 +25,7 @@ const useStyles = createUseStyles({
 		borderTop: '1px solid #0002',
 		height: '28px',
 		background: '#F0EEF1',
+		whiteSpace: 'nowrap'
 	},
 	statusBarGroup: {
 		margin: '0 8px',
@@ -39,6 +40,7 @@ export function IntegratedEditor(props: IntegratedEditorProps) {
 	const classes = useStyles()
 
 	const [ displayMode, setDisplayMode ] = useState<'edit' | 'split' | 'preview'>('split')
+	const [ value, setValue ] = useState('')
 	
 	return <div className={classes.editor}>
 		<div className={classes.groupPreview}></div>

@@ -10,7 +10,7 @@ const useStyles = createUseStyles({
 		display: 'flex',
 		flexDirection: 'column',
 		height: '100%',
-		overflowY: 'hidden',
+		overflow: 'hidden',
 		scrollbarWidth: 'none',
 	},
 	group: {
@@ -23,12 +23,20 @@ const useStyles = createUseStyles({
 	}
 })
 
-interface AppBarProps {}
+interface AppBarProps {
+	onItemClick: (key: string) => void
+}
 export function AppBar(props: AppBarProps) {
 	const classes = useStyles()
 
 	const entryMapper = (entry: (typeof entries)['entries'][0]) => {
-		return <AppBarButton key={entry.key} i18nPrefix={entries.i18nPrefix} itemKey={entry.key} icon={entry.icon} />
+		return <AppBarButton
+			key={entry.key}
+			i18nPrefix={entries.i18nPrefix}
+			itemKey={entry.key}
+			icon={entry.icon}
+			onClick={() => {props.onItemClick(entry.key)}}
+		/>
 	}
 
 	return <div className={classes.root}>
