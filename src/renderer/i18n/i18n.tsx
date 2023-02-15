@@ -37,9 +37,9 @@ export function flattenI18nData(data: RawI18nData) {
 /**
  * 提供多语言的上下文
  */
-export const I18nContext = React.createContext((key: string, ...args: any[]) => {
+export const I18nContext = React.createContext(Object.assign((key: string, ...args: any[]) => {
 	return getLanguageValue('void', key, ...args)
-})
+}, { languageKey: 'void' }))
 
 /**
  * 获取多语言解析函数
@@ -53,9 +53,9 @@ export function useI18n() {
  * @prop languageKey 语言的键名，例如 en_us
  */
 export function I18nProvider({languageKey, children}: I18nProviderProps) {
-	const i18nFunc = (key: string, ...args: any[]) => {
+	const i18nFunc = Object.assign((key: string, ...args: any[]) => {
 		return getLanguageValue(languageKey, key, ...args)
-	}
+	}, { languageKey: languageKey })
 	return (
 		<I18nContext.Provider value={i18nFunc}>
 			{children}

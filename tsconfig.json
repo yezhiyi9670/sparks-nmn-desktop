@@ -2,18 +2,25 @@
 	"compilerOptions": {
 		"jsx": "react",
 		"module": "commonjs",
+		"target": "es6",
 		"strict": true,
 		"noImplicitAny": true,
 		"sourceMap": true,
 		"outDir": "dist",
-		// "baseUrl": ".",
 		"paths": {
 			"*": [
-				"node_modules/*"
+				"./node_modules/*"
 			]
 		},
 		"strictNullChecks": true,
 		"forceConsistentCasingInFileNames": true,
-		"esModuleInterop": true
-	},
+		"esModuleInterop": true,
+		"noEmit": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"allowJs": true,
+		"skipLibCheck": true,
+		"allowSyntheticDefaultImports": true,
+		"moduleResolution": "node",
+	}
 }

@@ -61,16 +61,14 @@ export class CallbackRegistry<Func_t extends Function> {
 	}
 }
 
-const neverCalled = new CallbackRegistry()
-
 /**
- * 根据 Token，使用仅有一次的 effect（The hacky way）
+ * 使用仅有一次的 effect，并且可以在结束时清除
  */
 export function useOnceEffect(func: () => void) {
-	const [ token ] = React.useState(randomToken(32))
 	return React.useEffect(() => {
-		neverCalled.register(func, token)
-	})
+		return func()
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 }
 
 /**

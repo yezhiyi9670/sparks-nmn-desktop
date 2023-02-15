@@ -123,6 +123,7 @@ function SettingsFormField(props: {
 				type={entry.type == 'string' ? 'text' : 'number'}
 				value={value}
 				ref={inputRef}
+				spellCheck={false}
 				onChange={(evt) => {
 					if(props.onUpdate) {
 						let validate: Validate = 'pass'
@@ -168,7 +169,7 @@ function SettingsFormField(props: {
 					value={value}
 					onChange={(evt) => {
 						if(props.onUpdate) {
-							props.onUpdate(evt.target.value)
+							props.onUpdate(evt.target.value, 'pass')
 						}
 					}}
 				>

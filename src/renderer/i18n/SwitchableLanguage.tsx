@@ -10,7 +10,6 @@ export function SwitchableLanguageProvider({ defaultValue, children }: {defaultV
 	const [ language, setLanguage ] = React.useState(defaultValue)
 
 	function handleLanguageSet(key: string) {
-		/* TODO[yezhiyi9670]: Set language */
 		setLanguage(key)
 	}
 

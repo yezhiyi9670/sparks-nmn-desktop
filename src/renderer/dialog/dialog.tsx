@@ -1,9 +1,12 @@
-import React, { ReactNode, useEffect } from 'react'
+import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createUseStyles } from 'react-jss'
 import { useOnceEffect } from '../../util/event'
 import FocusTrap from 'focus-trap-react'
 
 const useStyles = createUseStyles({
+	wrapper: {
+		zIndex: 1000
+	},
 	backdrop: {
 		position: 'fixed',
 		background: '#000',
@@ -65,13 +68,33 @@ const useStyles = createUseStyles({
 	},
 	contentButtons: {
 		paddingTop: '16px',
-		textAlign: 'right',
 		whiteSpace: 'nowrap',
 		userSelect: 'none',
 		padding: '0 24px',
+		display: 'flex',
+		flexDirection: 'row',
 		'&.separator': {
 			borderTop: '1px solid #0002'
+		},
+	},
+	groupCheckbox: {
+		flexGrow: 0,
+		'& label': {
+			display: 'block',
+			paddingTop: '8px'
 		}
+	},
+	groupSpacer: {
+		flex: 'auto'
+	},
+	groupButtons: {
+		flexGrow: 0
+	},
+	checkbox: {
+		width: '15px',
+		height: '15px',
+		transform: 'translateY(2px)',
+		borderRadius: 0
 	},
 	button: {
 		border: '1px solid #0002',
@@ -107,7 +130,7 @@ export type DialogButton = {
 	color: 'positive' | 'neutral' | 'negative'
 	text: string
 	disabled?: boolean
-	onClick?: () => void
+	onClick?: (checkboxState: boolean) => void
 	focus?: boolean
 }
 interface Props {
@@ -115,24 +138,30 @@ interface Props {
 	title?: string
 	children?: ReactNode
 	buttons?: DialogButton[]
+	checkbox?: string
+	defaultCheck?: boolean
 	width?: number | string
 	maxWidth?: number | string
 	minWidth?: number | string
 	height?: number | string
 	maxHeight?: number | string
 	minHeight?: number | string
-	onEscape?: () => void
+	onEscape?: (checkboxState: boolean) => void
 	separators?: boolean
 }
 export function Dialog(props: Props) {
 	const classes = useStyles()
 	const focusRef = React.createRef<HTMLButtonElement>()
 	const selfRef = React.createRef<HTMLDivElement>()
-	const [ isOpened, setIsOpened ] = React.useState(props.open)
+	const [ checkboxState, setCheckboxState ] = useState(props.defaultCheck ?? false)
+	
+	const isOpened = useRef(props.open)
+	const isOpening = !isOpened.current && props.open
+	isOpened.current = props.open
 
 	function handleEscape() {
 		if(props.onEscape) {
-			props.onEscape()
+			props.onEscape(checkboxState)
 		}
 	}
 
@@ -142,12 +171,9 @@ export function Dialog(props: Props) {
 		}
 	}
 
-	useEffect(() => {
-		const isOpening = !isOpened && props.open
-		if(isOpened != props.open) {
-			setIsOpened(props.open)
-		}
+	useLayoutEffect(() => {
 		if(isOpening) {
+			setCheckboxState(props.defaultCheck ?? false)
 			const btn = focusRef.current
 			if(!btn) {
 				if(selfRef.current) {
@@ -157,7 +183,7 @@ export function Dialog(props: Props) {
 			}
 			btn.focus()
 		}
-	}, [isOpened, props.open, focusRef, selfRef])
+	}, [isOpening, props.open, focusRef, selfRef, props.defaultCheck])
 
 	const dialogWindow = props.open && <>
 		{/* 需要保证没有按钮的对话框能够正常且自动地接收焦点以接收 ESC，并且防止焦点逃出 */}
@@ -175,26 +201,43 @@ export function Dialog(props: Props) {
 				<div className={classes.contentBody}>
 					{props.children}
 				</div>
-				{props.buttons && <div className={classes.contentButtons + ' ' + (props.separators ? 'separator' : '')}>
-					{props.buttons.map((btn, index) => {
-						return <button
-							type='button'
-							key={index}
-							className={`${classes.button} ${btn.color}`}
-							onClick={btn.onClick}
-							ref={btn.focus ? focusRef : undefined}
-							{...btn.disabled && {disabled: true}}
-						>
-							{btn.text}
-						</button>
-					})}
+				{(props.buttons || props.checkbox !== undefined) && <div className={classes.contentButtons + ' ' + (props.separators ? 'separator' : '')}>
+					<div className={classes.groupCheckbox}>
+						{props.checkbox !== undefined && (
+							<label>
+								<input
+									type='checkbox'
+									className={classes.checkbox}
+									checked={checkboxState}
+									onChange={(evt) => setCheckboxState(evt.target.checked)}
+								/>
+								{' '}
+								{props.checkbox}
+							</label>
+						)}
+					</div>
+					<div className={classes.groupSpacer} />
+					<div className={classes.groupButtons}>
+						{props.buttons && props.buttons.map((btn, index) => {
+							return <button
+								type='button'
+								key={index}
+								className={`${classes.button} ${btn.color}`}
+								onClick={() => btn.onClick && btn.onClick(checkboxState)}
+								ref={btn.focus ? focusRef : undefined}
+								{...btn.disabled && {disabled: true}}
+							>
+								{btn.text}
+							</button>
+						})}
+					</div>
 				</div>}
 		</div>
 	</>
 	return <>
 		{props.open && <>
 			<FocusTrap focusTrapOptions={{ escapeDeactivates: false }}>
-				<div>
+				<div className={classes.wrapper}>
 					<div className={classes.backdrop} onClick={handleEscape}></div>
 					<div className={classes.dialogTable} onKeyDown={handleKeyDown}>
 						<div className={classes.dialogTableIn}>

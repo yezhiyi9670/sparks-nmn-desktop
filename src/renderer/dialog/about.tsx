@@ -27,9 +27,11 @@ export function AboutDialog(props: {
 		<p>
 			{LNG('about.version', window.Versions.app)}
 			{" · "}
-			<OutLink href='https://example.com/'>{LNG('about.website')}</OutLink>
+			<OutLink href={LNG('link.official')}>{LNG('about.website')}</OutLink>
 			{" · "}
-			<OutLink href='https://github.com/yezhiyi9670/sparks-nmn-desktop'>{LNG('about.github')}</OutLink>
+			<OutLink href={LNG('link.github')}>{LNG('about.github')}</OutLink>
+			{" · "}
+			<OutLink href={LNG('link.donate')}>{LNG('about.donate')}</OutLink>
 		</p>
 	</Dialog>
 }

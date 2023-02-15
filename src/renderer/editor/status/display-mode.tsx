@@ -10,14 +10,14 @@ export function StatusDisplayMode(props: {
 }) {
 	const LNG = useI18n()
 	const classes = useStyles()
-	const i18nPrefix = 'displaymode.'
+	const i18nPrefix = 'status.displaymode.'
 
 	return <>
 		{['edit', 'split', 'preview'].map((mode) => {
 			return <button type='button' className={[
 				classes.pill,
 				...(props.value == mode ? ['active'] : [])
-			].join(' ')} key={mode} onClick={() => props.onChange(mode as any)}>
+			].join(' ')} style={{color: '#000'}} key={mode} onClick={() => props.onChange(mode as any)}>
 				{LNG(i18nPrefix + mode)}
 			</button>
 		})}

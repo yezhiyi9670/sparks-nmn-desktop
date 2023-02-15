@@ -23,7 +23,8 @@ PrefBackend.initialize()
 			webPreferences: {
 				nodeIntegration: true,
 				contextIsolation: true,
-				preload: distPath('preload/index.js')
+				preload: distPath('preload/index.js'),
+				defaultEncoding: 'UTF-8'
 			}
 		})
 		win.setMenu(null)

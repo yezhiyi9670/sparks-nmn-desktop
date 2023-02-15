@@ -1,10 +1,16 @@
 import { flattenI18nData } from "../i18n";
 
 const selfName = "简体中文 (中国)"
+const appName = 'Sparks NMN Desktop'
 export default flattenI18nData({
 	"i18n.self_name": selfName,
 
-	"app_name": "Sparks NMN Desktop",
+	"title": {
+		"default": appName,
+		"new": "新文档 - " + appName,
+		"clean": "${0} - " + appName,
+		"dirty": "● ${0} - " + appName
+	},
 	
 	// 应用栏按钮
 	"navbar.button": {
@@ -18,16 +24,80 @@ export default flattenI18nData({
 		"about": "关于",
 	},
 
-	// 关于
-	"about": {
-		"title": "关于此应用",
-		"text": "Sparks NMN Desktop 是 Sparks NMN 的桌面应用版本，以满足离线使用的需要，并提供便捷的编辑、导出和打印功能。",
-		"text.core": "Sparks NMN 是一个基于文本格式的简谱编写软件内核，旨在实现高效的输入与自动排版，使用户能够专注于乐理分析的过程。此内核基于 Web 技术，可以在浏览器上运行。",
-		"version": "${0}",
-		"author": "Made with ❤ by yezhiyi9670",
-		"github": "在 Github 上查看",
-		"website": "官方网站",
-		"close": "关闭",
+	// 状态栏
+	"status": {
+		// 显示模式
+		"displaymode": {
+			"edit": "编辑",
+			"split": "拆分",
+			"preview": "预览",
+		},
+		// 保存状态
+		"savestate": {
+			"new": "新文档",
+			"clean": "已保存",
+			"dirty": "未保存",
+		},
+		// 计时信息
+		"timing": {
+			"both": "${0}ms/${1}ms",
+		},
+		// 文件大小
+		"size": {
+			"source": "${0} KB"
+		}
+	},
+
+	// 提示弹窗
+	"hint": {
+		"system": {
+			"dismiss": "不再显示",
+			"cancel": "取消",
+			"close": "关闭"
+		},
+		"welcome": {
+			"title": "欢迎",
+			"line": {
+				"1": `欢迎使用 ${appName}！这是一个用来编写简谱的桌面应用。`,
+				"2": "为了使用方便，你可以在操作系统中设置默认此应用打开 spnmn 文件。",
+				"3": "要开始创建文档，直接在界面上的代码编辑框内输入即可。如果你不清楚如何编写代码，可以点击下面的链接查看文档。不要忘了保存哦！",
+				"4": "打印功能仍然处于实验阶段。如果你有打算印刷你的成品，你或许应该先从官网弄几份样例文件看看打印功能是否正常。我们不希望因此浪费你的时间。"
+			},
+			"link": {
+				"docs": "官方文档",
+				"official": "官方网站",
+				"github": "Github",
+			}
+		},
+		"largeHtml": {
+			"title": "HTML 很大，你要忍一下",
+			"line": {
+				"1": `为了确保 HTML 预览能够离线浏览，${appName} 会将正常设备上不会安装的特殊字体嵌入到 HTML 文件中，这部分内容大约有 500KB。此外，渲染后生成的 HTML 数据往往也不小。这会导致最终获得的文件大小超过 1MB。`,
+				"2": "正因如此，此 HTML 文件只适合在浏览器中预览。请不要尝试在你的文本编辑器中打开它，这可能导致编辑器甚至系统卡死。"
+			},
+			"confirm": "导出"
+		},
+		"printEssence": {
+			"title": "如何打印",
+			"line": {
+				"1": `在点击“打印”按钮后，${appName} 将会导出临时的 HTML 预览文件，并在浏览器中打开。`,
+				"2": "文件打开后，你的浏览器应当会自动弹出打印预览对话框，你可以选择打印选项并执行打印。如果没有弹出，请尝试按 Ctrl + P 来手动触发。",
+				"3": "HTML 预览文件的存放位置以及使用的浏览器取决于设置。如果打印排版不太对或者出现错乱，请使用 Google Chrome 浏览器。",
+			},
+			"confirm": "打印"
+		},
+		"rate": {
+			"title": "评价与赞助",
+			"line": {
+				"1": `你应该已经使用了一段时间的 ${appName} 了。`,
+				"2": "如果你喜欢此应用，请考虑给予五星好评或 Github Star，并通过 null 平台对开发者进行赞助。开发者会感谢你的。"
+			},
+			"link": {
+				"github": "Github(应用)",
+				"github_core": "Github(内核)",
+				"donate": "赞助"
+			}
+		}
 	},
 
 	// 设置选项
@@ -51,6 +121,10 @@ export default flattenI18nData({
 				"title": "语言",
 				"desc": "界面的显示语言。"
 			},
+			"fontFamily": {
+				"title": "字体系列",
+				"desc": "编辑器使用的字体系列。\n可以依次指定多个字体，用英文逗号隔开。若字体名称含空格应加上单引号。"
+			},
 			"fontSize": {
 				"title": "字体大小",
 				"desc": "控制代码编辑器使用的字体大小。",
@@ -62,6 +136,14 @@ export default flattenI18nData({
 					"off": "关",
 					"source": "仅源代码",
 					"all": "源代码和预览文件"
+				}
+			},
+			"showProcessTime": {
+				"title": "显示处理时长",
+				"desc": "在编辑器的状态栏中显示上次编译与渲染的用时。",
+				"choice": {
+					"off": "关",
+					"on": "开"
 				}
 			},
 			"previewMaxWidth": {
@@ -80,7 +162,7 @@ export default flattenI18nData({
 				"title": "预览刷新时机",
 				"desc": "控制何时刷新预览以匹配当前代码的内容。\n如果你在编辑时感觉到明显卡顿，或者认为频繁的刷新分散了你的注意力，请调低刷新频率。\n无论此设置为何值，保存文件总是会立即刷新预览。",
 				"choice": {
-					"realtime": "实时 (可能会非常卡)",
+					"realtime": "实时 (不推荐，可能导致很难编辑)",
 					"delay200": "停止编辑后 0.2s",
 					"delay500": "停止编辑后 0.5s",
 					"delay1000": "停止编辑后 1s",
@@ -162,10 +244,24 @@ export default flattenI18nData({
 		}
 	},
 
-	// 显示模式
-	"displaymode": {
-		"edit": "编辑",
-		"split": "拆分",
-		"preview": "预览",
+	// 关于
+	"about": {
+		"title": "关于此应用",
+		"text": appName + " 是 Sparks NMN 的桌面应用版本，以满足离线使用的需要，并提供便捷的编辑、导出和打印功能。",
+		"text.core": "Sparks NMN 是一个基于文本格式的简谱编写软件内核，旨在实现高效的输入与自动排版，使用户能够专注于乐理分析的过程。此内核基于 Web 技术，可以在浏览器上运行。",
+		"version": "${0}",
+		"author": "Made with ❤ by yezhiyi9670",
+		"github": "在 Github 上查看",
+		"website": "官方网站",
+		"donate": "赞助",
+		"close": "关闭",
+	},
+
+	// 链接
+	"link": {
+		"official": "https://example.com/",
+		"github": 'https://github.com/yezhiyi9670/sparks-nmn-desktop',
+		"donate": 'https://example.com/',
+		"github_core": 'https://github.com/yezhiyi9670/sparks-nmn'
 	},
 })

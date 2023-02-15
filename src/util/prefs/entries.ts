@@ -15,8 +15,13 @@ const entries: PrefRendererInfo = [
 		group: 'editor',
 		entries: [
 			{
+				key: 'fontFamily',
+				defaultValue: ['string', "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', 'Microsoft YaHei UI'"],
+				type: 'string'
+			},
+			{
 				key: 'fontSize',
-				defaultValue: ['number', 15],
+				defaultValue: ['number', 14.5],
 				type: 'number',
 				range: [4, 256]
 			},
@@ -42,6 +47,12 @@ const entries: PrefRendererInfo = [
 				defaultValue: ['string', 'source'],
 				type: 'select',
 				choices: ['off', 'source', 'all']
+			},
+			{
+				key: 'showProcessTime',
+				defaultValue: ['string', 'off'],
+				type: 'select',
+				choices: ['off', 'on']
 			},
 			{
 				key: 'previewMaxWidth',

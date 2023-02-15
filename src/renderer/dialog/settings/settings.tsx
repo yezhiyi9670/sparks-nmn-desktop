@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useLayoutEffect, useState } from 'react'
+import React, { createRef, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { randomToken } from '../../../util/random'
 import { useI18n } from '../../i18n/i18n'
 import { usePref } from '../../prefs/PrefProvider'
@@ -15,20 +15,19 @@ export function SettingsDialog(props: {
 	const [ token, setToken ] = useState(() => randomToken(24))
 	const [ loading, setLoading ] = useState(false)
 	const [ passAll, setPassAll ] = useState(true)
-	const [ isOpened, setIsOpened ] = useState(props.open)
+	const isOpened = useRef(props.open)
 	const prefs = usePref()
+	
+	const isOpening = !isOpened.current && props.open
+	isOpened.current = props.open
 
 	// 阻止浏览器重绘，因为这里有重置表单的过程
 	useLayoutEffect(() => {
-		const isOpening = !isOpened && props.open
-		if(isOpened != props.open) {
-			setIsOpened(props.open)
-		}
 		if(isOpening) {
 			setLoading(false)
 			setToken(randomToken(24))
 		}
-	}, [isOpened, props.open])
+	}, [isOpening, props.open])
 
 	function closeWindow() {
 		props.onClose()

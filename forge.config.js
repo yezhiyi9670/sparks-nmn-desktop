@@ -1,6 +1,6 @@
 module.exports = {
 	packagerConfig: {
-		name: "electron-parcel-ts-demo",
+		name: "sparks-nmn-desktop",
 		asar: true,
 		ignore: (path) => {
 			if(['', '/package.json'].includes(path)) {

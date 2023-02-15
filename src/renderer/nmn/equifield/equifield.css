@@ -1,0 +1,35 @@
+.wcl-equifield-root {
+	position: relative;
+	overflow-x: hidden;
+	overflow-y: hidden;
+	line-height: 1.15;
+}
+.wcl-equifield-field {
+	page-break-inside: avoid;
+	page-break-after: auto;
+	overflow-x: visible;
+	/* border-bottom: 1px dashed #00000019; */
+}
+.wcl-equifield-content {
+	transform-origin: left top;
+}
+
+@media print {
+	.wcl-equifield-root {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 98vw;
+		font-size: calc(98vw / 120) !important;
+		box-sizing: border-box;
+	}
+	.wcl-equifield-field {
+		border-bottom: none;
+	}
+	.wcl-equifield-content {
+		/* Avoid error-prone bounding when printing (due to scaling) */
+		margin-left: -1000vw;
+		transform: translateX(1000vw) scale(1);
+	}
+}
