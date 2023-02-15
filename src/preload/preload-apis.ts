@@ -48,18 +48,28 @@ const FileSystem = {
 	}
 }
 
+const AppMain = {
+	/**
+	 * 打开开发者工具
+	 */
+	openDevTools: () => {
+		ipcRenderer.invoke('openDevTools')
+	}
+}
+
 const Versions = {
 	app: '0.1.0'
 }
 
 export default {
-	PrefAPI, Versions, FileSystem
+	PrefAPI, Versions, FileSystem, AppMain
 } as {[_: string]: any}
 
 declare global {
 	interface Window {
 		PrefAPI: typeof PrefAPI,
 		Versions: typeof Versions,
-		FileSystem: typeof FileSystem
+		FileSystem: typeof FileSystem,
+		AppMain: typeof AppMain
 	}
 }

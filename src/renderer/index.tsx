@@ -83,7 +83,9 @@ function AppIn() {
 	// ===== 键盘事件 =====
 	useEffect(() => {
 		const keyHandler = (evt: KeyboardEvent) => {
-			if(evt.ctrlKey) {
+			if(evt.ctrlKey && evt.key == 'i') {
+				window.AppMain.openDevTools()
+			} else if(evt.ctrlKey) {
 				if(evt.key == 's') {
 					callRef(editorApiRef, api => api.triggerSave())
 				}

@@ -75,5 +75,9 @@ PrefBackend.initialize()
 		ipcMain.handle('openExternal', (evt, link: string) => {
 			shell.openExternal(link)
 		})
+		// 打开开发者工具
+		ipcMain.handle('openDevTools', (evt) => {
+			win.webContents.openDevTools({mode: 'right'})
+		})
 	})
 })()
