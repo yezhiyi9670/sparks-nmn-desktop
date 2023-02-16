@@ -133,13 +133,14 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 		setValue(newValue)
 		setIsDirty(true)
 		setIsPreviewDirty(true)
+		cursorChangeDethrottler(handleCursorChangeIn)()
 		if(updateMode == 'instant') {
 			updateResult(newValue)
 		} else if(updateMode == 'dethrottle') {
 			parseDethrottler(updateResult)()
 		}
 	}
-	function handleCursorChangeIn() {
+	const handleCursorChangeIn = useMethod(() => {
 		const editor = editorRef.current?.editor
 		if(!editor) {
 			return
@@ -153,7 +154,7 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 			code: code,
 			position: [cursorPoint.row + 1, cursorPoint.column]
 		})
-	}
+	})
 	const handleCursorChange = useMethod((newValue: string) => {
 		cursorChangeDethrottler(handleCursorChangeIn)()
 	})
