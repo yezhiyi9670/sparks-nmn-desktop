@@ -8,6 +8,7 @@ export default flattenI18nData({
 	"title": {
 		"default": appName,
 		"new": "新文档 - " + appName,
+		"newDirty": "● 新文档 - " + appName,
 		"clean": "${0} - " + appName,
 		"dirty": "● ${0} - " + appName
 	},
@@ -33,10 +34,14 @@ export default flattenI18nData({
 			"preview": "预览",
 		},
 		// 保存状态
-		"savestate": {
+		"dirty": {
 			"new": "新文档",
 			"clean": "已保存",
 			"dirty": "未保存",
+			"preview": {
+				"clean": "已刷新预览",
+				"dirty": "未刷新预览"
+			}
 		},
 		// 计时信息
 		"timing": {
@@ -46,6 +51,40 @@ export default flattenI18nData({
 		"size": {
 			"source": "${0} KB"
 		}
+	},
+
+	// 预览
+	"preview": {
+		"new_title": "新文档",
+		"blank": {
+			"title": "空白文档",
+			"desc": {
+				"1": "此文档没有任何有效内容。",
+				"2": "要使文档有效，请向其中添加音乐属性行（以 P 或 Props 开头）。"
+			}
+		}
+	},
+
+	// 浏览目录
+	"browse": {
+		"open": "打开文件",
+		"save": "保存文件",
+		"format": {
+			"spnmn": "Sparks NMN 乐谱",
+			"spnmn_txt": "Sparks NMN 文本",
+			"all": "所有文件"
+		}
+	},
+
+	// 提示框
+	"toast": {
+		"open_fail": "无法打开文件 ${0}",
+		"save_fail": "无法保存至 ${0}",
+		"export_fail": "无法导出到 ${0}",
+		"save_before_export": "不能导出未保存过的文件。",
+		"exported": "已将预览导出到 ${0}",
+		"print_fail": "准备打印环境失败",
+		"print_launch_fail": "无法启动浏览器，请检查设置中的浏览器路径是否正确。"
 	},
 
 	// 提示弹窗
@@ -73,7 +112,8 @@ export default flattenI18nData({
 			"title": "HTML 很大，你要忍一下",
 			"line": {
 				"1": `为了确保 HTML 预览能够离线浏览，${appName} 会将正常设备上不会安装的特殊字体嵌入到 HTML 文件中，这部分内容大约有 500KB。此外，渲染后生成的 HTML 数据往往也不小。这会导致最终获得的文件大小超过 1MB。`,
-				"2": "正因如此，此 HTML 文件只适合在浏览器中预览。请不要尝试在你的文本编辑器中打开它，这可能导致编辑器甚至系统卡死。"
+				"2": "正因如此，此 HTML 文件只适合在浏览器中预览。请不要尝试在你的文本编辑器中打开它，这可能导致编辑器甚至系统卡死。",
+				"3": "目前暂未实现导出 PDF 的功能，但是你可以利用“打印”功能来创建 PDF。"
 			},
 			"confirm": "导出"
 		},
@@ -82,7 +122,7 @@ export default flattenI18nData({
 			"line": {
 				"1": `在点击“打印”按钮后，${appName} 将会导出临时的 HTML 预览文件，并在浏览器中打开。`,
 				"2": "文件打开后，你的浏览器应当会自动弹出打印预览对话框，你可以选择打印选项并执行打印。如果没有弹出，请尝试按 Ctrl + P 来手动触发。",
-				"3": "HTML 预览文件的存放位置以及使用的浏览器取决于设置。如果打印排版不太对或者出现错乱，请使用 Google Chrome 浏览器。",
+				"3": "HTML 预览文件的存放位置以及使用的浏览器取决于设置。如果打印排版不太对或者出现错乱，请使用 Microsoft Edge 或 Google Chrome 浏览器。",
 			},
 			"confirm": "打印"
 		},
@@ -97,6 +137,13 @@ export default flattenI18nData({
 				"github_core": "Github(内核)",
 				"donate": "赞助"
 			}
+		},
+		"unsavedChanges": {
+			"title": "未保存的更改",
+			"line": {
+				"1": "编辑器中存在未保存的更改，继续操作将导致它们丢失！"
+			},
+			"confirm": "继续"
 		}
 	},
 
@@ -114,6 +161,10 @@ export default flattenI18nData({
 			"hints": {
 				"title": "提示弹窗",
 				"desc": "提示弹窗会在满足一定条件时触发，用于对用户进行提示。\n通过“不再显示”选项禁用的弹窗可以在这里重新启用。"
+			},
+			"stats": {
+				"title": "统计数据",
+				"desc": "这是应用所存储的统计数据，你不需要修改。"
 			}
 		},
 		"item": {
@@ -123,7 +174,7 @@ export default flattenI18nData({
 			},
 			"fontFamily": {
 				"title": "字体系列",
-				"desc": "编辑器使用的字体系列。\n可以依次指定多个字体，用英文逗号隔开。若字体名称含空格应加上单引号。"
+				"desc": "编辑器使用的字体系列。\n可以依次指定多个字体，用英文逗号隔开。若字体名称含空格应加上单引号。\n英文字符应当始终使用等宽字体，否则编辑器可能不会正常工作。"
 			},
 			"fontSize": {
 				"title": "字体大小",
@@ -160,7 +211,7 @@ export default flattenI18nData({
 			},
 			"previewRefresh": {
 				"title": "预览刷新时机",
-				"desc": "控制何时刷新预览以匹配当前代码的内容。\n如果你在编辑时感觉到明显卡顿，或者认为频繁的刷新分散了你的注意力，请调低刷新频率。\n无论此设置为何值，保存文件总是会立即刷新预览。",
+				"desc": "控制何时刷新预览以匹配当前代码的内容。\n如果你在编辑时感觉到明显卡顿，或者认为频繁的刷新分散了你的注意力，请调低刷新频率。\n无论此设置为何值，保存文件前或按下 Ctrl + R 时总是会立即刷新预览。",
 				"choice": {
 					"realtime": "实时 (不推荐，可能导致很难编辑)",
 					"delay200": "停止编辑后 0.2s",
@@ -169,7 +220,7 @@ export default flattenI18nData({
 					"delay3000": "停止编辑后 3s",
 					"delay5000": "停止编辑后 5s",
 					"delay10000": "停止编辑后 10s",
-					"save": "仅在保存时"
+					"none": "不自动刷新"
 				}
 			},
 			"displayMode": {
@@ -218,7 +269,7 @@ export default flattenI18nData({
 				"desc": "触发：应用启动时。"
 			},
 			"hintLargeHtml": {
-				"title": "导出 HTML 文件较大",
+				"title": "HTML 很大，你要忍一下",
 				"desc": "触发：导出 HTML 文件前。"
 			},
 			"hintExportEssence": {
@@ -226,12 +277,20 @@ export default flattenI18nData({
 				"desc": "触发：导出 PNG/PDF 前。"
 			},
 			"hintPrintEssence": {
-				"title": "关于打印的本质",
+				"title": "如何打印",
 				"desc": "触发：使用打印功能前。"
 			},
 			"hintRate": {
-				"title": "评价与赞助提示",
+				"title": "评价与赞助",
 				"desc": "触发：使用此应用执行打开操作，且此前已经执行过至少 3 次时。"
+			},
+			"hintUnsavedChanges": {
+				"title": "未保存的更改",
+				"desc": "触发：有未保存更改时尝试新建文件、打开其他文件或关闭应用。",
+			},
+			"openTimes": {
+				"title": "打开文件的次数",
+				"desc": "执行打开操作的总次数，包括使用应用直接打开文件和点击“打开”按钮。"
 			}
 		},
 		"system": {

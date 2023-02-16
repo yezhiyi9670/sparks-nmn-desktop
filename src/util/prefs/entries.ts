@@ -39,7 +39,7 @@ const entries: PrefRendererInfo = [
 					'realtime',
 					'delay200', 'delay500', 'delay1000',
 					'delay3000', 'delay5000', 'delay10000',
-					'save'
+					'none'
 				]
 			},
 			{
@@ -130,6 +130,23 @@ const entries: PrefRendererInfo = [
 				key: 'hintRate',
 				defaultValue: ['boolean', true],
 				type: 'boolean'
+			},
+			{
+				key: 'hintUnsavedChanges',
+				defaultValue: ['boolean', true],
+				type: 'boolean'
+			}
+		]
+	},
+	{
+		group: 'stats',
+		hasDescription: true,
+		entries: [
+			{
+				key: 'openTimes',
+				defaultValue: ['number', 0],
+				type: 'number',
+				range: [0, Infinity]
 			}
 		]
 	}

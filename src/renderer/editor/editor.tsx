@@ -9,10 +9,12 @@ import AceEditor from 'react-ace'
 import { usePref } from '../prefs/PrefProvider'
 import { useImmer } from 'use-immer'
 import { createDethrottledApplier } from '../../util/event'
-import { useMethod } from '../../util/hook'
+import { callRef, useMethod } from '../../util/hook'
 import { StatusProcessTime } from './status/process-time'
 import { StatusFileSize } from './status/file-size'
 import { PreviewCursor, PreviewView } from './preview/PreviewView'
+import { StatusDirty } from './status/dirty-state'
+import { useExportTemplate } from '..'
 
 const useStyles = createUseStyles({
 	editor: {
@@ -66,9 +68,11 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 	}, [])
 	const LNG = useI18n()
 	const prefs = usePref()
+	const exportTemplate = useExportTemplate()
 	const languageArray = NMNI18n.languages.zh_cn
 	const classes = useStyles()
 	const editorRef = createRef<AceEditor>()
+	const [ sessionToken, setSessionToken ] = useState(() => randomToken(24))
 
 	// ===== 显示模式 =====
 	const prevDisplayMode = useRef<DisplayMode>('split')
@@ -93,12 +97,13 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 	}
 	const parseDethrottler = useMemo(() => createDethrottledApplier(updateDelay), [updateDelay])
 	const cursorChangeDethrottler = useMemo(() => createDethrottledApplier(50), [])
-	const saveDethrottler = useMemo(() => createDethrottledApplier(100), [])
 
 	// ===== 数值与处理 =====
 	const initialValue = ''
 	const [ value, setValue ] = useState(initialValue)
 	const [ filename, setFilename ] = useState<string | undefined>(undefined)
+	const [ isDirty, setIsDirty ] = useState(false)
+	const [ isPreviewDirty, setIsPreviewDirty ] = useState(false)
 	const [ cursor, setCursor ] = useState<PreviewCursor | undefined>(undefined)
 	const [ renderTiming, setRenderTiming ] = useState(0)
 	const [ renderedSize, setRenderedSize ] = useState(0)
@@ -121,10 +126,13 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 			result: parsed.result,
 			timing: parsed.time
 		})
+		setIsPreviewDirty(false)
 	})
 
 	function handleChange(newValue: string) {
 		setValue(newValue)
+		setIsDirty(true)
+		setIsPreviewDirty(true)
 		if(updateMode == 'instant') {
 			updateResult(newValue)
 		} else if(updateMode == 'dethrottle') {
@@ -138,6 +146,9 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 		}
 		const code = editor.session.getValue()
 		const cursorPoint = editor.getCursorPosition()
+		if(cursor && cursor.position[1] == cursorPoint.column && cursor.position[0] == cursorPoint.row + 1 && cursor.code == code) {
+			return
+		}
 		setCursor({
 			code: code,
 			position: [cursorPoint.row + 1, cursorPoint.column]
@@ -171,13 +182,25 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 		return ret
 	}, [parseResult, handlePosition, languageArray, cursorShown])
 
+	function handleEditorKey(evt: React.KeyboardEvent) {
+		if(evt.key == 'Escape') { // 键盘导航无障碍：允许 ESC 键离开编辑器
+			callRef(editorRef, api => api.editor.blur())
+		}
+	}
+
+	function handleForceUpdate() {
+		if(isPreviewDirty) {
+			updateResult()
+		}
+	}
+
 	const fileSizeMode = prefs.getValue<string>('showFileSize')
 	const ret = <div className={classes.editor}>
 		<div className={`${classes.groupPreview} ${displayMode == 'edit' ? classes.hidden : ''}`}>
 			{previewView}
 		</div>
 		<div className={`${classes.groupSeparator} ${displayMode != 'split' ? classes.hidden : ''}`} />
-		<div className={`${classes.groupEdit} ${displayMode == 'preview' ? classes.hidden : ''}`}>
+		<div className={`${classes.groupEdit} ${displayMode == 'preview' ? classes.hidden : ''}`} onKeyDown={handleEditorKey}>
 			<style>
 				{`
 					.${classes.groupEdit} .ace_editor, .ace_editor.ace_autocomplete {
@@ -186,6 +209,7 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 				`}
 			</style>
 			<SparksNMNEditor
+				key={sessionToken}
 				name={name}
 				language={languageArray}
 				value={value}
@@ -202,6 +226,12 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 			</div>
 			<div className={classes.statusBarSpacer} />
 			<div className={classes.statusBarGroup}>
+				<StatusDirty
+					filename={filename}
+					isDirty={isDirty}
+					isPreviewDirty={isPreviewDirty}
+					onForceUpdate={handleForceUpdate}
+				/>
 				{prefs.getValue<string>('showProcessTime') == 'on' && (
 					<StatusProcessTime parseTime={parseResult.timing} renderTime={renderTiming} />
 				)}
@@ -217,19 +247,89 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 	</div>
 
 	// ===== Editor API =====
+	const resetSession = () => {
+		callRef(editorRef, api => {
+			api.editor.destroy()
+		})
+		setSessionToken(randomToken(24))
+	}
 	const getValue = useMethod(() => {
 		return value
 	})
-	const handleSave = useMethod(() => {
+	const getIsDirty = useMethod(() => {
+		return isDirty
+	})
+	const getFilename = useMethod(() => {
+		return filename
+	})
+	const handleNew = useMethod(() => {
+		setValue('')
+		updateResult('')
+		setDisplayMode('split')
+		setFilename(undefined)
+		setIsDirty(false)
+		setIsPreviewDirty(false)
+		resetSession()
+	})
+	const handleBeforeSave = useMethod(() => {
+		if(!isPreviewDirty) {
+			return
+		}
 		updateResult()
-		/* TODO[yezhiyi9670]: File logic */
+	})
+	const handleSaved = useMethod((filename: string) => {
+		setFilename(filename)
+		setIsDirty(false)
+	})
+	const handleOpen = useMethod((data: {path: string, content: string}) => {
+		setValue(data.content)
+		updateResult(data.content)
+		setDisplayMode(prefs.getValue<'split' | 'preview'>('displayMode'))
+		setFilename(data.path)
+		setIsDirty(false)
+		setIsPreviewDirty(false)
+		resetSession()
+	})
+	const handleExport = useMethod(() => {
+		if(isPreviewDirty) {
+			updateResult()
+		}
+		const fields = SparksNMN.render(parseResult.result.result, languageArray)
+		let title = LNG('preview.new_title')
+		if(filename !== undefined) {
+			title = window.Path.parse(filename).name
+		}
+		const packedData = 'window.efData=' + JSON.stringify(fields.map((field) => ({
+			...field,
+			element: field.element.outerHTML
+		}))).replace(/</g, "\\x3c") + ';document.title=' + JSON.stringify(title).replace(/</g, "\\x3c")
+		const htmlData = exportTemplate.replace('/*{script:content:data}*/', packedData)
+		return htmlData
 	})
 	useImperativeHandle(ref, () => ({
 		getValue: () => {
 			return getValue()
 		},
-		triggerSave: () => {
-			return saveDethrottler(handleSave)()
+		getIsDirty: () => {
+			return getIsDirty()
+		},
+		getFilename: () => {
+			return getFilename()
+		},
+		triggerBeforeSave: () => {
+			return handleBeforeSave()
+		},
+		triggerSaved: (filename: string) => {
+			return handleSaved(filename)
+		},
+		triggerNew: () => {
+			return handleNew()
+		},
+		triggerOpen: (data) => {
+			return handleOpen(data)
+		},
+		exportHtml: () => {
+			return handleExport()
 		}
 	}))
 
@@ -238,5 +338,11 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 
 export interface IntegratedEditorApi {
 	getValue: () => string
-	triggerSave: () => void
+	getIsDirty: () => boolean
+	getFilename: () => string | undefined
+	triggerBeforeSave: () => void
+	triggerSaved: (filename: string) => void
+	triggerNew: () => void
+	triggerOpen: (data: {path: string, content: string}) => void
+	exportHtml: () => string
 }

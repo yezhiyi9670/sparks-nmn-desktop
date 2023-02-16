@@ -15,7 +15,7 @@ export type HintEntries = {
 	prefKey: string,
 	dismiss?: boolean,
 	confirm?: boolean,
-	focusButton: boolean
+	focusButton: boolean,
 }[]
 
 const entries: HintEntries = [
@@ -29,9 +29,9 @@ const entries: HintEntries = [
 	},
 	{
 		key: 'largeHtml',
-		lines: 2,
+		lines: 3,
 		prefKey: 'hintLargeHtml',
-		dismiss: true,
+		dismiss: false,
 		confirm: true,
 		focusButton: true
 	},
@@ -50,6 +50,14 @@ const entries: HintEntries = [
 		prefKey: 'hintRate',
 		dismiss: false,
 		focusButton: false
+	},
+	{
+		key: 'unsavedChanges',
+		lines: 1,
+		prefKey: 'hintUnsavedChanges',
+		dismiss: false,
+		focusButton: false,
+		confirm: true
 	}
 ]
 

@@ -51,7 +51,7 @@ export const HintController = React.forwardRef<HintControllerApi, Props>((props,
 			invoke: (key) => {
 				if(key in hintState) {
 					if(hintState[key].open) {
-						return new Promise((resolve) => resolve(false))
+						return new Promise((resolve) => resolve(true))
 					}
 					const def = findWithKey(props.entries, 'key', key)!
 					if(!prefs.getValue<boolean>(def.prefKey)) {
