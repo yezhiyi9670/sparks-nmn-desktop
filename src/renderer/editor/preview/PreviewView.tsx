@@ -11,9 +11,11 @@ import { Equifield } from "../../nmn/equifield/equifield"
 const useStyles = createUseStyles({
 	root: {
 		padding: '32px 0',
+		paddingBottom: '320px',
 		width: '100%',
 		boxSizing: 'border-box',
-		userSelect: 'text'
+		userSelect: 'text',
+		minHeight: '100%'
 	}
 })
 
