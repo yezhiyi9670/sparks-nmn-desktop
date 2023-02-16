@@ -173,7 +173,7 @@ export class NoteEater {
 						if(inCheck(token2.content, attrInsertCharCheck)) {
 							section.decoration.push({
 								type: 'insert',
-								target: position,
+								target: Frac.add(startPos, Frac.mul(ratio, position)),
 								ordinal: insertOrdinal++,
 								char: {
 									type: 'insert',
