@@ -1,22 +1,20 @@
-import React from 'react'
+import React, { useMemo, useRef } from 'react'
 import { randomToken } from './random'
 
-const realFunctionDb: {[_: string]: Function} = {}
-const implFunctionDb: {[_: string]: Function} = {}
-
 /**
- * 暴力的记忆回调函数方式（基于 token 状态，以内存流失为代价）
- * 去你妈的 dependecies
+ * 记忆渲染函数中的方法
+ * 
+ * useMethod 以一个函数为参数，且返回相同类型的函数。在同一个组件生命周期中，返回的函数保持恒定，但是执行时会始终指向最新的函数。
  */
 export function useMethod<T extends Function>(val: T): T {
-	const [ token ] = React.useState(() => randomToken(48))
-	realFunctionDb[token] = val
-	if(implFunctionDb[token] === undefined) {
-		implFunctionDb[token] = function() {
-			return realFunctionDb[token].apply(this, arguments)
+	const realFuncRef = useRef(val)
+	realFuncRef.current = val
+	const callerFunc = useMemo(() => {
+		return function(this: any) {
+			return realFuncRef.current.apply(this, arguments)
 		}
-	}
-	return implFunctionDb[token] as T
+	}, [])
+	return callerFunc as any as T
 }
 
 /**
