@@ -33,7 +33,7 @@ const entries: PrefRendererInfo = [
 			},
 			{
 				key: 'previewRefresh',
-				defaultValue: ['string', 'delay500'],
+				defaultValue: ['string', 'delay1000'],
 				type: 'select',
 				choices: [
 					'realtime',
