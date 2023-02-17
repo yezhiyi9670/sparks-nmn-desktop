@@ -50,9 +50,9 @@ class ArticleRendererClass {
 				width: `${100 / textSize}em`,
 				whiteSpace: 'pre-wrap',
 			})
-			currY += textToken.draw(root, 0, currY, 'left', 'top')[1]
+			currY += textToken.draw(root, 0, currY, 'left', 'top')[1] * 1.2
 		})
-		currY += 2
+		currY += 0
 
 		sections.push({
 			element: root.getElement(),
