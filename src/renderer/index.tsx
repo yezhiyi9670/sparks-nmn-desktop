@@ -391,7 +391,7 @@ export function useExportTemplate() {
 }
 
 SparksNMN.loadFonts(() => {
-	$.get('static/export-template.html', (data) => {
+	$.get('static/export-template.txt', (data) => {
 		createRoot(document.getElementById('root')!).render(
 			<ErrorBoundary fallback={(recover) => (<>
 				<div style={{padding: '16px'}}>
