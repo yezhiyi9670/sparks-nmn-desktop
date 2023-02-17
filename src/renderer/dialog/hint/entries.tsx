@@ -22,7 +22,7 @@ const entries: HintEntries = [
 	{
 		key: 'welcome',
 		lines: 4,
-		links: ['docs', 'official', 'github'],
+		links: ['official', 'github'],
 		prefKey: 'hintWelcome',
 		dismiss: true,
 		focusButton: true

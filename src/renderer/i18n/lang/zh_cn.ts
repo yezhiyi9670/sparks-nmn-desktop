@@ -103,7 +103,6 @@ export default flattenI18nData({
 				"4": "打印功能仍然处于实验阶段。如果你有打算印刷你的成品，你或许应该先从官网弄几份样例文件看看打印功能是否正常。我们不希望因此浪费你的时间。"
 			},
 			"link": {
-				"docs": "官方文档",
 				"official": "官方网站",
 				"github": "Github",
 			}
@@ -130,7 +129,7 @@ export default flattenI18nData({
 			"title": "评价与赞助",
 			"line": {
 				"1": `你应该已经使用了一段时间的 ${appName} 了。`,
-				"2": "如果你喜欢此应用，请考虑给予五星好评或 Github Star，并通过 null 平台对开发者进行赞助。开发者会感谢你的。"
+				"2": "如果你喜欢此应用，请考虑给予五星好评或 Github Star，并通过爱发电平台对开发者进行赞助。开发者会感谢你的。"
 			},
 			"link": {
 				"github": "Github(应用)",
@@ -318,9 +317,9 @@ export default flattenI18nData({
 
 	// 链接
 	"link": {
-		"official": "https://example.com/",
+		"official": "https://sparksnmn.ak-ioi.com/",
 		"github": 'https://github.com/yezhiyi9670/sparks-nmn-desktop',
-		"donate": 'https://example.com/',
+		"donate": 'https://sparksnmn.ak-ioi.com/donate/',
 		"github_core": 'https://github.com/yezhiyi9670/sparks-nmn'
 	},
 })
