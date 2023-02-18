@@ -225,6 +225,7 @@ export function columnSignature(value: Fraction) {
 
 export type LyricLineSignature = {
 	hash: string
+	attrs: LrcAttr[]
 } & ({
 	type: 'index'
 	index: number
@@ -244,7 +245,8 @@ export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSig
 		return {
 			hash: md5('index_' + index.toString()),
 			type: 'index',
-			index: index
+			index: index,
+			attrs: tags
 		}
 	}
 	const tag0 = tags[0]
@@ -252,7 +254,8 @@ export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSig
 		return {
 			hash: md5('text_' + tag0.text),
 			type: 'text',
-			text: tag0.text
+			text: tag0.text,
+			attrs: tags
 		}
 	}
 	if(tag0.type == 'scriptedText') {
@@ -260,7 +263,8 @@ export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSig
 			hash: md5('sub_' + tag0.text + '_' + tag0.sub),
 			type: 'sub',
 			text: tag0.text,
-			sub: tag0.sub
+			sub: tag0.sub,
+			attrs: tags
 		}
 	}
 	if(tag0.type == 'iter') {
@@ -273,7 +277,8 @@ export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSig
 		return {
 			hash: md5('iter_' + iters.join('_')),
 			type: 'iter',
-			iters: iters
+			iters: iters,
+			attrs: tags
 		}
 	}
 	const _: never = tag0

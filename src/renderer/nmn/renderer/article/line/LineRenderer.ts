@@ -173,7 +173,7 @@ export class LineRenderer {
 			currY += lrcLineField / 2
 
 			// 绘制迭代数符号
-			msp.drawLyricLabel(context, context.render.gutter_left! * scale, currY, lyricLine.attrs, scale)
+			msp.drawLyricLabel(context, context.render.gutter_left! * scale, currY, lyricLine.signature.attrs, scale)
 
 			const lrcSymbols: LrcSymbol[] = []
 			// 统计此行歌词字符
