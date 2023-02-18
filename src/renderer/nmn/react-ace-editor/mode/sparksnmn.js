@@ -116,7 +116,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 				})
 				ret.push({
 					token: ['keyword', 'comment', 'operator'],
-					regex: "^(\\s*" + head + "\\b)(.*?)(:\\s*)$",
+					regex: "^(\\s*" + head + "\\b)([^:]*?)(:\\s*)$",
 					next: 'start'
 				})
 				ret.push({

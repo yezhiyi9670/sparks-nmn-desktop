@@ -28,6 +28,12 @@ export const lineRendererStats = {
 	sectionsRenderTime: 0
 }
 
+type LyricFallbackStat = {
+	sectionTop: number[]   // 各小节的顶端位置
+	levelHeight: number[]  // 各个等级的起始高度
+	startY: number[]       // 歌词行分配得到的位置
+}
+
 export class LineRenderer {
 	columns!: PositionDispatcher
 	musicLineYs: { top: number, middle: number, bottom: number }[] = []
@@ -97,12 +103,51 @@ export class LineRenderer {
 		}
 
 		currY += 2
+		if(part.lyricLines.length != 0) {
+			currY -= 1.3
+		}
+
+		// ===== 根据回落模型计算歌词行起始高度 =====
+		let topLevel = 0
+		const stat: LyricFallbackStat = {
+			sectionTop: Array(line.sectionCount).fill(-1),
+			levelHeight: [],
+			startY: []
+		}
+		let cursorY = currY
+		part.lyricLines.forEach((lyricLine, index) => {
+			let putLevel = 0
+			if(lyricLine.notesSubstitute.length != 0) {
+				// 有替代旋律的不参与回落
+				putLevel = topLevel
+			} else {
+				lyricLine.sections.forEach((section, index) => {
+					if(!SectionStat.isLyricSectionEmpty(section)) {
+						putLevel = Math.max(putLevel, stat.sectionTop[index] + 1)
+					}
+				})
+			}
+
+			let lineStartY = 0
+			if(putLevel == topLevel) {
+				// 创建新等级
+				stat.levelHeight.push(cursorY)
+				topLevel += 1
+				lineStartY = cursorY
+			} else {
+				// 使用原有等级
+				lineStartY = stat.levelHeight[putLevel]
+			}
+			// 统计等级占用
+			this.statLyricLineOccupation(lyricLine, stat.sectionTop, putLevel)
+			stat.startY[index] = lineStartY
+			cursorY = Math.max(cursorY, lineStartY + this.heightLyricLine(lineStartY, lyricLine, part, line, root, context))
+		})
+		currY = cursorY
 
 		// ===== 渲染歌词行 =====
-		isFirst = true
-		part.lyricLines.forEach((lyricLine) => {
-			currY += this.renderLyricLine(currY, lyricLine, part, line, isFirst, root, context)
-			isFirst = false
+		part.lyricLines.forEach((lyricLine, index) => {
+			this.renderLyricLine(stat.startY[index], lyricLine, part, line, root, context)
 		})
 
 		currY += 1
@@ -111,13 +156,61 @@ export class LineRenderer {
 	}
 
 	/**
+	 * 统计歌词行的小节占用
+	 */
+	statLyricLineOccupation(lyricLine: NMNLrcLine, arr: number[], fill: number) {
+		if(lyricLine.notesSubstitute.length > 0) {
+			// 有替代旋律的占据整个小节
+			for(let i = 0; i < arr.length; i++) {
+				arr[i] = Math.max(arr[i], fill)
+			}
+			return
+		}
+		lyricLine.sections.forEach((section, index) => {
+			if(!SectionStat.isLyricSectionEmpty(section)) {
+				arr[index] = Math.max(arr[index], fill)
+			}
+		})
+		// lyricLine.notesSubstitute.forEach((Ns) => {
+		// 	for(let i = Ns.substituteLocation; i < Ns.substituteLocation + Ns.sections.length; i++) {
+		// 		arr[i] = Math.max(arr[i], fill)
+		// 	}
+		// })
+	}
+
+	/**
+	 * 推断歌词行的高度
+	 */
+	heightLyricLine(startY: number, lyricLine: NMNLrcLine, part: NMNPart, line: NMNLine, root: DomPaint, context: RenderContext) {
+		const lrcLineField = 2.2 * new FontMetric(context.render.font_lyrics!, 2.16).fontScale
+		const substituteField = 4.4
+		const lrcLineMarginBottom = 1.0
+
+		let currY = startY
+		const shouldDrawLyrics = !SectionStat.allLyricEmpty(lyricLine.sections)
+		const shouldDrawSubstitute = lyricLine.notesSubstitute.length > 0
+		if(shouldDrawSubstitute) {
+			currY += substituteField
+		}
+		if(shouldDrawLyrics) {
+			currY += lrcLineField
+		}
+		currY += lrcLineMarginBottom
+
+		return currY - startY
+	}
+
+	/**
 	 * 渲染歌词行
 	 */
-	renderLyricLine(startY: number, lyricLine: NMNLrcLine, part: NMNPart, line: NMNLine, isFirst: boolean, root: DomPaint, context: RenderContext) {
+	renderLyricLine(startY: number, lyricLine: NMNLrcLine, part: NMNPart, line: NMNLine, root: DomPaint, context: RenderContext) {
 		let currY = startY
-		const scale = context.render.scale!
+
 		const lrcLineField = 2.2 * new FontMetric(context.render.font_lyrics!, 2.16).fontScale
+		const substituteField = 4.4
 		const lrcLineMarginBottom = 1.0
+
+		const scale = context.render.scale!
 		const msp = new MusicPaint(root)
 		const noteMeasure = msp.measureNoteChar(context, false, scale)
 		const lrcCharMeasure = root.measureText('0我', new FontMetric(context.render.font_lyrics!, 2.16), scale)
@@ -125,16 +218,13 @@ export class LineRenderer {
 		// ===== 渲染歌词行FCA =====
 		currY += this.renderLineFCA(startY, lyricLine, true, root, context)
 
-		const shouldDrawLyrics = !SectionStat.allNullish(lyricLine.sections, 0, lyricLine.sections.length)
+		const shouldDrawLyrics = !SectionStat.allLyricEmpty(lyricLine.sections)
 		const shouldDrawSubstitute = lyricLine.notesSubstitute.length > 0
-
-		if(isFirst) {
-			currY -= 1.3 // 减小间距方便歌词阅读
-		}
 
 		// ===== 替代旋律 =====
 		if(shouldDrawSubstitute) {
-			const substituteField = 4.4
+			let labelPrevPos = Infinity
+
 			currY += substituteField / 2
 
 			let lastLabel: LrcAttr[] = []
@@ -156,6 +246,7 @@ export class LineRenderer {
 				// 画括号
 				msp.drawInsert(context, localColumns.startPosition(0), currY, { type: 'insert', char: 'lpr' }, true, scale)
 				msp.drawInsert(context, localColumns.endPosition(localColumns.data.length - 1), currY, { type: 'insert', char: 'rpr' }, true, scale)
+				labelPrevPos = Math.min(localColumns.startPosition(0)) - 1.5 * scale
 
 				if(Ns.tags.length > 0) {
 					lastLabel = Ns.tags
@@ -163,7 +254,9 @@ export class LineRenderer {
 			})
 
 			// 绘制迭代数符号
-			msp.drawLyricLabel(context, context.render.gutter_left! * scale, currY, lastLabel, scale)
+			if(labelPrevPos !== Infinity) {
+				msp.drawLyricLabel(context, labelPrevPos, currY, lastLabel, scale)
+			}
 
 			currY += substituteField / 2
 		}
@@ -171,9 +264,7 @@ export class LineRenderer {
 		// ===== 歌词行 =====
 		if(shouldDrawLyrics) {
 			currY += lrcLineField / 2
-
-			// 绘制迭代数符号
-			msp.drawLyricLabel(context, context.render.gutter_left! * scale, currY, lyricLine.signature.attrs, scale)
+			let labelPrevPos = Infinity
 
 			const lrcSymbols: LrcSymbol[] = []
 			// 统计此行歌词字符
@@ -198,6 +289,8 @@ export class LineRenderer {
 			lrcSymbols.forEach((symbol, index) => {
 				if(symbol.char.occupiesSpace) {
 					symbol.boundaries = msp.drawLyricChar(context, symbol.startX, symbol.endX, currY, symbol.char, 'center', scale)
+					if(symbol.char.postfix || symbol.char.prefix || symbol.char.text || symbol.char.rolePrefix)
+						labelPrevPos = Math.min(labelPrevPos, symbol.boundaries[0])
 				}
 			})
 			// 渲染需要推断位置的符号
@@ -247,6 +340,7 @@ export class LineRenderer {
 						const anchor = (rightAnchor - leftAnchor) * (dispX / dispY) + leftAnchor
 						symbol.boundaries = msp.drawLyricChar(context, anchor, 0, currY, symbol.char, 'center', scale)
 					}
+					labelPrevPos = Math.min(labelPrevPos, symbol.boundaries[0])
 				}
 			})
 			// 绘制延长线
@@ -272,6 +366,11 @@ export class LineRenderer {
 					root.drawLine(startX, lineY, endX, lineY, 0.15, 0, scale)
 				}
 			})
+
+			// 绘制迭代数符号
+			if(labelPrevPos) {
+				msp.drawLyricLabel(context, labelPrevPos - 1.5 * scale, currY, lyricLine.signature.attrs, scale)
+			}
 
 			currY += lrcLineField / 2
 		}

@@ -1,7 +1,8 @@
+import { iterateMap } from "../../../util/array";
 import { Frac, Fraction } from "../../../util/frac";
 import { ScoreContext, scoreContextDefault } from "../../sparse2des/context";
-import { DestructedFCA, MusicDecorationRange, MusicNote, MusicSection, NoteCharAny, SeparatorAttr } from "../../sparse2des/types";
-import { Jumper, LinedPart } from "../types";
+import { DestructedFCA, LyricChar, MusicDecorationRange, MusicNote, MusicSection, NoteCharAny, SectionSeparatorChar, sectionSeparatorCharMap, SeparatorAttr } from "../../sparse2des/types";
+import { Jumper, LinedPart, Linked2LyricSection } from "../types";
 
 export module SectionStat {
 	export const nullish: MusicSection<never> = {
@@ -94,7 +95,7 @@ export module SectionStat {
 		return Frac.max(section.totalQuarters, shouldBe)
 	}
 	/**
-	 * 连接小节内部和小节之间的连音线
+	 * 连接小节内部和小节之间的连音线，并合并 ||: 小节线
 	 */
 	export function interLink<CharType>(sections: MusicSection<CharType>[], decorations: MusicDecorationRange[]) {
 		// ===== 处理联合连音线 =====
@@ -204,6 +205,26 @@ export module SectionStat {
 				}
 			})
 		})
+		// ===== 连接小节线 =====
+		let prevSection: MusicSection<CharType> | undefined = undefined as any
+		sections.forEach((section) => {
+			if(prevSection) {
+				if(section.separator.before.char == '||:') {
+					const replacementChar = ((): SectionSeparatorChar => {
+						const char = prevSection.separator.next.char
+						let foundOne = char
+						iterateMap(sectionSeparatorCharMap, (pair, base) => {
+							if(pair[1] == '||:' && pair[0] == char) {
+								foundOne = base as SectionSeparatorChar
+							}
+						})
+						return foundOne
+					})()
+					prevSection.separator.next.char = replacementChar
+				}
+			}
+			prevSection = section
+		})
 	}
 	/**
 	 * 统计小节是否全部为 nullish，若是，说明此渲染行可以不包含这个声部（或者歌词行）
@@ -228,6 +249,31 @@ export module SectionStat {
 						return false
 					}
 				}
+			}
+		}
+		return true
+	}
+	/**
+	 * 统计某个歌词小节是否无实质内容，用于计算歌词行回落
+	 */
+	export function isLyricSectionEmpty(section: Linked2LyricSection) {
+		if(section.type != 'section') {
+			return true
+		}
+		for(let char of section.chars) {
+			if(char.text || char.prefix || char.rolePrefix || char.postfix) {
+				return false
+			}
+		}
+		return true
+	}
+	/**
+	 * 统计歌词小节组是否无实质内容
+	 */
+	export function allLyricEmpty(sections: Linked2LyricSection[]) {
+		for(let section of sections) {
+			if(!isLyricSectionEmpty(section)) {
+				return false
 			}
 		}
 		return true
