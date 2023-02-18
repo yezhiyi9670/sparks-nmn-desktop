@@ -297,7 +297,9 @@ export class ColumnStater {
 						Ns.sections.forEach((section, index) => {
 							const myIndex = index + Ns.substituteLocation
 							const mySection = part.notes.sections[myIndex]
-							section.startPos = mySection.startPos
+							if(mySection) {
+								section.startPos = mySection.startPos
+							}
 						})
 						SectionStat.interLink(Ns.sections, Ns.decorations)
 						frontier.notesSubstitute.push(Ns)
