@@ -162,16 +162,8 @@ class SectionsParserClass {
 				}
 			}
 			for(let attr of separators[i - 1].next.attrs) {
-				if(attr.type == 'beats') {
-					// beats 不能放置于小节线上方，警告并忽略
-					addIssue(issues,
-						lineNumber, attr.range[0], 'warning', 'attr_beats_above',
-						'Beats attribute cannot appear above a section separator'
-					)
-				} else {
-					if(acceptVariation) {
-						handleAttr(attr)
-					}
+				if(acceptVariation) {
+					handleAttr(attr)
 				}
 			}
 			for(let attr of separators[i - 1].before.attrs) {
