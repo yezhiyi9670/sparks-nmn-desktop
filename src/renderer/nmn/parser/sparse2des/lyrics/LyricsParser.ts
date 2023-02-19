@@ -330,7 +330,6 @@ export class LyricsParser {
 				isCharBased: true
 			}
 		})
-		console.log('lrc words', words)
 		return words
 	}
 }
