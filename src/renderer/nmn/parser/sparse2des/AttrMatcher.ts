@@ -388,7 +388,7 @@ export module AttrMatcher {
 		} else {
 			val = +descriptor
 		}
-		if(val != val) {
+		if(val != val || Math.abs(val) >= 65536) {
 			addIssue(issues,
 				lineNumber, index, 'error', 'unknown_qpm',
 				'Cannot figure out what the speed value ${0} is.',
@@ -425,7 +425,7 @@ export module AttrMatcher {
 		}
 		function extractFraction(name: string): Fraction | undefined {
 			const frac = __extractFraction(name)
-			if(frac.y == 0 || frac.x < 0 || isNaN(frac.x) || isNaN(frac.y)) {
+			if(frac.y == 0 || frac.x < 0 || frac.x >= 65536 || frac.y >= 65536 || isNaN(frac.x) || isNaN(frac.y)) {
 				addIssue(issues,
 					lineNumber, index, 'error', 'unknown_frac',
 					'Cannot figure out what fraction ${0} is',

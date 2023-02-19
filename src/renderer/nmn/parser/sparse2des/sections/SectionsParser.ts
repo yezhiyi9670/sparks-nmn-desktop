@@ -319,7 +319,7 @@ class SectionsParserClass {
 			) {
 				const str = tokens[1].text.substring(1, tokens[1].text.length - 1)
 				let val = +str
-				if(isNaN(val)) {
+				if(isNaN(val) || val < 1 || val >= 65536) {
 					val = 1
 					addIssue(issues,
 						lineNumber, tokens[1].range[0], 'error', 'unknown_omit_count',
