@@ -75,6 +75,9 @@ export class NoteEater {
 		if('bracket' in token) {
 			return undefined
 		}
+		if(token.type == 'stringLiteral') {
+			return undefined
+		}
 		return token.content[this.charPtr]
 	}
 	/**
@@ -86,6 +89,9 @@ export class NoteEater {
 			return undefined
 		}
 		if('bracket' in token) {
+			return undefined
+		}
+		if(token.type == 'stringLiteral') {
 			return undefined
 		}
 		const len = token.content.length
@@ -110,7 +116,7 @@ export class NoteEater {
 	alignChars() {
 		while(true) {
 			const token1 = this.peek()
-			if(token1 !== undefined && ('bracket' in token1)) {
+			if(token1 !== undefined && (('bracket' in token1) || token1.type == 'stringLiteral')) {
 				this.pass()
 			} else {
 				break
@@ -143,12 +149,12 @@ export class NoteEater {
 					return
 				}
 				// ===== 检测连音线左分割符号 =====
-				if(new TokenFilter('symbol', '*').test(token)) {
+				if(new TokenFilter('symbol', '*').test(token) && leftSplitFlag) {
 					this.pass()
 					section.leftSplit = true
 					continue
 				}
-				if(new TokenFilter('symbol', '~').test(token)) {
+				if(new TokenFilter('symbol', '~').test(token) && leftSplitFlag) {
 					this.pass()
 					section.leftSplitVoid = true
 					continue
