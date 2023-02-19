@@ -287,11 +287,13 @@ class ParserClass {
 			const eofToken = tokens.pop()
 			let endIndex = eofToken!.range[0]
 			let tailToken = tokens[tokens.length - 1]
+			let text = line
 			if(tailToken && tailToken.type == 'comment') {
 				// 取出行末的注释文本
 				commentText = tailToken.content
 				tokens.pop()
 				endIndex = tailToken.range[0]
+				text = text.substring(0, tailToken.range[0])
 			}
 			tokens.push(eofToken!)
 
@@ -299,7 +301,7 @@ class ParserClass {
 				lineNumber,
 				tokens,
 				comment: commentText,
-				text: line
+				text: text
 			})
 		}
 		
