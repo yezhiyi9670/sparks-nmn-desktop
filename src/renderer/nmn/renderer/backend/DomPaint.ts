@@ -219,7 +219,8 @@ export class DomPaint {
 				transformOrigin: 'top left',
 				transform: `translateX(${this.limitPrecisionEm(x/scale/upScale)}em) translateY(${this.limitPrecisionEm(y / upScale)}em) scale(${this.limitPrecisionEm(1/upScale)}) translateX(${tx}%) translateY(${ty}%)`,
 				...(clickHandler ? {
-					cursor: 'pointer'
+					cursor: 'pointer',
+					zIndex: 1
 				} : {}),
 				...extraStyles
 			}
