@@ -19,6 +19,7 @@ type SparksNMNPreviewProps = {
 	}
 	onReportTiming?: (value: number) => void
 	onReportSize?: (value: number) => void
+	onReportError?: (_err: any) => void
 }
 export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 	const { onPosition, result, language, logTimeStat } = props
@@ -45,7 +46,21 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 			lineRendererStats.sectionsRenderTime = 0
 			positionDispatcherStats.computeTime = 0
 			let startTime = +new Date()
-			const fields = SparksNMN.render(result.result, language, positionCallback)
+			const fields = (() => {
+				try {
+					const ret = SparksNMN.render(result.result, language, positionCallback)
+					return ret
+				} catch(_err) {
+					console.error('Rendering error occured', _err)
+					if(props.onReportError) {
+						props.onReportError(_err)
+					}
+					return [{
+						element: $('<span style="font-size: 2em">Failed to render preview due to error.</span>')[0],
+						height: 3
+					}]
+				}
+			})()
 			let endTime = +new Date()
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			timing = endTime - startTime

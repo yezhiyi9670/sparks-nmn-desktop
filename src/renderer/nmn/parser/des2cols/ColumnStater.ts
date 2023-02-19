@@ -3,7 +3,7 @@ import { Frac, Fraction } from "../../util/frac";
 import { randomToken } from "../../util/random";
 import { LinedIssue } from "../parser";
 import { addMusicProp, addRenderProp, ScoreContext, scoreContextDefault } from "../sparse2des/context";
-import { AttrWeight, DestructedArticle, DestructedFCA, DestructedLine, DestructedScore, LyricChar, MusicProps, MusicSection, NoteCharMusic } from "../sparse2des/types";
+import { AttrWeight, DestructedArticle, DestructedFCA, DestructedLine, DestructedScore, LyricChar, MusicProps, MusicSection, NoteCharAny, NoteCharMusic } from "../sparse2des/types";
 import { SectionStat } from "./section/SectionStat";
 import { ColumnScore, Jumper, LinedArticle, LinedLine, LinedLyricLine, LinedPart, Linked1LyricLine, Linked2Article, Linked2LyricChar, Linked2LyricLine, Linked2LyricSection, LinkedArticle, LinkedPart, LyricLineSignature, lyricLineSignature, partSignature, PartSignature } from "./types";
 
@@ -320,7 +320,23 @@ export class ColumnStater {
 				})
 				// 返回结果
 				return {
-					lyricLines: iterateMap(lyricLines1, (val) => val),
+					lyricLines: iterateMap(lyricLines1, (lyricLine) => {
+						// 分配 FCA 的位置
+						function allocateLyricLineFCA(sections: MusicSection<NoteCharAny>[]) {
+							sections.forEach((section, index) => {
+								const mySection = part.notes.sections[index]
+								if(mySection) {
+									section.startPos = mySection.startPos
+								}
+							})
+						}
+						allocateLyricLineFCA(lyricLine.force!.sections)
+						allocateLyricLineFCA(lyricLine.chord!.sections)
+						lyricLine.annotations.forEach((ann) => {
+							allocateLyricLineFCA(ann.sections)
+						})
+						return lyricLine
+					}),
 					lyricLineSignatures: [],
 					...partMore
 				}
@@ -459,7 +475,7 @@ export class ColumnStater {
 						})
 						return Ns
 					})
-					if(SectionStat.allNullish(lrcLine.sections, sectionPtr, sectionCount) && mappedNs.length == 0) {
+					if(!SectionStat.isLrcLineRenderWorthy(lrcLine, sectionPtr, sectionCount) && mappedNs.length == 0) {
 						// 此行声部可以不包含这一歌词行
 						return
 					}

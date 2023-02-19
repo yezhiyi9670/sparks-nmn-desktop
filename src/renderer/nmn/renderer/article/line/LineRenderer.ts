@@ -29,9 +29,8 @@ export const lineRendererStats = {
 }
 
 type LyricFallbackStat = {
-	sectionTop: number[]   // 各小节的顶端位置
-	levelHeight: number[]  // 各个等级的起始高度
-	startY: number[]       // 歌词行分配得到的位置
+	sectionTop: number[]   // 各小节的顶端高度
+	startY: number[]       // 歌词行分配得到的高度
 }
 
 export class LineRenderer {
@@ -108,40 +107,29 @@ export class LineRenderer {
 		}
 
 		// ===== 根据回落模型计算歌词行起始高度 =====
-		let topLevel = 0
 		const stat: LyricFallbackStat = {
-			sectionTop: Array(line.sectionCount).fill(-1),
-			levelHeight: [],
+			sectionTop: Array(line.sectionCount).fill(currY),
 			startY: []
 		}
 		let cursorY = currY
 		part.lyricLines.forEach((lyricLine, index) => {
-			let putLevel = 0
+			let putHeight = currY
 			if(lyricLine.notesSubstitute.length != 0) {
 				// 有替代旋律的不参与回落
-				putLevel = topLevel
+				putHeight = cursorY
 			} else {
 				lyricLine.sections.forEach((section, index) => {
-					if(!SectionStat.isLyricSectionEmpty(section)) {
-						putLevel = Math.max(putLevel, stat.sectionTop[index] + 1)
+					if(SectionStat.isLyricSectionRenderWorthy(lyricLine, index)) {
+						putHeight = Math.max(putHeight, stat.sectionTop[index])
 					}
 				})
 			}
 
-			let lineStartY = 0
-			if(putLevel == topLevel) {
-				// 创建新等级
-				stat.levelHeight.push(cursorY)
-				topLevel += 1
-				lineStartY = cursorY
-			} else {
-				// 使用原有等级
-				lineStartY = stat.levelHeight[putLevel]
-			}
 			// 统计等级占用
-			this.statLyricLineOccupation(lyricLine, stat.sectionTop, putLevel)
-			stat.startY[index] = lineStartY
-			cursorY = Math.max(cursorY, lineStartY + this.heightLyricLine(lineStartY, lyricLine, part, line, root, context))
+			stat.startY[index] = putHeight
+			let currNextY = putHeight + this.heightLyricLine(putHeight, lyricLine, part, line, root, context)
+			cursorY = Math.max(cursorY, currNextY)
+			this.statLyricLineOccupation(lyricLine, stat.sectionTop, currNextY)
 		})
 		currY = cursorY
 
@@ -167,7 +155,7 @@ export class LineRenderer {
 			return
 		}
 		lyricLine.sections.forEach((section, index) => {
-			if(!SectionStat.isLyricSectionEmpty(section)) {
+			if(SectionStat.isLyricSectionRenderWorthy(lyricLine, index)) {
 				arr[index] = Math.max(arr[index], fill)
 			}
 		})
@@ -189,6 +177,7 @@ export class LineRenderer {
 		let currY = startY
 		const shouldDrawLyrics = !SectionStat.allLyricEmpty(lyricLine.sections)
 		const shouldDrawSubstitute = lyricLine.notesSubstitute.length > 0
+		currY += this.heightLineFCA(startY, lyricLine, true, root, context)
 		if(shouldDrawSubstitute) {
 			currY += substituteField
 		}
@@ -379,6 +368,42 @@ export class LineRenderer {
 		return currY - startY
 	}
 
+	/**
+	 * 推断 FCA 标记高度
+	 */
+	heightLineFCA(startY: number, line: DestructedFCA, isSmall: boolean, root: DomPaint, context: RenderContext) {
+		let currY = startY
+		const msp = new MusicPaint(root)
+		const scale = context.render.scale!
+		const noteMeasure = msp.measureNoteChar(context, isSmall, scale)
+		const FCALineField = 1.0 * noteMeasure[1]
+
+		// ===== 文本标记 =====
+		for(let i = line.annotations.length - 1; i >= 0; i--){
+			let ann = line.annotations[i]
+			if(SectionStat.allEmpty(ann.sections, 0, ann.sections.length)) {
+				continue
+			}
+			currY += FCALineField / 2
+			currY += FCALineField / 2
+		}
+		// ===== 力度 =====
+		if(line.force && !SectionStat.allEmpty(line.force.sections, 0, line.force.sections.length)) {
+			currY += FCALineField / 2
+			currY += FCALineField / 2
+		}
+		// ===== 和弦 =====
+		if(line.chord && !SectionStat.allEmpty(line.chord.sections, 0, line.chord.sections.length)) {
+			currY += FCALineField / 2
+			currY += FCALineField / 2
+		}
+
+		if(!isSmall) {
+			currY -= 1.5
+		}
+		currY = Math.max(currY, startY)
+		return currY - startY
+	}
 	/**
 	 * 渲染 FCA 标记
 	 */

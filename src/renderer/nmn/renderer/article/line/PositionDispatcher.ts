@@ -115,7 +115,8 @@ export class PositionDispatcher {
 		const columns = this.data[sectionIndex].columns
 		const col = findWithKey(columns, 'hash', Frac.repr(frac))
 		if(!col) {
-			throw new Error('Unknown column queried in PositionDispatcher')
+			console.warn('My columns', this.data[sectionIndex].columns)
+			throw new Error('Unknown column queried in PositionDispatcher ' + Frac.repr(frac) + ', in section ' + sectionIndex)
 		}
 		return col.position
 	}
@@ -150,7 +151,7 @@ export class PositionDispatcher {
 				pos1 = this.data[sectionIndex].range[1]
 				pos0 = lastCol.position
 			} else {
-				throw new Error('Unknown column queried in PositionDispatcher')
+				throw new Error('Unknown column queried in PositionDispatcher, insert')
 			}
 		} else {
 			const col = columns[colIndex]!

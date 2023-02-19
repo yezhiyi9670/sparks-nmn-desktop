@@ -2,7 +2,7 @@ import { iterateMap } from "../../../util/array";
 import { Frac, Fraction } from "../../../util/frac";
 import { ScoreContext, scoreContextDefault } from "../../sparse2des/context";
 import { DestructedFCA, LyricChar, MusicDecorationRange, MusicNote, MusicSection, NoteCharAny, SectionSeparatorChar, sectionSeparatorCharMap, SeparatorAttr } from "../../sparse2des/types";
-import { Jumper, LinedPart, Linked2LyricSection } from "../types";
+import { Jumper, LinedLyricLine, LinedPart, Linked2LyricLine, Linked2LyricSection } from "../types";
 
 export module SectionStat {
 	export const nullish: MusicSection<never> = {
@@ -266,6 +266,39 @@ export module SectionStat {
 			}
 		}
 		return true
+	}
+	/**
+	 * 歌词行内某个小节是否值得渲染
+	 * 
+	 * 需要考虑歌词行本身是否有实质内容，以及歌词行的标记是否有内容
+	 */
+	export function isLyricSectionRenderWorthy(lyricLine: LinedLyricLine | Linked2LyricLine, index: number) {
+		if(!isLyricSectionEmpty(lyricLine.sections[index])) {
+			return true
+		}
+		if(!allEmpty([lyricLine.force!.sections[index]], 0, 1)) {
+			return true
+		}
+		if(!allEmpty([lyricLine.chord!.sections[index]], 0, 1)) {
+			return true
+		}
+		for(let ann of lyricLine.annotations) {
+			if(!allEmpty([ann.sections[index]], 0, 1)) {
+				return true
+			}
+		}
+		return false
+	}
+	/**
+	 * 歌词行区间是否值得渲染
+	 */
+	export function isLrcLineRenderWorthy(lyricLine: LinedLyricLine | Linked2LyricLine, startSection: number, sectionCount: number) {
+		for(let i = startSection; i < startSection + sectionCount; i++) {
+			if(isLyricSectionRenderWorthy(lyricLine, i)) {
+				return true
+			}
+		}
+		return false
 	}
 	/**
 	 * 统计歌词小节组是否无实质内容
