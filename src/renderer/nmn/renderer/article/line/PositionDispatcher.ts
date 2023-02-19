@@ -278,6 +278,7 @@ export class PositionDispatcher {
 			}
 			const noteCharMetric = getLineFont(isSmall ? 'noteSmall' : 'note', this.context)
 			const accidentalCharMetric = getLineFont(isSmall ? 'noteSmall' : 'note', this.context)
+			accidentalCharMetric.fontFamily = 'SparksNMN-Bravura'
 			const noteCharMeasure = this.root.measureTextFast('0', noteCharMetric, this.scale)
 			const accidentalMeasure = this.root.measureTextFast("\uE10E", accidentalCharMetric, this.scale)
 			const addNoteCharMeasure = [noteCharMeasure[0] * addNotesScale, 0]
