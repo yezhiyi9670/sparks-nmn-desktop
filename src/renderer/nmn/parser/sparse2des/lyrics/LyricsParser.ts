@@ -123,7 +123,9 @@ export class LyricsParser {
 						occupiesSpace: occupiesSpace,
 						grouped: grouped,
 						extension: extension,
-						isCharBased: typeSampler == 'char'
+						isCharBased: (token.type == 'placeholder' || token.type == 'divide') || (
+							(token.type == 'char' || token.type == 'grouped') && token.isCharBased
+						)
 					})
 				}
 			}
@@ -165,7 +167,8 @@ export class LyricsParser {
 					ret.push(lastToken = {
 						charIndex: ch.range[0],
 						type: ch.bracket == '[[' ? 'role' : 'grouped',
-						char: ch.text.substring(brPad, ch.text.length - brPad)
+						char: ch.text.substring(brPad, ch.text.length - brPad),
+						isCharBased: typeSampler == 'char'
 					})
 				} else if(ch.bracket == '[') {
 					ret.push(lastToken = {
@@ -199,8 +202,12 @@ export class LyricsParser {
 			} else {
 				const charIndex = this.input[this.tokenPtr]!.range[0]
 				const isBoundary = this.checkBoundary()
+				const token = this.input[this.tokenPtr]
+				let symbolType = getLrcSymbolType(ch, typeSampler)
+				// if(token && ('bracket' in token || token.type == 'stringLiteral')) {
+				// 	symbolType = 'word'
+				// }
 				this.passchar()
-				const symbolType = getLrcSymbolType(ch, typeSampler)
 				if(symbolType == 'word') {
 					if(typeSampler == 'word' && !isBoundary && lastToken && lastToken.type == 'char') {
 						lastToken.char += ch
@@ -208,7 +215,8 @@ export class LyricsParser {
 						ret.push(lastToken = {
 							charIndex: charIndex,
 							type: 'char',
-							char: ch
+							char: ch,
+							isCharBased: typeSampler == 'char'
 						})
 					}
 				} else if(symbolType == 'divide' || symbolType == 'placeholder') {
@@ -327,7 +335,7 @@ export class LyricsParser {
 				postfix: postfix,
 				rolePrefix: role,
 				extension: extend,
-				isCharBased: true
+				isCharBased: false
 			}
 		})
 		return words

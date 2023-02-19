@@ -2,10 +2,11 @@ export type LyricToken = {
 	charIndex: number
 	lastPlaceholder?: string
 } & ({
-	type: 'char'
+	type: 'char' | 'grouped'
 	char: string
+	isCharBased: boolean
 } | {
-	type: 'grouped' | 'role'
+	type: 'role'
 	char: string
 } | {
 	type: 'symbol'

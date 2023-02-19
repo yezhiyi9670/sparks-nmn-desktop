@@ -25,7 +25,7 @@ export function getLrcSymbolType(symbol: string, typeSampler: LyricDestructionTy
 		';', '；',
 		'*',
 		':', '：',
-		'>', '》', '⟩', '⟧', '⟫' ,'⟭', '〉', '』', '〗', '】', '〙', '」', '〕', '〛',
+		'）', '>', '》', '⟩', '⟧', '⟫' ,'⟭', '〉', '』', '〗', '】', '〙', '」', '〕', '〛',
 		',', '，',
 		'.', '。',
 		'”', '’',
@@ -35,7 +35,7 @@ export function getLrcSymbolType(symbol: string, typeSampler: LyricDestructionTy
 	}
 	if([
 		'(', '[', '[[', '[',
-		'<', '《', '⟨', '⟦', '⟪', '⟬', '〈', '『', '〖', '【', '〘', '「', '〔', '〚',
+		'（', '<', '《', '⟨', '⟦', '⟪', '⟬', '〈', '『', '〖', '【', '〘', '「', '〔', '〚',
 		'“', '‘',
 		'@', '#', '￥', '&', '$'
 	].indexOf(symbol) != -1) {
@@ -60,6 +60,8 @@ export function getLrcSymbolEquivalent(symbol: string) {
 		'？': '?',
 		'：': ':',
 		'；': ';',
+		'（': '(',
+		'）': ')',
 		'『': '(',
 		'「': '(',
 		'』': ')',
