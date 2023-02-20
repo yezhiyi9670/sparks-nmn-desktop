@@ -161,13 +161,13 @@ class SectionsParserClass {
 					context.musical = this.handleShift(context.musical, attr)
 				}
 			}
-			for(let attr of separators[i - 1].next.attrs) {
-				if(acceptVariation) {
+			if(acceptVariation) {
+				for(let attr of separators[i - 1].next.attrs) {
 					handleAttr(attr)
 				}
-			}
-			for(let attr of separators[i - 1].before.attrs) {
-				handleAttr(attr)
+				for(let attr of separators[i - 1].before.attrs) {
+					handleAttr(attr)
+				}
 			}
 			// 枚举每一对相邻小节线，并取出相应区间进行操作。
 			ret.push(this.parseSection<TypeSampler>(
@@ -332,7 +332,8 @@ class SectionsParserClass {
 			notes: [],
 			decoration: [],
 			leftSplit: false,
-			leftSplitVoid: false
+			leftSplitVoid: false,
+			rightSplit: false
 		})
 		const [ writtenQuarters ] = new NoteEater(tokens, lineNumber, context).parse<TypeSampler>(ret, Frac.create(1), Frac.create(0), issues, typeSampler)
 		ret.totalQuarters = writtenQuarters

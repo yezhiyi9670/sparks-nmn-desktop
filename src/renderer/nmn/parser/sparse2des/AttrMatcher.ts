@@ -333,6 +333,7 @@ export module AttrMatcher {
 			decoration: [],
 			leftSplit: false,
 			leftSplitVoid: false,
+			rightSplit: false
 		}
 		const [ writtenQuarters ] = new NoteEater(tokenIn.tokens[0] ?? [], lineNumber, scoreContextDefault, 0).parse<'music'>(
 			section,

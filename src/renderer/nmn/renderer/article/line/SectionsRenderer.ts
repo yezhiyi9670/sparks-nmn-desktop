@@ -1,8 +1,8 @@
 import { NMNResult } from "../../..";
 import { I18n } from "../../../i18n";
 import { SectionStat } from "../../../parser/des2cols/section/SectionStat";
-import { MusicDecorationRange, MusicSection, NoteCharMusic } from "../../../parser/sparse2des/types";
-import { Frac } from "../../../util/frac";
+import { MusicDecorationRange, MusicNote, MusicSection, NoteCharMusic } from "../../../parser/sparse2des/types";
+import { Frac, Fraction } from "../../../util/frac";
 import { DomPaint } from "../../backend/DomPaint";
 import { FontMetric } from "../../FontMetric";
 import { MusicPaint } from "../../paint/MusicPaint";
@@ -19,6 +19,11 @@ type SectionsRenderData = {
 		sections: MusicSection<NoteCharMusic>[]
 	},
 	decorations: MusicDecorationRange[]
+}
+
+type ConnectorStatNote = MusicNote<NoteCharMusic> & {
+	leftTop: number,
+	rightTop: number
 }
 
 export class SectionsRenderer {
@@ -100,45 +105,118 @@ export class SectionsRenderer {
 			root.drawLine(startAnchorX, topY, endAnchorX, topY, 0.2, 0.001, scale)
 		}
 		const noteMeasure = msp.measureNoteChar(context, isSmall, scale)
-		part.decorations.map((decor) => {
-			if(decor.char == '~' || decor.char == '*') {
-				let maxTopOctave = 0
-				;[ decor.startPos, decor.endPos ].forEach((pos) => {
-					const note = SectionStat.locateNote(pos, part.notes.sections)
-					if(note && note.type == 'note') {
-						maxTopOctave = Math.max(maxTopOctave, note.char.octave)
-					}
+		
+		// 拉平所有音符列表
+		const noteList: ConnectorStatNote[] = []
+		part.notes.sections.forEach((section) => {
+			if(section.type != 'section') {
+				return
+			}
+			section.notes.forEach((note) => {
+				noteList.push({
+					...note,
+					startPos: Frac.add(section.startPos, note.startPos),
+					leftTop: +Infinity,
+					rightTop: +Infinity
 				})
-				let linkStart = true
-				let linkEnd = true
-				let [ startX, endX ] = [ decor.startPos, decor.endPos ].map((frac) => {
-					if(Frac.isIndeterminate(frac)) {
-						let sectionIndex1 = SectionStat.locateSection(decor.endPos, part.notes.sections)
-						if(sectionIndex1 == -1) {
-							return NaN
-						}
-						linkStart = false
-						return this.columns.startPosition(sectionIndex1)
+			})
+		})
+		// 对范围内音符执行操作
+		const checkNoteList = (func: (note: ConnectorStatNote, hasLeft: boolean, hasRight: boolean) => void, leftPos: Fraction, rightPos: Fraction, leftLink: boolean, rightLink: boolean) => {
+			noteList.forEach((note) => {
+				const leftCmp = Frac.compare(note.startPos, leftPos)
+				const rightCmp = Frac.compare(note.startPos, rightPos)
+				// 开头
+				if(leftCmp == 0 && rightCmp < 0) {
+					if(leftLink) {
+						func(note, false, true)
+					} else {
+						func(note, true, true)
 					}
+				}
+				// 结尾
+				if(rightCmp == 0 && leftCmp > 0 && rightLink) {
+					func(note, true, false)
+				}
+				// 中间
+				if(leftCmp > 0 && rightCmp < 0) {
+					func(note, true, true)
+				}
+			})
+		}
+		// 绘制连音线
+		const drawConnector = (decor: MusicDecorationRange) => {
+			let maxTopOctave = 0
+			;[ decor.startPos, decor.endPos ].forEach((pos) => {
+				const note = SectionStat.locateNote(pos, part.notes.sections)
+				if(note && note.type == 'note') {
+					maxTopOctave = Math.max(maxTopOctave, note.char.octave)
+				}
+			})
+			let linkStart = !decor.startSplit
+			let linkEnd = !decor.endSplit
+			let [ startX, endX ] = [
+				{frac: decor.startPos,linkStart, link: linkStart, isEnd: false},
+				{frac: decor.endPos,linkEnd, link: linkEnd, isEnd: true}
+			].map(({frac, link, isEnd}) => {
+				if(link) {
 					let sectionIndex = SectionStat.locateSection(frac, part.notes.sections)
 					if(sectionIndex == -1) {
 						return NaN
 					}
 					return this.columns.fracPosition(sectionIndex, frac)
-				})
-				const heightScale = isSmall ? 0.7 : 1
-				let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + 0.1)
-				let maxHeight = [noteMeasure[1] * 0.55, noteMeasure[1] * 0.65, noteMeasure[1] * 0.75][decor.level] * heightScale
-				
-				if(startX != startX) {
-					startX = this.columns.startPosition(0)
-					linkStart = false
+				} else {
+					let sectionIndex = SectionStat.locateSection(frac, part.notes.sections)
+					if(sectionIndex == -1) {
+						return NaN
+					}
+					return this.columns.startPosition(sectionIndex)
 				}
-				if(endX != endX) {
-					endX = this.columns.endPosition(this.columns.data.length - 1)
-					linkEnd = false
+			})
+			const heightScale = isSmall ? 0.7 : 1
+			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + 0.1)
+			const baseHeight = noteMeasure[1] * 0.45
+			const heightSpacing = noteMeasure[1] * 0.15
+			let baseY = topY - baseHeight
+			if(decor.level == 1 && !isSmall) {
+				baseY -= heightSpacing
+			}
+			checkNoteList((note, hasLeft, hasRight) => {
+				if(hasLeft) {
+					baseY = Math.min(baseY, note.leftTop - heightSpacing)
 				}
-				drawConnect(startX, linkStart, endX, linkEnd, topY, maxHeight)
+				if(hasRight) {
+					baseY = Math.min(baseY, note.rightTop - heightSpacing)
+				}
+			}, decor.startPos, decor.endPos, linkStart, linkEnd)
+			checkNoteList((note, hasLeft, hasRight) => {
+				if(hasLeft) {
+					note.leftTop = Math.min(note.leftTop, baseY)
+				}
+				if(hasRight) {
+					note.rightTop = Math.min(note.rightTop, baseY)
+				}
+			}, decor.startPos, decor.endPos, linkStart, linkEnd)
+
+			if(startX != startX) {
+				linkStart = false
+				startX = this.columns.startPosition(0)
+			}
+			if(endX != endX) {
+				linkEnd = false
+				endX = this.columns.endPosition(this.columns.data.length - 1)
+			}
+
+			drawConnect(startX, linkStart, endX, linkEnd, topY, -(baseY - topY))
+		}
+		part.decorations.map((decor) => {
+			if(decor.char == '~') {
+				drawConnector(decor)
+			}
+		})
+		part.decorations.map((decor) => {
+			if(decor.char == '*') {
+				drawConnector(decor)
 			}
 		})
 

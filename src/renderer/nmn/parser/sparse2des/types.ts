@@ -496,6 +496,14 @@ export type MusicDecorationRange = {
 	 */
 	endPos: Fraction
 	/**
+	 * 开始位置断连
+	 */
+	startSplit?: boolean
+	/**
+	 * 结束位置断连
+	 */
+	endSplit?: boolean
+	/**
 	 * 级别
 	 */
 	level: number
@@ -610,6 +618,10 @@ export type MusicSection<NoteChar> = {
 	 * 延长连音线从左侧断开
 	 */
 	leftSplitVoid: boolean
+	/**
+	 * 连音线从右侧断开
+	 */
+	rightSplit: boolean
 } | {
 	type: 'omit'
 	/**

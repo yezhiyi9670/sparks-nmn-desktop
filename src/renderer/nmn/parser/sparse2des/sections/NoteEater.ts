@@ -13,6 +13,7 @@ type SampledSectionBase<TypeSampler> = {
 	decoration: MusicDecoration[]
 	leftSplit: boolean
 	leftSplitVoid: boolean
+	rightSplit: boolean
 }
 type SampledNoteChar<TypeSampler> = NoteCharAny & {type: TypeSampler}
 
@@ -160,6 +161,12 @@ export class NoteEater {
 					continue
 				}
 				leftSplitFlag = false
+				// ===== 检测右分割符号 =====
+				if(new TokenFilter('symbol', '!').test(token)) {
+					this.pass()
+					section.rightSplit = true
+					continue
+				}
 				// ===== 检测插入符 =====
 				if(!('bracket' in token) && token.type == 'symbol' && token.content == '&') {
 					this.pass()

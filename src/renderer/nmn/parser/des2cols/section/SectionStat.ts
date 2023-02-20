@@ -101,66 +101,66 @@ export module SectionStat {
 		// ===== 处理联合连音线 =====
 		let pendingNote: MusicNote<CharType> | undefined = undefined as any
 		let lastPlace = Frac.create(0)
+		let leftSplit = false
 		let lastSection: MusicSection<CharType> | undefined = undefined as any
-		let noteList: {
-			note: MusicNote<CharType>
-			isLast: boolean
-		}[] = []
-		sections.forEach((section) => {
+		sections.forEach((section, index) => {
 			if(section.type != 'section') {
 				pendingNote = undefined
 				return
 			}
 			if(section.leftSplit) {
 				// 创建左分割的连音线
-				lastPlace = Frac.create(0, 0)
+				lastPlace = Frac.copy(section.startPos)
 				pendingNote = true as any
+				leftSplit = true
 				lastSection = undefined
 			}
 			let isFirst = true
 			section.notes.forEach((note) => {
-				if(!isFirst && noteList.length > 0) {
-					noteList[noteList.length - 1].isLast = false
-				}
 				isFirst = false
 				if(note.suffix.indexOf('*') != -1) {
 					if(undefined === pendingNote) {
 						pendingNote = note
 						lastSection = section
-						noteList = []
 						lastPlace = Frac.add(section.startPos, note.startPos)
 					} else {
 						pendingNote = undefined
 						const currPlace = Frac.add(section.startPos, note.startPos)
-						let levitated = 0
-						for(let prevNote of noteList) {
-							// 内部包含延长连音线，联合连音线等级需要提升
-							if(prevNote.note.suffix.indexOf('~') != -1) {
-								levitated = prevNote.isLast ? 2 : 1
-							}
-						}
-						noteList = []
 						decorations.push({
 							type: 'range',
-							// 跨越小节线的联合连音线等级为 1，否则为 0
-							level: Math.max(levitated, section == lastSection ? 0 : 1),
+							level: section == lastSection ? 0 : 1,
 							startPos: lastPlace,
+							startSplit: leftSplit,
 							endPos: currPlace,
 							char: '*'
 						})
+						leftSplit = false
 					}
 				}
-				noteList.push({
-					note: note,
-					isLast: true
-				})
 			})
+			if(section.rightSplit && pendingNote) {
+				const nextSection = sections[index + 1]
+				const currPlace = nextSection ? nextSection.startPos : Frac.add(section.startPos, section.totalQuarters)
+				// 创建右分割连音线
+				decorations.push({
+					type: 'range',
+					level: 1,
+					startPos: lastPlace,
+					startSplit: leftSplit,
+					endSplit: true,
+					endPos: currPlace,
+					char: '*'
+				})
+				leftSplit = false
+				pendingNote = undefined
+			}
 		})
 		// ===== 处理延长连音线 =====
 		lastSection = undefined
 		pendingNote = undefined
+		leftSplit = false
 		let connectState = false
-		sections.forEach((section) => {
+		sections.forEach((section, index) => {
 			if(section.type != 'section') {
 				pendingNote = undefined
 				return
@@ -170,7 +170,8 @@ export module SectionStat {
 				connectState = true
 				lastSection = undefined
 				pendingNote = undefined
-				lastPlace = Frac.create(0, 0)
+				lastPlace = Frac.copy(section.startPos)
+				leftSplit = true
 			}
 			section.notes.forEach((note) => {
 				if(note.type == 'extend') {
@@ -186,9 +187,11 @@ export module SectionStat {
 						type: 'range',
 						level: section == lastSection ? 0 : 1,
 						startPos: lastPlace,
+						startSplit: leftSplit,
 						endPos: currPlace,
-						char: '~'
+						char: '~',
 					})
+					leftSplit = false
 					lastSection = section
 					lastPlace = currPlace
 					if(note.suffix.indexOf('~') == -1) {
@@ -204,6 +207,23 @@ export module SectionStat {
 					}
 				}
 			})
+			if(section.rightSplit && connectState) {
+				const nextSection = sections[index + 1]
+				const currPlace = nextSection ? nextSection.startPos : Frac.add(section.startPos, section.totalQuarters)
+				decorations.push({
+					type: 'range',
+					level: 1,
+					startPos: lastPlace,
+					startSplit: leftSplit,
+					endPos: currPlace,
+					endSplit: true,
+					char: '~',
+				})
+				leftSplit = false
+				lastSection = section
+				lastPlace = currPlace
+				connectState = false
+			}
 		})
 		// ===== 连接小节线 =====
 		let prevSection: MusicSection<CharType> | undefined = undefined as any
