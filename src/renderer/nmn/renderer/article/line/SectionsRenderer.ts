@@ -135,7 +135,7 @@ export class SectionsRenderer {
 					}
 				}
 				// 结尾
-				if(rightCmp == 0 && leftCmp > 0 && rightLink) {
+				if(rightCmp == 0 && (leftCmp > 0 || (leftCmp >= 0 && !leftLink)) && rightLink) {
 					func(note, true, false)
 				}
 				// 中间
