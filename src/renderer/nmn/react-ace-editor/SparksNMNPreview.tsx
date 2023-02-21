@@ -19,7 +19,7 @@ type SparksNMNPreviewProps = {
 	}
 	onReportTiming?: (value: number) => void
 	onReportSize?: (value: number) => void
-	onReportError?: (_err: any) => void
+	onReportError?: (_err: any | undefined) => void
 }
 export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 	const { onPosition, result, language, logTimeStat } = props
@@ -49,6 +49,9 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 			const fields = (() => {
 				try {
 					const ret = SparksNMN.render(result.result, language, positionCallback)
+					if(props.onReportError) {
+						props.onReportError(undefined)
+					}
 					return ret
 				} catch(_err) {
 					console.error('Rendering error occured', _err)

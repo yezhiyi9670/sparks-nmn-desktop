@@ -285,13 +285,15 @@ export class NoteEater {
 						// 推入三连音
 						if(tripletRemain > 0) {
 							if(Frac.compare(Frac.create(1), tripletRatio) != 0) {
-								section.decoration.push({
-									type: 'range',
-									startPos: Frac.add(startPos, Frac.mul(ratio, position)),
-									endPos: writtenLastCol,
-									level: this.level,
-									char: 'T'
-								})
+								if(Frac.compare(writtenLength, Frac.create(0)) > 0) {
+									section.decoration.push({
+										type: 'range',
+										startPos: Frac.add(startPos, Frac.mul(ratio, position)),
+										endPos: writtenLastCol,
+										level: this.level,
+										char: 'T'
+									})
+								}
 							}
 						}
 						position = Frac.add(position,

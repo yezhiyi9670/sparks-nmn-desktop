@@ -277,9 +277,13 @@ export class SectionsRenderer {
 							const midLX = midX - threeMeasure[0]
 							const midRX = midX + threeMeasure[0]
 							root.drawLine(startX, lowY, startX, highY, 0.2, 0.1, scale)
-							root.drawLine(startX, highY, midLX, highY, 0.2, 0.1, scale)
+							if(midLX > startX) {
+								root.drawLine(startX, highY, midLX, highY, 0.2, 0.1, scale)
+							}
 							threeToken.drawFast(root, midX, highY, 'center', 'middle')
-							root.drawLine(midRX, highY, endX, highY, 0.2, 0.1, scale)
+							if(endX > midRX) {
+								root.drawLine(midRX, highY, endX, highY, 0.2, 0.1, scale)
+							}
 							root.drawLine(endX, lowY, endX, highY, 0.2, 0.1, scale)
 						}
 					})
