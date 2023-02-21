@@ -407,7 +407,7 @@ export class PositionDispatcher {
 			const data = this.data[i]
 			// 若没有列，添加一个防止后续出现问题
 			if(data.columns.length == 0) {
-				addConstraint(data.fraction[1], i, [0, 0], true)
+				addConstraint(data.fraction[0], i, [0, 0], true)
 			}
 			// 若最大列距离右边界有超过八分音符的距离，将右边界缩短一个八分音符
 			// let maxCol = Frac.max(...data.columns.map((x) => x.fraction))

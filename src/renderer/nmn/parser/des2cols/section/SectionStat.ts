@@ -58,11 +58,12 @@ export module SectionStat {
 	 * 
 	 * - space, omit, nullish 按照音乐属性的一小节（即 4 * K_s），omit(x) 按照 x 个小节。
 	 * - 正常音乐小节按照字面计算，若 next 小节线不含有 `/`，和音乐属性要求取 max。
+	 * - 若正常小节的统计量为 0，将使用 1/2。
 	 */
 	export function quarterCount(section: MusicSection<unknown>): Fraction {
 		let shouldBe = Frac.mul(Frac.create(4), section.musicalProps.beats!.value)
 		if(Frac.equals(shouldBe, Frac.create(0))) {
-			shouldBe = Frac.create(1)
+			shouldBe = Frac.create(1, 2)
 		}
 		if(section.type == 'omit') {
 			if(section.count != section.count) {
@@ -74,7 +75,11 @@ export module SectionStat {
 			return shouldBe
 		}
 		if(section.separator.next.char.indexOf('/') != -1) {
-			return section.totalQuarters
+			if(Frac.compare(section.totalQuarters, Frac.create(0)) > 0) {
+				return section.totalQuarters
+			} else {
+				return Frac.create(1, 2)
+			}
 		}
 		if(!Frac.equals(section.musicalProps.beats!.value, Frac.create(0))) {
 			if(!Frac.equals(section.totalQuarters, shouldBe)) {
@@ -140,7 +145,7 @@ export module SectionStat {
 			})
 			if(section.rightSplit && pendingNote) {
 				const nextSection = sections[index + 1]
-				const currPlace = nextSection ? nextSection.startPos : Frac.add(section.startPos, section.totalQuarters)
+				const currPlace = nextSection ? nextSection.startPos : Frac.add(section.startPos, section.statQuarters ?? section.totalQuarters)
 				// 创建右分割连音线
 				decorations.push({
 					type: 'range',
@@ -209,7 +214,7 @@ export module SectionStat {
 			})
 			if(section.rightSplit && connectState) {
 				const nextSection = sections[index + 1]
-				const currPlace = nextSection ? nextSection.startPos : Frac.add(section.startPos, section.totalQuarters)
+				const currPlace = nextSection ? nextSection.startPos : Frac.add(section.startPos, section.statQuarters ?? section.totalQuarters)
 				decorations.push({
 					type: 'range',
 					level: 1,
@@ -434,7 +439,8 @@ export module SectionStat {
 				continue
 			}
 			const startPos = sections[i].startPos
-			const endPos = Frac.add(sections[i].startPos, section.totalQuarters)
+			let quarters = section.statQuarters ?? section.totalQuarters
+			const endPos = Frac.add(sections[i].startPos, quarters)
 			if(Frac.compare(startPos, pos) <= 0 && Frac.compare(pos, endPos) < 0) {
 				return i
 			}

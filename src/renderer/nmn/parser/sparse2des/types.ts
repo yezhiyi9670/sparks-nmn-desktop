@@ -583,6 +583,10 @@ export type MusicSection<NoteChar> = {
 	 */
 	startPos: Fraction
 	/**
+	 * 分配的四分音符数量（仅限声部主旋律）
+	 */
+	statQuarters?: Fraction
+	/**
 	 * 小节线类型
 	 */
 	separator: SectionSeparators

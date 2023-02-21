@@ -173,7 +173,6 @@ export class SectionsRenderer {
 					return this.columns.startPosition(sectionIndex)
 				}
 			})
-			const heightScale = isSmall ? 0.7 : 1
 			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + 0.1)
 			const baseHeight = noteMeasure[1] * 0.45
 			const heightSpacing = noteMeasure[1] * 0.15

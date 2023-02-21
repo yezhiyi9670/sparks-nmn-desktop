@@ -202,11 +202,14 @@ export class ColumnStater {
 			let quarterCount = Frac.max(...article.parts.map((part) => {
 				return SectionStat.quarterCount(part.notes.sections[i])
 			}))
+			article.parts.map((part) => {
+				part.notes.sections[i].statQuarters = quarterCount
+			})
 
 			article.parts.forEach((part) => {
 				part.notes.sections[i].ordinal = currOrdinal
 				part.notes.sections[i].startPos = Frac.copy(currQuarter)
-				this.allocateFCA(part, i, currOrdinal, currQuarter)
+				this.allocateFCA(part, i, currOrdinal, currQuarter, quarterCount)
 			})
 
 			article.sectionFields.push([currQuarter, quarterCount])
@@ -215,14 +218,17 @@ export class ColumnStater {
 			currQuarter = Frac.add(currQuarter, quarterCount)
 		}
 	}
-	allocateFCA(part: LinkedPart, index: number, currOrdinal: number, currQuarter: Fraction) {
+	allocateFCA(part: LinkedPart, index: number, currOrdinal: number, currQuarter: Fraction, statQuarters: Fraction) {
 		part.force!.sections[index].ordinal = currOrdinal
 		part.force!.sections[index].startPos = currQuarter
+		part.force!.sections[index].statQuarters = statQuarters
 		part.chord!.sections[index].ordinal = currOrdinal
 		part.chord!.sections[index].startPos = currQuarter
+		part.chord!.sections[index].statQuarters = statQuarters
 		part.annotations.map((ann) => {
 			ann.sections[index].ordinal = currOrdinal
 			ann.sections[index].startPos = currQuarter
+			ann.sections[index].statQuarters = statQuarters
 		})
 	}
 
@@ -299,6 +305,7 @@ export class ColumnStater {
 							const mySection = part.notes.sections[myIndex]
 							if(mySection) {
 								section.startPos = mySection.startPos
+								section.statQuarters = mySection.statQuarters
 							}
 						})
 						SectionStat.interLink(Ns.sections, Ns.decorations)
@@ -327,6 +334,7 @@ export class ColumnStater {
 								const mySection = part.notes.sections[index]
 								if(mySection) {
 									section.startPos = mySection.startPos
+									section.statQuarters = mySection.statQuarters
 								}
 							})
 						}
