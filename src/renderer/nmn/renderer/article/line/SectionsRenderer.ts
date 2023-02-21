@@ -266,8 +266,14 @@ export class SectionsRenderer {
 						if(decor.char == 'T') {
 							const startX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.startPos)) - noteMeasure[0] / 2
 							const endX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.endPos)) + noteMeasure[0] / 2
-							const lowY = currY - noteMeasure[1] / 2 - 0.5
-							const highY = currY - noteMeasure[1] / 2 - 2
+							// const lowY = currY - noteMeasure[1] / 2 - 0.5
+							let highY = currY - noteMeasure[1] / 2 - 2
+							const heightSpacing = noteMeasure[1] * 0.25
+							checkNoteList((note) => {
+								highY = Math.min(highY, note.leftTop - heightSpacing)
+								highY = Math.min(highY, note.rightTop - heightSpacing)
+							}, decor.startPos, decor.endPos, true, true)
+							const lowY = highY + 1.5
 							const midX = (startX + endX) / 2
 							const threeToken = new PaintTextToken(
 								'3', new FontMetric('SparksNMN-mscore-20/400', 3),
