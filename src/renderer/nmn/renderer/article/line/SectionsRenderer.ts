@@ -272,7 +272,7 @@ export class SectionsRenderer {
 							checkNoteList((note) => {
 								highY = Math.min(highY, note.leftTop - heightSpacing)
 								highY = Math.min(highY, note.rightTop - heightSpacing)
-							}, decor.startPos, decor.endPos, true, true)
+							}, Frac.add(section.startPos, decor.startPos), Frac.add(section.startPos, decor.endPos), true, true)
 							const lowY = highY + 1.5
 							const midX = (startX + endX) / 2
 							const threeToken = new PaintTextToken(
