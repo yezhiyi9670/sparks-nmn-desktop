@@ -33,7 +33,7 @@ export class SectionsRenderer {
 		this.columns = columns
 	}
 
-	render(currY: number, part: SectionsRenderData, root: DomPaint, context: RenderContext, isFirstPart: boolean, isSmall: boolean) {
+	render(currY: number, part: SectionsRenderData, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirstPart: boolean, isSmall: boolean) {
 		const sections = part.notes.sections
 		const msp = new MusicPaint(root)
 		const scale = context.render.scale!
@@ -62,7 +62,7 @@ export class SectionsRenderer {
 
 		// ===== 小节序号 =====
 		const ordinalMode = context.render!.sectionorder
-		if(isFirstPart && ordinalMode != 'none' && sections.length > 0) {
+		if(isFirstPart && !hasJumperOverlap && ordinalMode != 'none' && sections.length > 0) {
 			let ordinalText = (sections[0]!.ordinal + 1).toString()
 			if(ordinalMode == 'paren') {
 				ordinalText = '(' + ordinalText + ')'

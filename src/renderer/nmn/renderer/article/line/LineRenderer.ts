@@ -92,9 +92,11 @@ export class LineRenderer {
 		// ===== 渲染FCA =====
 		currY += this.renderLineFCA(currY, part, false, root, context)
 		// ===== 渲染跳房子 =====
-		currY += this.renderJumpers(currY, part, line, isFirst, root, context)
+		const jumperRet = this.renderJumpers(currY, part, line, isFirst, root, context)
+		currY += jumperRet[0]
+		const hasJumperOverlap = jumperRet[1]
 		// ===== 渲染音乐行 =====
-		currY += this.renderPartNotes(currY, part, root, context, isFirst)
+		currY += this.renderPartNotes(currY, part, root, context, hasJumperOverlap, isFirst)
 		const lastYs = this.musicLineYs[this.musicLineYs.length - 1]
 		// ===== 标记声部名称 =====
 		if(shouldLabel) {
@@ -229,7 +231,7 @@ export class LineRenderer {
 
 				// 画小节
 				lineRendererStats.sectionsRenderTime -= +new Date()
-				new SectionsRenderer(localColumns).render(currY, { notes: { sections }, decorations: decorations }, root, context, false, true)
+				new SectionsRenderer(localColumns).render(currY, { notes: { sections }, decorations: decorations }, root, context, false, false, true)
 				lineRendererStats.sectionsRenderTime += +new Date()
 
 				// 画括号
@@ -488,8 +490,10 @@ export class LineRenderer {
 
 	/**
 	 * 渲染跳房子符号，并统计是否出现标记与属性、跳房子与属性的重叠
+	 * 
+	 * 返回第二个参数表明跳房子的文本标记是否可能与小节序号重叠
 	 */
-	renderJumpers(startY: number, part: NMNPart, line: NMNLine, isFirst: boolean, root: DomPaint, context: RenderContext) {
+	renderJumpers(startY: number, part: NMNPart, line: NMNLine, isFirst: boolean, root: DomPaint, context: RenderContext): [number, boolean] {
 		const scale = context.render.scale!
 		const msp = new MusicPaint(root)
 		const firstPart = line.parts[0]!
@@ -499,6 +503,8 @@ export class LineRenderer {
 		const overlapField = 2.2
 		const shift = 0.6
 		let attrOverlaps = 0
+		let hasFirstStart = false
+
 		if(line.jumpers.length > 0) {
 			let successCount = 0
 			currY += fieldHeight
@@ -550,6 +556,9 @@ export class LineRenderer {
 				if(startIn) {
 					msp.drawJumperAttrs(context, startX + 0.3 * scale, centerY, jumper.attrs, 1, scale)
 				}
+				if(startIn && jumper.startSection - line.startSection == 0) {
+					hasFirstStart = true
+				}
 			})
 			if(successCount == 0) {
 				// rnm，退钱！
@@ -572,13 +581,13 @@ export class LineRenderer {
 			currY += overlapField
 		}
 
-		return currY - startY
+		return [currY - startY, hasFirstStart && !attrOverlaps]
 	}
 
 	/**
 	 * 渲染声部的音符行
 	 */
-	renderPartNotes(startY: number, part: NMNPart, root: DomPaint, context: RenderContext, isFirst: boolean) {
+	renderPartNotes(startY: number, part: NMNPart, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirst: boolean) {
 		let currY = startY
 		currY += 2.5
 		const fieldHeight = 5.5
@@ -587,7 +596,8 @@ export class LineRenderer {
 		currY += fieldHeight / 2
 
 		lineRendererStats.sectionsRenderTime -= +new Date()
-		new SectionsRenderer(this.columns).render(currY, part, root, context, isFirst, false)
+		
+		new SectionsRenderer(this.columns).render(currY, part, root, context, hasJumperOverlap, isFirst, false)
 		lineRendererStats.sectionsRenderTime += +new Date()
 
 		currY += fieldHeight / 2
