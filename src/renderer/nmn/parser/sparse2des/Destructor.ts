@@ -102,7 +102,7 @@ export class Destructor {
 		const renderProps = this.destruct(fragment.uniqueLines['Frp'], issues, context) as RenderPropsLine
 		const newContext = addRenderProp(context, renderProps?.props)
 		const prevContext = copyContext(newContext)
-		return {
+		const retData = {
 			lineNumber: fragment.lineNumber,
 			break: this.destruct(fragment.uniqueLines['B'], issues, newContext) as any,
 			jumper: this.destruct(fragment.uniqueLines['J'], issues, newContext) as any,
@@ -112,6 +112,22 @@ export class Destructor {
 				return this.parsePart(part, newContext, issues)
 			})
 		}
+
+		newContext.musical = { ...prevContext.musical }
+		let maxSections = 0
+		retData.parts.forEach((part) => {
+			maxSections = Math.max(maxSections, part.notes.sections.length)
+		})
+		if(maxSections > 0) {
+			for(let part of retData.parts) {
+				const section = part.notes.sections[maxSections - 1]
+				if(section) {
+					newContext.musical = { ...section.musicalProps }
+				}
+			}
+		}
+
+		return retData
 	}
 	parsePart(part: LineTree<SparseLine>, context: ScoreContext, issues: LinedIssue[]): DestructedPart {
 		return {
