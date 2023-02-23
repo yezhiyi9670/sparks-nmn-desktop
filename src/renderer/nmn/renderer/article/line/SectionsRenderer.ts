@@ -2,6 +2,7 @@ import { NMNResult } from "../../..";
 import { I18n } from "../../../i18n";
 import { SectionStat } from "../../../parser/des2cols/section/SectionStat";
 import { MusicDecorationRange, MusicNote, MusicSection, NoteCharMusic } from "../../../parser/sparse2des/types";
+import { findWithKey } from "../../../util/array";
 import { Frac, Fraction } from "../../../util/frac";
 import { DomPaint } from "../../backend/DomPaint";
 import { FontMetric } from "../../FontMetric";
@@ -325,8 +326,10 @@ export class SectionsRenderer {
 					})
 				}
 				// 画属性
-				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale)
-				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale)
+				const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
+				const topAdjust = (topAttr && topAttr.type == 'top') ? topAttr.margin : 0
+				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY - topAdjust, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale)
+				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY - topAdjust, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale)
 			} else if(section.type == 'omit') {
 				const omitFontMetric = new FontMetric('SimHei/400', 2.16)
 				if(section.count != section.count) {

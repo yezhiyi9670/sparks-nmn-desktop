@@ -53,6 +53,13 @@ export type AttrWeight = {
 	weight: number
 }
 /**
+ * 小节的属性上边界
+ */
+export type AttrTop = {
+	type: 'top'
+	margin: number
+}
+/**
  * 开放区间属性
  * 
  * 用在小节线属性上，表示属性渲染时强制换行
@@ -226,6 +233,7 @@ export type SeparatorAttrBase =
 	AttrIter |
 	AttrReset |
 	AttrWeight |
+	AttrTop |
 	AttrRepeat |
 	AttrOpenRange |
 	AttrQpm |

@@ -3,6 +3,7 @@ import { I18n } from "../../../i18n"
 import { SectionStat } from "../../../parser/des2cols/section/SectionStat"
 import { connectSigs, Linked2LyricChar } from "../../../parser/des2cols/types"
 import { DestructedFCA, LrcAttr, MusicNote, MusicSection, NoteCharChord, NoteCharForce, NoteCharText } from "../../../parser/sparse2des/types"
+import { findWithKey } from "../../../util/array"
 import { Frac, Fraction } from "../../../util/frac"
 import { DomPaint } from "../../backend/DomPaint"
 import { FontMetric } from "../../FontMetric"
@@ -502,10 +503,20 @@ export class LineRenderer {
 		const fieldHeight = 2.1
 		const overlapField = 2.2
 		const shift = 0.6
-		let attrOverlaps = 0
+
+		let hasJumperAttrOverlap = false
+		let jumperAttrOverlapMax = 0
+		let hasAnnAttrOverlap = false
+		let annAttrOverlapMax = 0
+		
 		let hasFirstStart = false
 
-		if(line.jumpers.length > 0) {
+		function getTopMargin(section: MusicSection<unknown>) {
+			const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
+			return topAttr && topAttr.type == 'top' ? topAttr.margin : 0
+		}
+
+		if(isFirst && line.jumpers.length > 0) {
 			let successCount = 0
 			currY += fieldHeight
 			const topY = currY - 1.17 + shift
@@ -546,8 +557,10 @@ export class LineRenderer {
 				if(startIn) {
 					root.drawLine(startX, bottomY, startX, topY, 0.14, 0.07, scale)
 					const sectionIndex = jumper.startSection - line.startSection
-					if(SectionStat.hasSeparatorAttrs(firstPart.notes.sections[sectionIndex])) {
-						attrOverlaps = 1
+					const section = firstPart.notes.sections[sectionIndex]
+					if(SectionStat.hasSeparatorAttrs(section)) {
+						hasJumperAttrOverlap = true
+						jumperAttrOverlapMax = Math.max(jumperAttrOverlapMax, getTopMargin(section))
 					}
 				}
 				if(endIn) {
@@ -569,19 +582,23 @@ export class LineRenderer {
 		const firstAnnotation = SectionStat.fcaPrimary(part)
 		for(let i = 0; i < line.sectionCount; i++) {
 			if(firstAnnotation) {
-				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorAttrs(part.notes.sections[i])) {
-					if(attrOverlaps != 1) {
-						attrOverlaps = 2
-					}
+				const section = part.notes.sections[i]
+				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorAttrs(section)) {
+					hasAnnAttrOverlap = true
+					annAttrOverlapMax = Math.max(annAttrOverlapMax, getTopMargin(section))
 				}
 			}
 		}
 		// 如有重叠情况，增加下边距，给小节线属性留出空间
-		if(attrOverlaps) {
-			currY += overlapField
+		if(hasJumperAttrOverlap) {
+			currY += overlapField + jumperAttrOverlapMax
+		} else {
+			if(hasAnnAttrOverlap) {
+				currY += overlapField + annAttrOverlapMax
+			}
 		}
 
-		return [currY - startY, hasFirstStart && !attrOverlaps]
+		return [currY - startY, hasFirstStart && !hasJumperAttrOverlap && !hasAnnAttrOverlap]
 	}
 
 	/**

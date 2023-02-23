@@ -1,3 +1,3 @@
 export default {
-	app: '0.4.7'
+	app: '0.4.8'
 }
