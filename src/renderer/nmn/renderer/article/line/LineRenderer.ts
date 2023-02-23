@@ -505,11 +505,10 @@ export class LineRenderer {
 		const shift = 0.6
 
 		let hasJumperAttrOverlap = false
-		let jumperAttrOverlapMax = 0
 		let hasAnnAttrOverlap = false
-		let annAttrOverlapMax = 0
 		
 		let hasFirstStart = false
+		let upsetMax = 0
 
 		function getTopMargin(section: MusicSection<unknown>) {
 			const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
@@ -560,7 +559,6 @@ export class LineRenderer {
 					const section = firstPart.notes.sections[sectionIndex]
 					if(SectionStat.hasSeparatorAttrs(section)) {
 						hasJumperAttrOverlap = true
-						jumperAttrOverlapMax = Math.max(jumperAttrOverlapMax, getTopMargin(section))
 					}
 				}
 				if(endIn) {
@@ -581,22 +579,23 @@ export class LineRenderer {
 
 		const firstAnnotation = SectionStat.fcaPrimary(part)
 		for(let i = 0; i < line.sectionCount; i++) {
+			const section = part.notes.sections[i]
 			if(firstAnnotation) {
-				const section = part.notes.sections[i]
 				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorAttrs(section)) {
 					hasAnnAttrOverlap = true
-					annAttrOverlapMax = Math.max(annAttrOverlapMax, getTopMargin(section))
 				}
 			}
+			upsetMax = Math.max(upsetMax, getTopMargin(section))
 		}
 		// 如有重叠情况，增加下边距，给小节线属性留出空间
 		if(hasJumperAttrOverlap) {
-			currY += overlapField + jumperAttrOverlapMax
+			currY += overlapField
 		} else {
 			if(hasAnnAttrOverlap) {
-				currY += overlapField + annAttrOverlapMax
+				currY += overlapField
 			}
 		}
+		currY += upsetMax
 
 		return [currY - startY, hasFirstStart && !hasJumperAttrOverlap && !hasAnnAttrOverlap]
 	}
