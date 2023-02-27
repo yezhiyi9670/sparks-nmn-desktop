@@ -347,7 +347,7 @@ export class MusicPaint {
 		const mainWidth = tokenMain.measureFast(this.root)[0]
 		let baseX = startX
 		if(baseAnchor == 'center') {
-			if(note.isCharBased && note.text.length > 0) {
+			if(note.isCharBased && note.grouped && note.text.length > 0) {
 				const firstWidth = this.root.measureTextFast(note.text[0], lrcMetric)[0]
 				baseX += mainWidth / 2 - firstWidth / 2
 			}

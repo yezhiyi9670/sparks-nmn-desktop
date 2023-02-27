@@ -42,7 +42,7 @@ export function getLrcSymbolType(symbol: string, typeSampler: LyricDestructionTy
 		return 'prefix'
 	}
 	if([
-		'-', "\\", '|', '/', '+', '='
+		' ', '-', "\\", '|', '/', '+', '='
 	].indexOf(symbol) != -1) {
 		return 'divide'
 	}
