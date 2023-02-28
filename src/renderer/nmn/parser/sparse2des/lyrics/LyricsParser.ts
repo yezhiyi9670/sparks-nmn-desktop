@@ -171,12 +171,12 @@ export class LyricsParser {
 						isCharBased: typeSampler == 'char'
 					})
 				} else if(ch.bracket == '[') {
-					ret.push(lastToken = {
-						charIndex: ch.range[0],
-						type: 'symbol',
-						slot: 'before',
-						char: '['
-					})
+					// ret.push(lastToken = {
+					// 	charIndex: ch.range[0],
+					// 	type: 'symbol',
+					// 	slot: 'before',
+					// 	char: '['
+					// })
 					const innerResult = new LyricsParser(Tokens.join(ch.tokens, {
 						type: 'symbol',
 						range: [0, 0],
@@ -186,12 +186,12 @@ export class LyricsParser {
 					for(let item of innerResult) {
 						ret.push(lastToken = item)
 					}
-					ret.push(lastToken = {
-						charIndex: ch.range[1] - 1,
-						type: 'symbol',
-						slot: 'after',
-						char: ']'
-					})
+					// ret.push(lastToken = {
+					// 	charIndex: ch.range[1] - 1,
+					// 	type: 'symbol',
+					// 	slot: 'after',
+					// 	char: ']'
+					// })
 				} else {
 					addIssue(issues,
 						this.lineNumber, ch.range[0], 'error', 'unexpected_lrc_bracket',
