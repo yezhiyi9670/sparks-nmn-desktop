@@ -127,6 +127,8 @@ export class Destructor {
 			}
 		}
 
+		context.musical = newContext.musical
+
 		return retData
 	}
 	parsePart(part: LineTree<SparseLine>, context: ScoreContext, issues: LinedIssue[]): DestructedPart {
