@@ -380,7 +380,7 @@ export class PositionDispatcher {
 								if(!char.prefix && preChar && preChar.occupiesSpace) {
 									lm = dm
 								}
-								const postChar = chars[charIndex - 1]
+								const postChar = chars[charIndex + 1]
 								if(!char.postfix && postChar && postChar.occupiesSpace) {
 									rm = dm
 								}
