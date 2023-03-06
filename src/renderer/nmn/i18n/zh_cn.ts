@@ -135,7 +135,15 @@ export default {
 		'font_annotation2': '字体 - 自定义标记',
 		'font_annotation3': '字体 - 自定义标记',
 		'font_lyrics': '字体 - 歌词',
-		'font_checkpoint': '字体 - 段落标记'
+		'font_checkpoint': '字体 - 段落标记',
+		'margin_after_props': '(2)间距 - 大标题之后',
+		'margin_after_article': '(1.5)间距 - 章节之后',
+		'margin_after_header': '(0)间距 - 章节标题之后',
+		'margin_before_line': '(1.7)间距 - 乐谱行之前',
+		'margin_after_line': '(0.1)间距 - 乐谱行之后',
+		'margin_after_part_notes': '(2)间距 - 声部曲谱部分之后',
+		'inset_before_lyrics': '(1.3)负间距 - 声部歌词组之前',
+		'margin_after_part': '(1)间距 - 声部之后',
 	},
 	'updown': {
 		'up': '升',

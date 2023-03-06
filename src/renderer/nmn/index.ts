@@ -82,6 +82,29 @@ class SparksNMNClass {
 		row += 1
 		return { row, col }
 	}
+	/**
+	 * 反向转换代码位置坐标
+	 */
+	unconvertCursor(code: string, position_: [number, number]) {
+		const position = position_.slice() as [number, number]
+		const lines = code.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n")
+		let codeLine = lines[position[0] - 1]
+		while(position[0] > 1) {
+			const rowPtr = position[0] - 1
+			const prevLine = lines[rowPtr - 1]
+			if(prevLine[prevLine.length - 1] == "\\") {
+				codeLine = prevLine.substring(0, prevLine.length - 1) + codeLine
+				position[0] -= 1
+				position[1] += prevLine.length - 1
+			} else {
+				break
+			}
+		}
+		return {
+			code: codeLine,
+			position: position
+		}
+	}
 
 	/**
 	 * 加载需要的字体

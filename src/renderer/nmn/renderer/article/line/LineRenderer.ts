@@ -45,7 +45,7 @@ export class LineRenderer {
 		// const root = new DomPaint()
 		const scale = context.render.scale!
 		let currY = startY
-		currY += 1.7
+		currY += context.render.margin_before_line!
 
 		// ===== 列空间自动布局 =====
 		this.columns = new PositionDispatcher(root, line, context)
@@ -76,7 +76,7 @@ export class LineRenderer {
 
 		sections.push({
 			element: new DomPaint().getElement(),
-			height: 1.1 * scale,
+			height: context.render.margin_after_line! * scale,
 			isMargin: true
 		})
 	}
@@ -104,9 +104,9 @@ export class LineRenderer {
 			msp.drawPartName(context, scale * (-0.5 + context.render.connector_left!), lastYs.middle, part.notes.tags, 1, scale)
 		}
 
-		currY += 2
+		currY += context.render.margin_after_part_notes!
 		if(part.lyricLines.length != 0) {
-			currY -= 1.3
+			currY -= context.render.inset_before_lyrics!
 		}
 
 		// ===== 根据回落模型计算歌词行起始高度 =====
@@ -141,7 +141,7 @@ export class LineRenderer {
 			this.renderLyricLine(stat.startY[index], lyricLine, part, line, root, context)
 		})
 
-		currY += 1
+		currY += context.render.margin_after_part!
 
 		return currY - startY
 	}

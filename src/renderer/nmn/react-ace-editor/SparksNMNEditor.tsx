@@ -1,6 +1,6 @@
 import { Ace } from "ace-builds"
 import React, { useImperativeHandle } from "react"
-import { SparksNMNLanguage, NMNI18n, NMNIssue } from ".."
+import { SparksNMNLanguage, NMNI18n, NMNIssue, SparksNMN } from ".."
 import { CodeEditor } from "./CodeEditor/CodeEditor"
 import AceEditor from 'react-ace'
 import 'ace-builds/src-noconflict/mode-plain_text'
@@ -51,8 +51,11 @@ export const SparksNMNEditor = React.forwardRef((props: SparksNMNEditorProps, pa
 		editor.completers = []
 		editor.completers.push({
 			getCompletions: (editor, session, pos, prefix, callback) => {
-				const lineText = session.getLine(pos.row)
-				let linePrefixText = lineText.substring(0, pos.column).trim()
+				const text = session.getValue()
+				const converted = SparksNMN.unconvertCursor(text, [ pos.row + 1, pos.column ])
+				
+				const lineText = converted.code
+				let linePrefixText = lineText.substring(0, converted.position[1]).trim()
 				// ===== 行首标识符自动补全 =====
 				if(linePrefixText == prefix) {
 					const completes: Ace.Completion[] = SparksNMNLanguage.commandDefs.map((val): Ace.Completion => {

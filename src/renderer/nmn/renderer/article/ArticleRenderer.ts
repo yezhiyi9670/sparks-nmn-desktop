@@ -26,7 +26,7 @@ class ArticleRendererClass {
 		if(article.type != 'music' || article.lines.length != 0) {
 			sections.push({
 				element: new DomPaint().getElement(),
-				height: 1.5,
+				height: context.render!.margin_after_article!,
 				isMargin: true
 			})
 		}
@@ -134,7 +134,7 @@ class ArticleRendererClass {
 		})()
 
 		currY += headerFieldWidth / 2
-		currY += 1
+		currY += context.render.margin_after_header!
 
 		return [root, currY]
 	}

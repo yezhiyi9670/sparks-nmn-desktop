@@ -100,7 +100,7 @@ class HeaderRendererClass {
 	renderTopSpacer(score: NMNResult['result'], sections: EquifieldSection[], context: RenderContext) {
 		sections.push({
 			element: new DomPaint().getElement(),
-			height: 2
+			height: context.render.margin_after_props!
 		})
 	}
 	renderFooter(score: NMNResult['result'], sections: EquifieldSection[], context: RenderContext) {

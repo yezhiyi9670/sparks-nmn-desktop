@@ -11,6 +11,7 @@ import { ColumnStater } from "./des2cols/ColumnStater"
 import { Linifier } from "./linify/linify"
 import { ColumnScore, LinedArticle } from "./des2cols/types"
 import { getCommandDef } from "./commands"
+import { SparksNMN } from ".."
 
 const tokenOption: TokenizerOption = {
 	symbolChars: '`_$' + `~!@#%^&*()-=+[{]}\|;:",.<>/?`,
@@ -92,26 +93,7 @@ class ParserClass {
 	 * 找出需要高亮的小节 uuid
 	 */
 	getHighlightedSection(table: SectionPositions, code: string, position: [number, number]): string | undefined {
-		const unconvertResult = ((code: string, position_: [number, number]) => {
-			const position = position_.slice() as [number, number]
-			const lines = code.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n")
-			let codeLine = lines[position[0] - 1]
-			while(position[0] > 1) {
-				const rowPtr = position[0] - 1
-				const prevLine = lines[rowPtr - 1]
-				if(prevLine[prevLine.length - 1] == "\\") {
-					codeLine = prevLine.substring(0, prevLine.length - 1) + codeLine
-					position[0] -= 1
-					position[1] += prevLine.length - 1
-				} else {
-					break
-				}
-			}
-			return {
-				code: codeLine,
-				position: position
-			}
-		})(code, position)
+		const unconvertResult = SparksNMN.unconvertCursor(code, position)
 		const lineCode = unconvertResult.code
 		position = unconvertResult.position
 

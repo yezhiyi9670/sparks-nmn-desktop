@@ -152,6 +152,7 @@ export class DomPaint {
 	 * @returns 
 	 */
 	measureTextFast(text: string, font: FontMetric, widthScale: number = 1) {
+		// return this.measureText(text, font, widthScale)
 		if(text == '') {
 			return [0, 0]
 		}

@@ -87,6 +87,38 @@ export interface RenderProps {
 	 * 字体-段落标记
 	 */
 	font_checkpoint?: string
+	/**
+	 * 音乐作者与全局属性之后的间距
+	 */
+	margin_after_props?: number
+	/**
+	 * 章节后的间距
+	 */
+	margin_after_article?: number
+	/**
+	 * 章节标题后的间距
+	 */
+	margin_after_header?: number
+	/**
+	 * 乐谱行前的间距
+	 */
+	margin_before_line?: number
+	/**
+	 * 乐谱行后的间距
+	 */
+	margin_after_line?: number
+	/**
+	 * 声部曲谱部分后的间距
+	 */
+	margin_after_part_notes?: number
+	/**
+	 * 声部歌词组前的负间距
+	 */
+	inset_before_lyrics?: number
+	/**
+	 * 声部后的间距
+	 */
+	margin_after_part?: number
 }
 
 /**
@@ -118,6 +150,14 @@ export const renderPropsDefault: RenderProps = {
 	font_annotation3: 'SimSun/600',
 	font_lyrics: 'SimSun/600',
 	font_checkpoint: 'SimSun/700',
+	margin_after_props: 2,
+	margin_after_article: 1.5,
+	margin_after_header: 0.0, // diff 1
+	margin_before_line: 1.7, // diff 1.7
+	margin_after_line: 0.1, // diff 1.1
+	margin_after_part_notes: 2,
+	inset_before_lyrics: 1.3,
+	margin_after_part: 1,
 }
 
 /**
@@ -146,7 +186,7 @@ export function renderPropConvert(key: string, val: string) {
 		}
 		return { error: 'value' }
 	}
-	if(key == 'scale' || key == 'gutter_left' || key == 'connector_left') {
+	if(key == 'scale' || key == 'gutter_left' || key == 'connector_left' || key.startsWith('margin_') || key.startsWith('inset_')) {
 		let num = +val
 		if(num != num || num < 0 || num >= 65536) {
 			return { error: 'value' }
