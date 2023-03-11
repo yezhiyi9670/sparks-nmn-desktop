@@ -7,7 +7,7 @@ import { addIssue, LinedIssue } from "../../parser";
 import { BracketPairFilters, BracketToken, BracketTokenList, TokenFilter, Tokens } from "../../tokenizer/tokens";
 import { AttrMatcher } from "../AttrMatcher";
 import { ScoreContext } from "../context";
-import { AttrShift, MusicProps, MusicSection, NoteCharAny, NoteCharMusic, SectionSeparator, SectionSeparatorChar, sectionSeparatorCharMap, SectionSeparators, SeparatorAttr, SeparatorAttrBase } from "../types";
+import { AttrShift, MusicProps, MusicSection, NoteCharAny, NoteCharMusic, SectionSeparator, SectionSeparatorChar, sectionSeparatorCharMap, SectionSeparators, SeparatorAttr, SeparatorAttrBase, separatorAttrPosition } from "../types";
 import { NoteEater } from "./NoteEater";
 
 type RangedSectionSeparators = SectionSeparators & {
@@ -136,6 +136,95 @@ class SectionsParserClass {
 			// 末尾小节之后有小节
 			separators.push(virtualLine(tokens.length, tokens.length))
 		}
+		// 校验小节线
+		for(let i = 0; i < separators.length; i++) {
+			const char = separators[i].next.char
+			const mapData = sectionSeparatorCharMap[char]
+			const isFirst = (i == 0)
+			const isLast = (i == separators.length - 1)
+			// 小节线合法性
+			if(isFirst && !mapData[2]) {
+				addIssue(issues,
+					lineNumber, Tokens.rangeSafe(tokens, separators[i].range[0], 0),
+					'warning', 'invalid_begin_separator',
+					'Separator ${0} cannot be used at the beginning of a sequence.',
+					char
+				)
+			}
+			if(isLast && !mapData[4]) {
+				addIssue(issues,
+					lineNumber, Tokens.rangeSafe(tokens, separators[i].range[0], 0),
+					'warning', 'invalid_end_separator',
+					'Separator ${0} cannot be used at the end of a sequence.',
+					char
+				)
+			}
+			// 前后小节线属性的合法性
+			if(isFirst && separators[i].after.attrs.length > 0) {
+				addIssue(issues,
+					lineNumber, Tokens.rangeSafe(tokens, separators[i].range[0], 0),
+					'error', 'invalid_pre_attr_begin',
+					'Separator on the beginning of the sequence cannot have pre attributes.',
+					char
+				)
+			}
+			if(isLast && separators[i].before.attrs.length > 0) {
+				addIssue(issues,
+					lineNumber, Tokens.rangeSafe(tokens, separators[i].range[0], 0),
+					'error', 'invalid_post_attr_end',
+					'Separator on the end of the sequence cannot have post attributes.',
+					char
+				)
+			}
+			// 每个小节线属性
+			function handleAttr(attr: SeparatorAttr, slot: 'after' | 'next' | 'before') {
+				const def = separatorAttrPosition[attr.type]
+				if(undefined === def) {
+					return
+				}
+				const slotIndex = {
+					after: 0,
+					next: 1,
+					before: 2
+				}[slot]
+				const slotName = {'after': 'pre', 'next': 'self', 'before': 'post'}[slot]
+				if(!def[slotIndex]) {
+					addIssue(issues,
+						lineNumber, attr.range[0],
+						'error', `invalid_${slotName}_attr`,
+						'Separator attribute of type ${0} may not be a ' + slotName + ' attribute.',
+						attr.type
+					)
+				} else if(slot == 'next') {
+					if(isFirst && def[3] == 'begin') {
+						addIssue(issues,
+							lineNumber, attr.range[0],
+							'error', `invalid_self_attr_begin`,
+							'Separator attribute of type ${0} may not be a self attribute at the beginning of a sequence.',
+							attr.type
+						)
+					}
+					if(isLast && def[3] == 'end') {
+						addIssue(issues,
+							lineNumber, attr.range[0],
+							'error', `invalid_self_attr_end`,
+							'Separator attribute of type ${0} may not be a self attribute at the end of a sequence.',
+							attr.type
+						)
+					}
+				}
+			}
+			for(let attr of separators[i].after.attrs) {
+				handleAttr(attr, 'after')
+			}
+			for(let attr of separators[i].next.attrs) {
+				handleAttr(attr, 'next')
+			}
+			for(let attr of separators[i].before.attrs) {
+				handleAttr(attr, 'before')
+			}
+		}
+		// 处理属性变化并读取小节
 		for(let i = 1; i < separators.length; i++) {
 			let lpt = separators[i - 1].range[1]
 			let rpt = separators[i].range[0]

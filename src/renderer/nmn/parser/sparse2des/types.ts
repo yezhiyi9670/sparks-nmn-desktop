@@ -244,6 +244,30 @@ export type SeparatorAttrBase =
 	AttrText |
 	AttrScriptedText
 /**
+ * 小节线属性的可用位置
+ */
+export const separatorAttrPosition: {
+	[_: string]: [boolean, boolean, boolean, 'begin' | 'end'] // 前(pre/after)-中(next)-后(post/before)-禁止自身属性的位置
+} = {
+	weight: [false, false, true, 'begin'],
+	top: [false, false, true, 'begin'],
+	
+	iter: [true, false, true, 'begin'],
+	reset: [true, false, true, 'begin'],
+	durability: [true, false, true, 'begin'],
+	repeat: [true, true, true, 'begin'],
+	label: [false, true, false, 'begin'],
+	
+	qpm: [true, true, true, 'end'],
+	beats: [true, true, true, 'end'],
+	shift: [true, true, true, 'end'],
+
+	text: [true, false, true, 'begin'],
+	scriptedText: [true, false, true, 'begin'],
+
+	openRange: [false, false, false, 'begin']
+}
+/**
  * 音符的属性
  */
 export type NoteAttr =
@@ -319,23 +343,23 @@ export type LyricChar = {
  */
 export type SectionSeparatorChar = '/' | '/|' | '|' | '||' | '|||' | '||:' | ':||' | ':||:' | '/||' | ':/||' | '/||:' | ':/||:'
 /**
- * 小节线在行末/行首如何拆分显示
+ * 小节线在行末/行首如何拆分显示，以及它们允许的位置
  */
 export const sectionSeparatorCharMap: {
-	[_: string]: [SectionSeparatorChar, SectionSeparatorChar]
+	[_: string]: [SectionSeparatorChar, SectionSeparatorChar, boolean, boolean, boolean] // 前-中-后
 } = {
-	'/': ['/', '/'],
-	'/|': ['/|', '/'],
-	'|': ['|', '/'],
-	'||': ['||', '/'],
-	'|||': ['|||', '/'],
-	'||:': ['|', '||:'],
-	':||': [':||', '/'],
-	':||:': [':||', '||:'],
-	'/||': ['/||', '/'],
-	'/||:': ['/||', '||:'],
-	':/||': [':/||', '/'],
-	':/||:': [':/||', '||:']
+	'/': ['/', '/', true, true, true],
+	'/|': ['/|', '/', false, true, true],
+	'|': ['|', '/', false, true, true],
+	'||': ['||', '/', false, true, true],
+	'|||': ['|||', '/', false, true, true],
+	'||:': ['|', '||:', true, true, false],
+	':||': [':||', '/', false, true, true],
+	':||:': [':||', '||:', false, true, false],
+	'/||': ['/||', '/', false, true, true],
+	'/||:': ['/||', '||:', true, true, false],
+	':/||': [':/||', '/', false, true, true],
+	':/||:': [':/||', '||:', false, true, false]
 }
 /**
  * 获取对于较大小节线记号保留的边距
