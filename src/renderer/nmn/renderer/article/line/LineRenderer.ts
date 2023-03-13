@@ -557,7 +557,7 @@ export class LineRenderer {
 					root.drawLine(startX, bottomY, startX, topY, 0.14, 0.07, scale)
 					const sectionIndex = jumper.startSection - line.startSection
 					const section = firstPart.notes.sections[sectionIndex]
-					if(SectionStat.hasSeparatorAttrs(section)) {
+					if(SectionStat.hasSeparatorAttrs(section, true)) {
 						hasJumperAttrOverlap = true
 					}
 				}

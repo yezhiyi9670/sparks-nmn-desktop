@@ -470,13 +470,13 @@ export module SectionStat {
 	/**
 	 * 小节是否包含前置/后置小节线属性
 	 */
-	export function hasSeparatorAttrs(section: MusicSection<unknown>) {
+	export function hasSeparatorAttrs(section: MusicSection<unknown>, beforeOnly: boolean = false) {
 		function checkSeparatorAttrs(attrs: SeparatorAttr[]) {
 			return attrs.filter((attr) => {
 				return attr.type != 'weight' && attr.type != 'beats' && attr.type != 'top'
 			}).length != 0
 		}
-		return checkSeparatorAttrs(section.separator.before.attrs) || checkSeparatorAttrs(section.separator.after.attrs)
+		return checkSeparatorAttrs(section.separator.before.attrs) || (!beforeOnly && checkSeparatorAttrs(section.separator.after.attrs))
 	}
 
 	/**
