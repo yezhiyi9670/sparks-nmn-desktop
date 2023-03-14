@@ -289,9 +289,6 @@ export class ColumnStater {
 						}
 					}
 					const frontier = lyricLines1[sig.hash]
-					// 歌词小节化并合并
-					const lrcSections = this.sectionifyLyrics(lyricLine, part.notes.sections, context, issues)
-					paintArray(frontier.sections, lrcSections, lyricLine.offset, -1, lyricSectionNullish)
 					// 合并小节
 					this.mergeFCA(frontier, lyricLine, lyricLine.offset, -1)
 					// 合并 indexMap
@@ -300,6 +297,7 @@ export class ColumnStater {
 					fillArray(frontier.attrsMap, lyricLine.offset, sectionCount - lyricLine.offset, lyricLine.lyric.tags, [])
 					// 合并替代段落
 					lyricLine.notesSubstitute.forEach((Ns) => {
+						// 分配序号
 						Ns.sections.forEach((section, index) => {
 							const myIndex = index + Ns.substituteLocation
 							const mySection = part.notes.sections[myIndex]
@@ -308,9 +306,13 @@ export class ColumnStater {
 								section.statQuarters = mySection.statQuarters
 							}
 						})
+						// 小节连接
 						SectionStat.interLink(Ns.sections, Ns.decorations)
 						frontier.notesSubstitute.push(Ns)
 					})
+					// 歌词小节化并合并（为防止连音线问题应当在小节连接之后）
+					const lrcSections = this.sectionifyLyrics(lyricLine, part.notes.sections, context, issues)
+					paintArray(frontier.sections, lrcSections, lyricLine.offset, -1, lyricSectionNullish)
 				})
 				// 填充
 				iterateMap(lyricLines1, (lyricLine) => {
