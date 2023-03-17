@@ -124,8 +124,8 @@ export default {
 		'debug': '显示错误警告',
 		'sectionorder': '小节线序号模式',
 		'scale': '文档缩放',
-		'gutter_left': '曲谱的额外左边距',
-		'connector_left': '连谱号的额外左边距',
+		'gutter_left': '(1)左边距 - 曲谱',
+		'connector_left': '(0)左边距 - 连谱号',
 		'left_separator': '显示行首的小节线',
 		'grayout': '降低延长连音音符的不透明度',
 		'explicitmarkers': '总是显示声部标签',
@@ -153,6 +153,7 @@ export default {
 		'margin_after_part_notes': '(2)间距 - 声部曲谱部分之后',
 		'inset_before_lyrics': '(1.3)负间距 - 声部歌词组之前',
 		'margin_after_part': '(1)间距 - 声部之后',
+		'offset_lyrics_iter': '(1.5)偏移值 - 歌词行编号'
 	},
 	'updown': {
 		'up': '升',

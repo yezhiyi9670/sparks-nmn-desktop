@@ -190,10 +190,15 @@ export class MusicPaint {
 		} else {
 			hX -= separatorInset[1]
 		}
-		attrs.forEach((attr) => {
+		let lastAttr: SeparatorAttr | undefined = undefined
+		;(sign > 0 ? attrs : attrs.reverse()).forEach((attr) => {
 			if(['iter', 'repeat', 'qpm', 'shift', 'durability', 'text', 'scriptedText', 'reset'].indexOf(attr.type) != -1) {
+				if(lastAttr && !(lastAttr.type == 'iter' && attr.type == 'iter')) {
+					currX += sign * margin
+				}
 				const measure = this.drawSeparatorAttrText(context, currX, attrY, attr, fontScale, scale, extraStyles, true)
-				currX += sign * (this.drawSeparatorAttrText(context, currX - (sign > 0 ? 0 : measure[0]), attrY, attr, fontScale, scale, extraStyles, false)[0] + margin)
+				currX += sign * this.drawSeparatorAttrText(context, currX - (sign > 0 ? 0 : measure[0]), attrY, attr, fontScale, scale, extraStyles, false)[0]
+				lastAttr = attr
 			}
 			if(attr.type == 'beats') {
 				const measure = this.drawBeats(hX, y, attr.beats, fontScale * 0.95, scale, extraStyles, true)
@@ -207,7 +212,7 @@ export class MusicPaint {
 	drawLyricLabel(context: RenderContext, x: number, y: number, attrs: LrcAttr[], scale: number = 1, extraStyles: ExtraStyles = {}) {
 		let currX = x
 		let attrY = y
-		const margin = 0.5 * scale
+		const margin = 0 * scale
 		let totalWidth = 0
 		const fontDesc = context.render.font_lyrics!
 		attrs.forEach((attr) => {
@@ -230,8 +235,13 @@ export class MusicPaint {
 	 */
 	drawJumperAttrs(context: RenderContext, startX: number, y: number, attrs: JumperAttr[], fontScale: number, scale: number) {
 		let currX = startX
+		let lastAttr: JumperAttr | undefined = undefined
 		attrs.forEach((attr) => {
-			currX += this.drawIterOrString(context, currX, y, attr, context.render.font_attr!, 1.79 * fontScale, scale)[0] + 0.5 * scale
+			if(lastAttr && !(lastAttr.type == 'iter' && attr.type == 'iter')) {
+				currX += 0.5 * scale
+			}
+			currX += this.drawIterOrString(context, currX, y, attr, context.render.font_attr!, 1.79 * fontScale, scale)[0]
+			lastAttr = attr
 		})
 	}
 	/**

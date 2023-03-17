@@ -119,6 +119,10 @@ export interface RenderProps {
 	 * 声部后的间距
 	 */
 	margin_after_part?: number
+	/**
+	 * 歌词行反复次数与歌词的间距
+	 */
+	offset_lyrics_iter?: number
 }
 
 /**
@@ -158,6 +162,7 @@ export const renderPropsDefault: RenderProps = {
 	margin_after_part_notes: 2,
 	inset_before_lyrics: 1.3,
 	margin_after_part: 1,
+	offset_lyrics_iter: 1.5,
 }
 
 /**
@@ -186,7 +191,10 @@ export function renderPropConvert(key: string, val: string) {
 		}
 		return { error: 'value' }
 	}
-	if(key == 'scale' || key == 'gutter_left' || key == 'connector_left' || key.startsWith('margin_') || key.startsWith('inset_')) {
+	if(
+		key == 'scale' || key == 'gutter_left' || key == 'connector_left'
+		|| key.startsWith('margin_') || key.startsWith('inset_') || key.startsWith('offset_')
+	) {
 		let num = +val
 		if(num != num || num < 0 || num >= 65536) {
 			return { error: 'value' }

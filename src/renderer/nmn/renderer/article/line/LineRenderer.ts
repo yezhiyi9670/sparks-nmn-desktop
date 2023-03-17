@@ -201,6 +201,7 @@ export class LineRenderer {
 		const lrcLineField = 2.2 * new FontMetric(context.render.font_lyrics!, 2.16).fontScale
 		const substituteField = 4.4
 		const lrcLineMarginBottom = 1.0
+		const labelPrevOffset = context.render.offset_lyrics_iter!
 
 		const scale = context.render.scale!
 		const msp = new MusicPaint(root)
@@ -238,7 +239,7 @@ export class LineRenderer {
 				// 画括号
 				msp.drawInsert(context, localColumns.startPosition(0), currY, { type: 'insert', char: 'lpr' }, true, scale)
 				msp.drawInsert(context, localColumns.endPosition(localColumns.data.length - 1), currY, { type: 'insert', char: 'rpr' }, true, scale)
-				labelPrevPos = Math.min(localColumns.startPosition(0)) - 1.5 * scale
+				labelPrevPos = Math.min(localColumns.startPosition(0)) - labelPrevOffset * scale
 
 				if(Ns.tags.length > 0) {
 					lastLabel = Ns.tags
@@ -361,7 +362,7 @@ export class LineRenderer {
 
 			// 绘制迭代数符号
 			if(labelPrevPos) {
-				msp.drawLyricLabel(context, labelPrevPos - 1.5 * scale, currY, lyricLine.signature.attrs, scale)
+				msp.drawLyricLabel(context, labelPrevPos - labelPrevOffset * scale, currY, lyricLine.signature.attrs, scale)
 			}
 
 			currY += lrcLineField / 2
