@@ -27,6 +27,8 @@ export function AboutDialog(props: {
 		<p>
 			{LNG('about.version', window.Versions.app)}
 			{" · "}
+			{LNG('about.version_core', window.Versions.core)}
+			{" · "}
 			<OutLink href={LNG('link.official')}>{LNG('about.website')}</OutLink>
 			{" · "}
 			<OutLink href={LNG('link.github')}>{LNG('about.github')}</OutLink>

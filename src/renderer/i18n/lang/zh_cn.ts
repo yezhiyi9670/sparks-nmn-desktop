@@ -308,6 +308,7 @@ export default flattenI18nData({
 		"text": appName + " 是 Sparks NMN 的桌面应用版本，以满足离线使用的需要，并提供便捷的编辑、导出和打印功能。",
 		"text.core": "Sparks NMN 是一个基于文本格式的简谱编写软件内核，旨在实现高效的输入与自动排版，使用户能够专注于乐理分析的过程。此内核基于 Web 技术，可以在浏览器上运行。",
 		"version": "${0}",
+		"version_core": "Sparks NMN ${0}",
 		"author": "Made with ❤ by yezhiyi9670",
 		"github": "在 Github 上查看",
 		"website": "官方网站",
