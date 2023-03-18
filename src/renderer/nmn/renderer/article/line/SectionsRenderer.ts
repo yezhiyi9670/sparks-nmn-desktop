@@ -44,7 +44,7 @@ export class SectionsRenderer {
 		let firstSection = true
 		sections.forEach((section, index) => {
 			const isLast = index == sections.length - 1
-			if(firstSection) {
+			if(firstSection && section.type != 'nullish' && section.type != 'empty') {
 				msp.drawSectionSeparator(
 					context, this.columns.startPosition(index), currY,
 					section.separator, 'before',
@@ -58,7 +58,7 @@ export class SectionsRenderer {
 					isSmall ? 0.6 : 1, scale
 				)
 			}
-			firstSection = false
+			firstSection = (section.type == 'nullish')
 		})
 
 		// ===== 小节序号 =====
