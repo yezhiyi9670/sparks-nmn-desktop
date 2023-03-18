@@ -24,7 +24,7 @@ const useStyles = createUseStyles({
 	},
 	groupPreview: {
 		height: 0,
-		flex: 5,
+		flex: 4,
 		overflowY: 'auto'
 	},
 	groupSeparator: {
@@ -33,7 +33,7 @@ const useStyles = createUseStyles({
 	},
 	groupEdit: {
 		height: 0,
-		flex: 4,
+		flex: 3,
 	},
 	groupStatusBar: {
 		borderTop: '1px solid #0002',
