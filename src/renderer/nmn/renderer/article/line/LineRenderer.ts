@@ -216,7 +216,7 @@ export class LineRenderer {
 
 		// ===== 替代旋律 =====
 		if(shouldDrawSubstitute) {
-			let labelPrevPos = Infinity
+			let labelPrevPos = 100
 
 			currY += substituteField / 2
 
@@ -257,7 +257,7 @@ export class LineRenderer {
 		// ===== 歌词行 =====
 		if(shouldDrawLyrics) {
 			currY += lrcLineField / 2
-			let labelPrevPos = Infinity
+			let labelPrevPos = 100
 
 			const lrcSymbols: LrcSymbol[] = []
 			// 统计此行歌词字符
@@ -282,8 +282,9 @@ export class LineRenderer {
 			lrcSymbols.forEach((symbol, index) => {
 				if(symbol.char.occupiesSpace) {
 					symbol.boundaries = msp.drawLyricChar(context, symbol.startX, symbol.endX, currY, symbol.char, 'center', scale)
-					if(symbol.char.postfix || symbol.char.prefix || symbol.char.text || symbol.char.rolePrefix)
+					if(symbol.char.postfix || symbol.char.prefix || symbol.char.text || symbol.char.rolePrefix || symbol.char.extension) {
 						labelPrevPos = Math.min(labelPrevPos, symbol.boundaries[0])
+					}
 				}
 			})
 			// 渲染需要推断位置的符号

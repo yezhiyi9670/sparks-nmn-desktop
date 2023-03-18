@@ -286,7 +286,7 @@ export module SectionStat {
 			return true
 		}
 		for(let char of section.chars) {
-			if(char.text || char.prefix || char.rolePrefix || char.postfix) {
+			if(char.text || char.prefix || char.rolePrefix || char.postfix || char.extension) {
 				return false
 			}
 		}
