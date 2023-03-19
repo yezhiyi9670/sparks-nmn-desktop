@@ -269,7 +269,7 @@ export class LineRenderer {
 					const startFrac = Frac.add(section.startPos, note.startPos)
 					const endFrac = Frac.add(startFrac, note.length)
 					const pos = this.columns.fracPosition(sectionIndex, startFrac)
-					const endPos = this.columns.fracEndPosition(endFrac)
+					const endPos = this.columns.fracEndPosition(endFrac, true)
 					lrcSymbols.push({
 						char: note,
 						startX: pos,
@@ -343,12 +343,12 @@ export class LineRenderer {
 					const startX = symbol.boundaries[1]
 					let nextSymbol = lrcSymbols[index + 1]
 					let endX = 0
-					if(!nextSymbol) {
+					if(!nextSymbol || !(nextSymbol.char.text == '')) {
 						endX = this.columns.endPosition(this.columns.data.length - 1)
 					} else {
 						endX = nextSymbol.boundaries[0]
 					}
-					endX = Math.min(endX, symbol.endX - noteMeasure[0] / 2)
+					endX = Math.min(endX, symbol.endX + noteMeasure[0] / 2)
 					// 确保绘制连续的延长线
 					if(nextSymbol && nextSymbol.char.text == '' && nextSymbol.char.extension) {
 						endX = nextSymbol.startX
@@ -467,7 +467,7 @@ export class LineRenderer {
 					return
 				}
 				const endFracPos = Frac.add(fracPos, note.length)
-				let endPos = this.columns.fracEndPosition(endFracPos)
+				let endPos = this.columns.fracEndPosition(endFracPos, true)
 				msp.drawFCANote(context, pos, endPos, currY, -1, note.char, isSmall, scale)
 			}))
 			currY += FCALineField / 2

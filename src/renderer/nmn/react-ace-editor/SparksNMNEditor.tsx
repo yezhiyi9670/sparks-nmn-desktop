@@ -24,6 +24,9 @@ export const SparksNMNEditor = React.forwardRef((props: SparksNMNEditorProps, pa
 	const ref = React.useRef<AceEditor>(null)
 
 	useImperativeHandle(parentRef, () => {
+		if(ref.current) {
+			ref.current.editor.session.setAnnotations(annotations)
+		}
 		return ref.current!
 	})
 
@@ -40,12 +43,6 @@ export const SparksNMNEditor = React.forwardRef((props: SparksNMNEditorProps, pa
 		}) ?? []
 		return ret
 	}, [ props.issues, languageArray ])
-
-	React.useEffect(() => {
-		if(ref.current) {
-			ref.current.editor.session.setAnnotations(annotations)
-		}
-	})
 
 	function handleLoad(editor: Ace.Editor) {
 		editor.completers = []

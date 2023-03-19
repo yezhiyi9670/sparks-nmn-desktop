@@ -264,29 +264,35 @@ export class SectionsRenderer {
 				if(!isSmall) {
 					section.decoration.forEach((decor) => {
 						if(decor.char == 'T') {
+							// ==== 确定文本 ====
+							let tripletText = '' + decor.level
+							if(decor.extraNumber) {
+								tripletText += '/' + decor.extraNumber
+							}
+							// ==== 绘制 ====
 							const startX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.startPos)) - noteMeasure[0] / 2
 							const endX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.endPos)) + noteMeasure[0] / 2
 							// const lowY = currY - noteMeasure[1] / 2 - 0.5
 							let highY = currY - noteMeasure[1] / 2 - 2
-							const heightSpacing = noteMeasure[1] * 0.25
+							const heightSpacing = noteMeasure[1] * (tripletText == '3' ? 0.25 : 0.4)
 							checkNoteList((note) => {
 								highY = Math.min(highY, note.leftTop - heightSpacing)
 								highY = Math.min(highY, note.rightTop - heightSpacing)
 							}, Frac.add(section.startPos, decor.startPos), Frac.add(section.startPos, decor.endPos), true, true)
 							const lowY = highY + 1.5
 							const midX = (startX + endX) / 2
-							const threeToken = new PaintTextToken(
-								'3', new FontMetric('SparksNMN-mscore-20/400', 3),
+							const annoToken = new PaintTextToken(
+								tripletText, new FontMetric('SparksNMN-mscore-20/400', 3),
 								scale, {fontStyle: 'italic'}
 							)
-							const threeMeasure = threeToken.measureFast(root)
-							const midLX = midX - threeMeasure[0]
-							const midRX = midX + threeMeasure[0]
+							const annoMeasure = annoToken.measureFast(root)
+							const midLX = midX - annoMeasure[0] / 2 - 0.5 * scale
+							const midRX = midX + annoMeasure[0] / 2 + 0.5 * scale
 							root.drawLine(startX, lowY, startX, highY, 0.2, 0.1, scale)
 							if(midLX > startX) {
 								root.drawLine(startX, highY, midLX, highY, 0.2, 0.1, scale)
 							}
-							threeToken.drawFast(root, midX, highY, 'center', 'middle')
+							annoToken.drawFast(root, midX, highY, 'center', 'middle')
 							if(endX > midRX) {
 								root.drawLine(midRX, highY, endX, highY, 0.2, 0.1, scale)
 							}

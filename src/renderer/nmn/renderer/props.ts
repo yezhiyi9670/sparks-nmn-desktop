@@ -123,6 +123,10 @@ export interface RenderProps {
 	 * 歌词行反复次数与歌词的间距
 	 */
 	offset_lyrics_iter?: number
+	/**
+	 * 小节间距
+	 */
+	offset_section_boundary?: number
 }
 
 /**
@@ -163,6 +167,7 @@ export const renderPropsDefault: RenderProps = {
 	inset_before_lyrics: 1.3,
 	margin_after_part: 1,
 	offset_lyrics_iter: 1.5,
+	offset_section_boundary: 1,
 }
 
 /**

@@ -71,7 +71,7 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 	const exportTemplate = useExportTemplate()
 	const languageArray = NMNI18n.languages.zh_cn
 	const classes = useStyles()
-	const editorRef = createRef<AceEditor>()
+	const editorRef = useRef<AceEditor>(null)
 	const [ sessionToken, setSessionToken ] = useState(() => randomToken(24))
 
 	// ===== 显示模式 =====

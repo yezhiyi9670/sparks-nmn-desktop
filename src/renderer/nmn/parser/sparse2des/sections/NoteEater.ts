@@ -137,9 +137,17 @@ export class NoteEater {
 		let position = Frac.create(0)
 		let insertOrdinal = 0
 		let lastColumn = Frac.copy(startPos)
-		let tripletFirst = Frac.create(0)
-		let tripletRatio = Frac.create(1)
-		let tripletRemain = 0
+		
+		const tripletData = {
+			startPos: Frac.create(0, 0),   // 第一个音符的位置
+			ratio: Frac.create(1),         // 连音比例
+			reducedRatio: Frac.create(2),  // 减时比例
+			total: 0,                      // 音符数量
+			remain: 0,                     // 剩余音符数量，作用于单个音符则减 1，作用于一个括号则归零
+			markable: false,               // 是否需要标记记号
+			custom: false                  // 是否自定义
+		}
+		
 		var extendingNote: (MusicNote<NoteCharAny & {type: TypeSampler}>) | undefined = undefined as any;
 		(() => {
 			let leftSplitFlag = true
@@ -239,11 +247,40 @@ export class NoteEater {
 				// ===== 检测连音前置符 =====
 				const reductionChar1 = this.getchar()
 				if(reductionChar1 !== undefined) {
-					if(reductionChar1 == 'T' || reductionChar1 == 'D') {
+					let matched = true
+					if(reductionChar1 == 'T') {
 						this.passchar()
-						tripletRatio = reductionChar1 == 'T' ? Frac.create(2, 3) : Frac.create(1)
-						tripletRemain = reductionChar1 == 'T' ? 3 : 1
-						tripletFirst = Frac.create(0, 0)
+						const attrToken = this.peek()
+						tripletData.startPos = Frac.create(0, 0)
+						tripletData.ratio = Frac.create(2, 3)
+						tripletData.reducedRatio = Frac.create(1, 3)
+						tripletData.total = 3
+						tripletData.markable = true
+						tripletData.custom = false
+						// 检测描述符
+						if(attrToken && 'bracket' in attrToken && attrToken.bracket == '[') {
+							const result = this.eatTripletDesc(attrToken.tokens, attrToken.range[0], issues)
+							if(result) {
+								tripletData.ratio = result.ratio
+								tripletData.reducedRatio = Frac.mul(Frac.create(1, 2), result.ratio)
+								tripletData.total = result.total
+								tripletData.custom = true
+							}
+							this.pass()
+						}
+					} else if(reductionChar1 == 'D') {
+						this.passchar()
+						tripletData.startPos = Frac.create(0, 0)
+						tripletData.ratio = Frac.create(1)
+						tripletData.reducedRatio = Frac.create(1, 2)
+						tripletData.total = 1
+						tripletData.markable = false
+						tripletData.custom = false
+					} else {
+						matched = false
+					}
+					if(matched) {
+						tripletData.remain = tripletData.total
 						continue
 					}
 				}
@@ -251,16 +288,13 @@ export class NoteEater {
 				if(token === undefined) {
 					return
 				}
-				let reduction = 2
-				if(this.level == 0) {
-					reduction = this.context.musical.beats!.defaultReduction
-					if(tripletRemain > 0 /*&& Frac.compare(Frac.create(1), tripletRatio) == 0*/) {
-						reduction = 2
+				let reducedRatio = Frac.create(1, 2)
+				if(tripletData.remain <= 0) {
+					if(this.level == 0) {
+						reducedRatio = Frac.create(1, this.context.musical.beats!.defaultReduction)
 					}
-				}
-				let reducedRatio = Frac.create(1, reduction)
-				if(tripletRemain > 0) {
-					reducedRatio = Frac.mul(reducedRatio, tripletRatio)
+				} else {
+					reducedRatio = tripletData.reducedRatio
 				}
 				if('bracket' in token) {
 					if(token.bracket == '(') {
@@ -271,6 +305,9 @@ export class NoteEater {
 							issues,
 							typeSampler
 						)
+						if(Frac.isIndeterminate(tripletData.startPos)) {
+							tripletData.startPos = Frac.add(startPos, Frac.mul(ratio, position))
+						}
 						// 推入下划线
 						if(writtenLength.x != 0) {
 							section.decoration.push({
@@ -283,14 +320,14 @@ export class NoteEater {
 							lastColumn = Frac.copy(writtenLastCol)
 						}
 						// 推入三连音
-						if(tripletRemain > 0) {
-							if(Frac.compare(Frac.create(1), tripletRatio) != 0) {
+						if(tripletData.remain > 0) {
+							if(tripletData.markable) {
 								if(Frac.compare(writtenLength, Frac.create(0)) > 0) {
 									section.decoration.push({
 										type: 'range',
-										startPos: Frac.add(startPos, Frac.mul(ratio, position)),
+										startPos: tripletData.startPos,
 										endPos: writtenLastCol,
-										level: this.level,
+										level: tripletData.total,
 										char: 'T'
 									})
 								}
@@ -307,9 +344,8 @@ export class NoteEater {
 						)
 					}
 					this.pass()
-					if(tripletRemain > 0) {
-						tripletRemain = 0
-						tripletRatio = Frac.create(1)
+					if(tripletData.remain > 0) {
+						tripletData.remain = 0
 					}
 					continue
 				}
@@ -356,41 +392,85 @@ export class NoteEater {
 					Frac.add(startPos, Frac.mul(position, ratio))
 				)
 				const noteStartPos = Frac.add(startPos, Frac.mul(ratio, position))
+				const noteRatio = tripletData.remain > 0 ? tripletData.ratio : Frac.create(1)
 				extendingNote = {
 					type: 'note',
 					lineNumber: this.lineNumber,
 					range: [range0, Tokens.rangeSafe(this.input, this.tokenPtr, 0)],
 					startPos: noteStartPos,
-					length: Frac.mul(ratio, Frac.mul(length, tripletRatio)),
+					length: Frac.mul(ratio, Frac.mul(length, noteRatio)),
 					attrs: attrs,
 					suffix: suffixes,
 					voided: false,
 					char: noteChar
 				}
-				position = Frac.add(position, Frac.mul(length, tripletRatio))
+				position = Frac.add(position, Frac.mul(length, noteRatio))
 				section.notes.push(extendingNote)
 				// ===== 三连音计数 =====
-				if(tripletRemain > 0) {
-					tripletRemain -= 1
-					if(Frac.isIndeterminate(tripletFirst)) {
-						tripletFirst = Frac.copy(noteStartPos)
+				if(tripletData.remain > 0) {
+					tripletData.remain -= 1
+					if(Frac.isIndeterminate(tripletData.startPos)) {
+						tripletData.startPos = Frac.copy(noteStartPos)
 					}
-					if(tripletRemain == 0) {
-						if(Frac.compare(tripletRatio, Frac.create(1)) != 0) {
+					if(tripletData.remain == 0) {
+						let extraNumber: number | undefined = undefined
+						let field = Frac.toFloat(Frac.mul(tripletData.ratio, Frac.create(tripletData.total)))
+						if(tripletData.total != field + 1) {
+							extraNumber = field
+						}
+						if(tripletData.markable) {
 							section.decoration.push({
 							type: 'range',
-								startPos: tripletFirst,
+								startPos: tripletData.startPos,
 								endPos: noteStartPos,
-								level: this.level,
+								level: tripletData.total,
+								extraNumber: extraNumber,
 								char: 'T'
 							})
 						}
-						tripletRatio = Frac.create(1)
 					}
 				}
 			}
 		})()
 		return [Frac.mul(ratio, position), lastColumn]
+	}
+
+	/**
+	 * 获取三连音记号的描述符
+	 */
+	eatTripletDesc(tokens: BracketTokenList[], index: number, issues: LinedIssue[]) {
+		if(tokens.length != 2) {
+			addIssue(issues, this.lineNumber, index,
+				'error', 'triplet_invalid_format',
+				'Invalid triplet descriptor. It should be like <field>,<number>.'
+			)
+			return undefined
+		}
+		const arg1 = Tokens.stringify(tokens[0], '', ',')
+		const arg2 = Tokens.stringify(tokens[1], '', ',')
+		const total = +arg2
+		if(total != total || Math.floor(total) != total || total <= 0 || total >= 65536) {
+			addIssue(issues, this.lineNumber, index,
+				'error', 'triplet_invalid_number',
+				'Invalid triplet number ${0}.',
+				arg2
+			)
+			return undefined
+		}
+		const field = +arg1
+		if(field != field || Math.floor(field) != field || field <= 0 || field >= 65536) {
+			addIssue(issues, this.lineNumber, index,
+				'error', 'triplet_invalid_field',
+				'Invalid triplet field ${0}.',
+				arg1
+			)
+			return undefined
+		}
+
+		return {
+			total: total,
+			ratio: Frac.create(field, total)
+		}
 	}
 
 	/**

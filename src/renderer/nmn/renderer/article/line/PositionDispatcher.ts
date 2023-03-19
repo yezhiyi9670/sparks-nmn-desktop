@@ -123,17 +123,21 @@ export class PositionDispatcher {
 	/**
 	 * 获取分数位置（或者其后的任意位置）在渲染行中的位置，如果不存在，返回最后一小节右边界位置
 	 */
-	fracEndPosition(frac: Fraction) {
+	fracEndPosition(frac: Fraction, isPrevious?: boolean) {
+		let previous = this.paddedStartPosition(0)
 		for(let section of this.data) {
 			for(let column of section.columns) {
 				if(Frac.compare(frac, column.fraction) <= 0) {
-					return column.position
+					return isPrevious ? previous : column.position
 				}
+				previous = column.position
 			}
 			// 这里使用右边界分数位置是不对的，因为它可能被修改过。好在目前没有。
+			const endPos = section.realRange[1] - section.padding[1]
 			if(Frac.compare(frac, section.fraction[1]) <= 0) {
-				return section.realRange[1] - section.padding[1]
+				return isPrevious ? previous : endPos
 			}
+			previous = endPos
 		}
 		return this.paddedEndPosition(this.data.length - 1)
 	}
@@ -184,7 +188,7 @@ export class PositionDispatcher {
 		const gutterLeft = this.context.render.gutter_left!
 		const leftBoundary = gutterLeft * this.scale
 		const rightBoundary = 100
-		const sectionPadding = 1 * this.scale
+		const sectionPadding = this.context.render.offset_section_boundary! * this.scale
 		
 		let currentStart = leftBoundary
 		let totalWeights = 0

@@ -537,13 +537,23 @@ export type MusicDecorationRange = {
 	endSplit?: boolean
 	/**
 	 * 级别
+	 * - 对于连音线，表示是否跨小节
+	 * - 对于下划线，表示层级，从 1 开始
+	 * - 对于三连音，表示记号上需要显示的连音数
 	 */
 	level: number
+} & ({
 	/**
 	 * 类型
 	 */
-	char: '_' | 'T' | '~' | '*'
-}
+	char: '_' | '~' | '*'
+} | {
+	/**
+	 * 类型：三连音
+	 */
+	char: 'T'
+	extraNumber?: number // 需要显示的分子
+})
 /**
  * 插入装饰符
  */

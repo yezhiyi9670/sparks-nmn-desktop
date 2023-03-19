@@ -59,8 +59,11 @@ export default {
 		'unexpected_lrc_bracket': '歌词中出现未曾设想的括号 ${0}',
 		'invalid_placeholder_repeat': '重复次数 `${0}` 无效',
 
-		'incomplete_insert_sequence': '符号 `&` 后应当紧随一个单词和一个 `;`，以表示插入符号。',
+		'incomplete_insert_sequence': '符号 `&` 后应当紧随一个单词和一个 `;`，以表示插入符号',
 		'unknown_insert_sequence': '未知的插入符号名称 ${0}',
+		'triplet_invalid_format': '连音描述符无效。应当形如 <连音位>,<连音数>。',
+		'triplet_invalid_field': '无效的连音位 ${0}',
+		'triplet_invalid_number': '无效的连音数 ${0}',
 		'notes_unexpected_bracket': '音符序列中出现未曾设想的括号 ${0}',
 		'unknown_note_attr': '无法将 `${0}` 解析为音符属性',
 		'note_char_music_unknown': '`${0}` 不是正确的音符字符',
@@ -153,7 +156,8 @@ export default {
 		'margin_after_part_notes': '(2)间距 - 声部曲谱部分之后',
 		'inset_before_lyrics': '(1.3)负间距 - 声部歌词组之前',
 		'margin_after_part': '(1)间距 - 声部之后',
-		'offset_lyrics_iter': '(1.5)偏移值 - 歌词行编号'
+		'offset_lyrics_iter': '(1.5)偏移值 - 歌词行编号',
+		'offset_section_boundary': '(1)偏移值 - 小节边距',
 	},
 	'updown': {
 		'up': '升',
