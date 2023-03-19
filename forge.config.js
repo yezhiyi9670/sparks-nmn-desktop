@@ -13,13 +13,18 @@ module.exports = {
 				return false
 			}
 			return true
+		},
+		win32metadata: {
+			CompanyName: 'yezhiyi9670',
+			FileDescription: 'Sparks NMN Desktop',
+			ProductName: 'Sparks NMN Desktop'
 		}
 	},
 	rebuildConfig: {},
 	makers: [
 		{
 			name: '@electron-forge/maker-squirrel',
-			config: {},
+			config: {}
 		},
 		// {
 		// 	name: '@electron-forge/maker-zip',
