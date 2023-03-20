@@ -1,4 +1,5 @@
 import { NMNResult } from '../../index'
+import { DestructedLine } from '../../parser/sparse2des/types'
 import { DomPaint } from '../backend/DomPaint'
 import { FontMetric } from '../FontMetric'
 import { MusicPaint } from '../paint/MusicPaint'
@@ -9,6 +10,11 @@ import { LineRenderer } from './line/LineRenderer'
 type NMNArticle = NMNResult['result']['articles'][0]
 type NMNMusicArticle = NMNArticle & {type: 'music'}
 type NMNTextArticle = NMNArticle & {type: 'text'}
+
+interface ArticleHeaderInfo {
+	title?: DestructedLine & {head: 'S'},
+	musicalProps?: DestructedLine & {head: 'Sp'}
+}
 
 class ArticleRendererClass {
 	/**
@@ -35,10 +41,15 @@ class ArticleRendererClass {
 	 * 渲染文本章节
 	 */
 	renderTextArticle(article: NMNTextArticle, sections: EquifieldSection[], context: RenderContext) {
-		const root = new DomPaint()
 		const scale = context.render.scale!
 
-		let currY = 0
+		const created = this.renderMusicArticleHeader({...article, musicalProps: undefined}, sections, context)
+		const root = created[0]
+
+		let currY = created[1]
+
+		currY += context.render.margin_after_header_text!
+
 		const textMetric = new FontMetric(context.render.font_text!, 2.16)
 		const textSize = textMetric.fontSize * textMetric.fontScale * scale
 		article.text.forEach((textLine) => {
@@ -84,7 +95,7 @@ class ArticleRendererClass {
 	/**
 	 * 渲染音乐章节头
 	 */
-	renderMusicArticleHeader(article: NMNMusicArticle, sections: EquifieldSection[], context: RenderContext): [DomPaint, number] {
+	renderMusicArticleHeader(article: ArticleHeaderInfo, sections: EquifieldSection[], context: RenderContext): [DomPaint, number] {
 		if(!article.title && !article.musicalProps) {
 			return [new DomPaint(), 0]
 		}

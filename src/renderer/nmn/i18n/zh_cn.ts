@@ -151,6 +151,7 @@ export default {
 		'margin_after_props': '(2)间距 - 大标题之后',
 		'margin_after_article': '(1.5)间距 - 章节之后',
 		'margin_after_header': '(0)间距 - 章节标题之后',
+		'margin_after_header_text': '(1.5)间距/额外 - 文本章节标题之后',
 		'margin_before_line': '(1.7)间距 - 乐谱行之前',
 		'margin_after_line': '(0.1)间距 - 乐谱行之后',
 		'margin_after_part_notes': '(2)间距 - 声部曲谱部分之后',

@@ -36,6 +36,7 @@ export type Jumper = {
 export type TextArticle = {
 	lineNumber: number
 	type: 'text'
+	title?: DestructedLine & {head: 'S'}
 	renderProps?: DestructedLine & {head: 'Srp'}
 	text: (DestructedLine & {head: 'T'})[]
 }

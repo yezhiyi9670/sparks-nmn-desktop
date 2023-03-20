@@ -52,6 +52,7 @@ export class ColumnStater {
 			return {
 				lineNumber: article.lineNumber,
 				type: 'text',
+				title: article.title,
 				renderProps: article.renderProps,
 				text: article.text
 			}

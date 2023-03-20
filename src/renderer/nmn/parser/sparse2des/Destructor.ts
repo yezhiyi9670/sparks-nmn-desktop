@@ -81,6 +81,7 @@ export class Destructor {
 				lineNumber: article.lineNumber,
 				type: 'text',
 				renderProps: renderProps as any,
+				title: this.destruct(article.uniqueLines['S'], issues, context) as any,
 				text: article.lines.filter((line) => line.head == 'T').map((line) => {
 					return this.destruct(line, issues, newContext) as any
 				})

@@ -193,7 +193,8 @@ export const commandDefs: CommandDef[] = [
 		hasProps: 'none',
 		propsType: 'none',
 		unique: 'S',
-		levels: [LineLevels.article]
+		levels: [LineLevels.article],
+		special: 'none'
 	},
 	// Srp Article 渲染属性
 	{

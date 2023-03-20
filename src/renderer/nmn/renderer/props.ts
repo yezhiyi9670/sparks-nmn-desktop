@@ -100,6 +100,10 @@ export interface RenderProps {
 	 */
 	margin_after_header?: number
 	/**
+	 * 文本章节标题的额外间距
+	 */
+	margin_after_header_text?: number
+	/**
 	 * 乐谱行前的间距
 	 */
 	margin_before_line?: number
@@ -161,6 +165,7 @@ export const renderPropsDefault: RenderProps = {
 	margin_after_props: 2,
 	margin_after_article: 1.5,
 	margin_after_header: 0.0, // diff 1
+	margin_after_header_text: 1.5,
 	margin_before_line: 1.7, // diff 1.7
 	margin_after_line: 0.1, // diff 1.1
 	margin_after_part_notes: 2,

@@ -776,30 +776,26 @@ export type DestructedScore = {
 }
 export type DestructedArticle = {
 	lineNumber: number
-} & ({
-	type: 'music'
 	/**
 	 * 标题
 	 */
 	title?: DestructedLine & {head: 'S'}
 	/**
-	 * 音乐属性
-	 */
-	musicalProps?: DestructedLine & {head: 'Sp'}
-	/**
 	 * 渲染属性
 	 */
 	renderProps?: DestructedLine & {head: 'Srp'}
+} & ({
+	type: 'music'
+	/**
+	 * 音乐属性
+	 */
+	musicalProps?: DestructedLine & {head: 'Sp'}
 	/**
 	 * 片段
 	 */
 	fragments: DestructedFragment[]
 } | {
 	type: 'text'
-	/**
-	 * 渲染属性
-	 */
-	renderProps?: DestructedLine & {head: 'Srp'}
 	/**
 	 * 文本行
 	 */
