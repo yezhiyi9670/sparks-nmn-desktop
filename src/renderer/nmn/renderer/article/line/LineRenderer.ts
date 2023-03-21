@@ -357,7 +357,7 @@ export class LineRenderer {
 						return
 					}
 					const lineY = currY + lrcCharMeasure[1] / 2
-					root.drawLine(startX, lineY, endX, lineY, 0.15, 0, scale)
+					root.drawLine(startX, lineY, endX, lineY, 0.1, 0, scale)
 				}
 			})
 
