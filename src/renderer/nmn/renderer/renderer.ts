@@ -11,6 +11,7 @@ export type EquifieldSection = {
 	height: number
 	noBreakAfter?: boolean
 	isMargin?: boolean
+	label?: string
 }
 
 export type RenderContext = ScoreContext & {

@@ -41,7 +41,7 @@ export class LineRenderer {
 	/**
 	 * 渲染曲谱行
 	 */
-	renderLine(line: NMNLine, sections: EquifieldSection[], context: RenderContext, lastLine: NMNLine | undefined, root: DomPaint, startY: number) {
+	renderLine(line: NMNLine, sections: EquifieldSection[], context: RenderContext, lastLine: NMNLine | undefined, root: DomPaint, startY: number, title: string) {
 		// const root = new DomPaint()
 		const scale = context.render.scale!
 		let currY = startY
@@ -71,13 +71,15 @@ export class LineRenderer {
 
 		sections.push({
 			element: root.getElement(),
-			height: currY * scale
+			height: currY * scale,
+			label: I18n.efLabel(context.language, 'musicLine', title, '' + (line.startSection + 1))
 		})
 
 		sections.push({
 			element: new DomPaint().getElement(),
 			height: context.render.margin_after_line! * scale,
-			isMargin: true
+			isMargin: true,
+			label: I18n.efLabel(context.language, 'musicLineMargin')
 		})
 	}
 

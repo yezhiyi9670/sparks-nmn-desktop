@@ -64,6 +64,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 					}]
 				}
 			})()
+			// console.log(fields)
 			let endTime = +new Date()
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			timing = endTime - startTime

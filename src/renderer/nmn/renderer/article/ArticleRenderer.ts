@@ -1,3 +1,4 @@
+import { I18n } from '../../i18n'
 import { NMNResult } from '../../index'
 import { DestructedLine } from '../../parser/sparse2des/types'
 import { DomPaint } from '../backend/DomPaint'
@@ -32,8 +33,9 @@ class ArticleRendererClass {
 		if(article.type != 'music' || article.lines.length != 0) {
 			sections.push({
 				element: new DomPaint().getElement(),
-				height: context.render!.margin_after_article!,
-				isMargin: true
+				height: context.render.margin_after_article! * context.render.scale!,
+				isMargin: true,
+				label: I18n.efLabel(context.language, 'articleMargin')
 			})
 		}
 	}
@@ -67,7 +69,8 @@ class ArticleRendererClass {
 
 		sections.push({
 			element: root.getElement(),
-			height: currY * scale
+			height: currY * scale,
+			label: I18n.efLabel(context.language, 'textArticle', article.title?.text ?? '')
 		})
 	}
 	/**
@@ -82,13 +85,14 @@ class ArticleRendererClass {
 			if(index != 0) {
 				halfRoot = [new DomPaint(), 0]
 			}
-			new LineRenderer().renderLine(line, sections, context, lastLine, halfRoot[0], halfRoot[1])
+			new LineRenderer().renderLine(line, sections, context, lastLine, halfRoot[0], halfRoot[1], article.title?.text ?? '')
 			lastLine = line
 		})
 		if(article.lines.length == 0) {
 			sections.push({
 				element: halfRoot[0].getElement(),
-				height: halfRoot[1]
+				height: halfRoot[1],
+				label: I18n.efLabel(context.language, 'musicArticleTitle', article.title?.text ?? '')
 			})
 		}
 	}

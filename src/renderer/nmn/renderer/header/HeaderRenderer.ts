@@ -50,7 +50,8 @@ class HeaderRendererClass {
 		
 		sections.push({
 			element: root.getElement(),
-			height: currY * scale
+			height: currY * scale,
+			label: I18n.efLabel(context.language, 'top')
 		})
 	}
 	renderPropsAndAuthors(score: NMNResult['result'], sections: EquifieldSection[], context: RenderContext) {
@@ -94,13 +95,15 @@ class HeaderRendererClass {
 		currY += 2
 		sections.push({
 			element: root.getElement(),
-			height: currY * scale
+			height: currY * scale,
+			label: I18n.efLabel(context.language, 'author')
 		})
 	}
 	renderTopSpacer(score: NMNResult['result'], sections: EquifieldSection[], context: RenderContext) {
 		sections.push({
 			element: new DomPaint().getElement(),
-			height: context.render.margin_after_props!
+			height: context.render.margin_after_props! * context.render.scale!,
+			label: I18n.efLabel(context.language, 'topMargin')
 		})
 	}
 	renderFooter(score: NMNResult['result'], sections: EquifieldSection[], context: RenderContext) {
@@ -128,7 +131,8 @@ class HeaderRendererClass {
 		if(score.scoreProps.footnotes.length > 0) {
 			sections.push({
 				element: root.getElement(),
-				height: currY * scale
+				height: currY * scale,
+				label: I18n.efLabel(context.language, 'footer')
 			})
 		}
 	}

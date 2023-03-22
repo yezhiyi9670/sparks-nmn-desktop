@@ -4,6 +4,7 @@ export type EquifieldSection = {
 	element: HTMLElement
 	height: number
 	noBreakAfter?: boolean
+	label?: string
 }
 
 export class Equifield {

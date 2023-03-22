@@ -13,10 +13,11 @@ export type LanguageArray = {
 	metrics: {[_: string]: string}
 	render: {[_: string]: string}
 	render_props: {[_: string]: string}
+	efLabels: {[_: string]: string}
 }
 
 class I18nClass {
-	languages = {
+	languages: {[_: string]: LanguageArray} = {
 		'zh_cn': languageArray_zh_cn
 	}
 	/**
@@ -71,6 +72,12 @@ class I18nClass {
 	 */
 	upDownText(context: LanguageArray, key: 'up' | 'down') {
 		return context.updown[key]
+	}
+	/**
+	 * Equifield 分节标签
+	 */
+	efLabel(context: LanguageArray, key: string, ...args: string[]) {
+		return getLanguageValue(context.efLabels[key] ?? key, ...args)
 	}
 }
 

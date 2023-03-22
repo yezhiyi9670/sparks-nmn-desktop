@@ -185,5 +185,16 @@ export default {
 		'author_sep': ' ',
 		'omit': '(后略)',
 		'omit_n': '(省略${0}小节)'
+	},
+	'efLabels': {
+		'top': '文档标题',
+		'author': '作者与音乐属性',
+		'topMargin': '页面头间距',
+		'footer': '脚注',
+		'articleMargin': '章节下边距',
+		'textArticle': '文本章节 ${0}',
+		'musicArticleTitle': '音乐章节标题 ${0}',
+		'musicLine': '曲谱 ${0} m${1}',
+		'musicLineMargin': '曲谱下边距'
 	}
 }
