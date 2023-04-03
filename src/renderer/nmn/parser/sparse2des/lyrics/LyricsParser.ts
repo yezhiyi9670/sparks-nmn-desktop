@@ -155,6 +155,7 @@ export class LyricsParser {
 		this.charPtr = 0
 		const ret: LyricToken[] = []
 		let lastToken: LyricToken | undefined = undefined as any
+		let lastCharToken: LyricToken | undefined = undefined as any
 		while(true) {
 			const ch = this.getchar()
 			if(ch === undefined) {
@@ -164,7 +165,7 @@ export class LyricsParser {
 				this.passchar()
 				if(ch.bracket == '(' || ch.bracket == '[[') {
 					const brPad = ch.bracket.length
-					ret.push(lastToken = {
+					ret.push(lastCharToken = lastToken = {
 						charIndex: ch.range[0],
 						type: ch.bracket == '[[' ? 'role' : 'grouped',
 						char: ch.text.substring(brPad, ch.text.length - brPad),
@@ -212,7 +213,7 @@ export class LyricsParser {
 					if(typeSampler == 'word' && !isBoundary && lastToken && lastToken.type == 'char') {
 						lastToken.char += ch
 					} else {
-						ret.push(lastToken = {
+						ret.push(lastCharToken = lastToken = {
 							charIndex: charIndex,
 							type: 'char',
 							char: ch,
@@ -221,8 +222,8 @@ export class LyricsParser {
 					}
 				} else if(symbolType == 'divide' || symbolType == 'placeholder') {
 					let repeats = 1
-					if(lastToken && symbolType == 'placeholder') {
-						lastToken.lastPlaceholder = ch
+					if(lastCharToken && symbolType == 'placeholder') {
+						lastCharToken.lastPlaceholder = ch
 					}
 					// Check if we have repeats
 					const token2 = this.getchar()
