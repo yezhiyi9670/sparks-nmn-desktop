@@ -89,27 +89,30 @@ class SectionsParserClass {
 		})
 		// ===== 扩张连续区间以提取小节线属性 =====
 		separators.forEach((sep) => {
-			function isLargeBracket(item: BracketToken | undefined) {
-				if(item && ('bracket' in item) && item.bracket == '{') {
+			function isBracket(item: BracketToken | undefined, bracket: string) {
+				if(item && ('bracket' in item) && item.bracket == bracket) {
 					return true
 				}
 				return false
 			}
-			if(isLargeBracket(tokens[sep.range[1]])) {
+			// 右端，自身属性 (next)
+			if(isBracket(tokens[sep.range[1]], '[')) {
 				sep.next.attrs = this.matchSeparatorAttr(
 					(tokens[sep.range[1]] as BracketPair).tokens,
 					lineNumber, issues
 				)
 				sep.range[1] += 1
 			}
-			if(isLargeBracket(tokens[sep.range[1]])) {
+			// 右端，后置属性 (before)
+			if(isBracket(tokens[sep.range[1]], '{')) {
 				sep.before.attrs = this.matchSeparatorAttr(
 					(tokens[sep.range[1]] as BracketPair).tokens,
 					lineNumber, issues
 				)
 				sep.range[1] += 1
 			}
-			if(isLargeBracket(tokens[sep.range[0] - 1])) {
+			// 扩张左端，提取前置属性
+			if(isBracket(tokens[sep.range[0] - 1], '{')) {
 				sep.after.attrs = this.matchSeparatorAttr(
 					(tokens[sep.range[0] - 1] as BracketPair).tokens,
 					lineNumber, issues
@@ -323,9 +326,6 @@ class SectionsParserClass {
 			)
 			success ||= pushIfNonNull(ret,
 				rangize(AttrMatcher.matchShift(tokens, lineNumber, issues))
-			)
-			success ||= pushIfNonNull(ret,
-				rangize(AttrMatcher.matchLabel(tokens))
 			)
 			success ||= pushIfNonNull(ret,
 				rangize(AttrMatcher.matchText(tokens))

@@ -124,13 +124,6 @@ export type AttrDurability = {
 	value: number
 }
 /**
- * 小节线段落标记
- */
-export type AttrLabel = {
-	type: 'label'
-	label: AttrText | AttrScriptedText
-}
-/**
  * 音符上方装饰符
  */
 export type AttrDecor = {
@@ -240,7 +233,6 @@ export type SeparatorAttrBase =
 	AttrBeats |
 	AttrShift |
 	AttrDurability |
-	AttrLabel |
 	AttrText |
 	AttrScriptedText
 /**
@@ -256,13 +248,12 @@ export const separatorAttrPosition: {
 	reset: [true, false, true, 'begin'],
 	durability: [true, false, true, 'begin'],
 	repeat: [true, true, true, 'begin'],
-	label: [false, true, false, 'begin'],
 	
 	qpm: [true, true, true, 'end'],
 	beats: [true, true, true, 'end'],
 	shift: [true, true, true, 'end'],
 
-	text: [true, false, true, 'begin'],
+	text: [true, true, true, 'begin'],
 	scriptedText: [true, false, true, 'begin'],
 
 	openRange: [false, false, false, 'begin']

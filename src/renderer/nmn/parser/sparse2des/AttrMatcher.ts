@@ -7,7 +7,7 @@ import { LinedIssue, addIssue } from "../parser";
 import { BracketFilter, BracketPairFilters, BracketTokenList, TokenFilter, Tokens } from "../tokenizer/tokens";
 import { scoreContextDefault } from "./context";
 import { NoteEater } from "./sections/NoteEater";
-import { AttrBeats, AttrDecor, attrDecorCheck, attrDecorPriority, AttrDelta, AttrDurability, AttrIter, AttrLabel, AttrNotes, AttrOctave, AttrOpenRange, AttrQpm, AttrRepeat, AttrReset, AttrScriptedText, AttrShift, AttrSlide, AttrText, AttrTop, AttrWeight, Beats, MusicSection, NoteCharMusic, Qpm } from "./types";
+import { AttrBeats, AttrDecor, attrDecorCheck, attrDecorPriority, AttrDelta, AttrDurability, AttrIter, AttrNotes, AttrOctave, AttrOpenRange, AttrQpm, AttrRepeat, AttrReset, AttrScriptedText, AttrShift, AttrSlide, AttrText, AttrTop, AttrWeight, Beats, MusicSection, NoteCharMusic, Qpm } from "./types";
 
 export module AttrMatcher {
 	export function matchIter(tokens: BracketTokenList): AttrIter | undefined {
@@ -270,21 +270,6 @@ export module AttrMatcher {
 				value: val
 			}
 		}
-	}
-	export function matchLabel(tokens: BracketTokenList): AttrLabel | undefined {
-		return new BracketPairFilters(
-			new BracketFilter('[')
-		).testThen(tokens, (val) => {
-			const lst = (val[0] as BracketTokenList[])[0] ?? []
-			const ret = matchText(lst) || matchScriptedText(lst)
-			if(ret === undefined) {
-				return undefined
-			}
-			return {
-				type: 'label',
-				label: ret
-			}
-		})
 	}
 	export function matchDecor(tokens: BracketTokenList, lineNumber: number, issues: LinedIssue[]): AttrDecor | undefined {
 		const str = Tokens.stringify(tokens, '', ',')

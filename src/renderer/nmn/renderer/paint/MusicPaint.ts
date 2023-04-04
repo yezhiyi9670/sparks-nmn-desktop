@@ -160,16 +160,16 @@ export class MusicPaint {
 					const measure = this.drawSeparatorAttrText(context, x, topPosY, attr, 1, scale, extraStyles, true)
 					this.drawSeparatorAttrText(context, x - measure[0] / 2, topPosY, attr, 1, scale, extraStyles, false)
 				}
-				if(attr.type == 'label') {
+				if(attr.type == 'text' || attr.type == 'scriptedText') {
 					const rectTopY = topPosY - 3
 					const rectBottomY = topPosY + 0.5
 					const rectCenterY = (rectTopY + rectBottomY) / 2
-					const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, true)
+					const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr, 1, scale, extraStyles, true, true)
 					const rectWidth = Math.max(measure[0] + 1 * scale * 2, (rectBottomY - rectTopY) * scale)
 					const rectLeftX = x - rectWidth / 2
 					const rectRightX = x + rectWidth / 2
 					this.root.drawRectOutline(rectLeftX, rectTopY, rectRightX, rectBottomY, 0.15, scale, extraStyles)
-					this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr.label, 1, scale, extraStyles, false, true)
+					this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr, 1, scale, extraStyles, false, true)
 				}
 			})
 		}
