@@ -254,7 +254,7 @@ export const separatorAttrPosition: {
 	shift: [true, true, true, 'end'],
 
 	text: [true, true, true, 'begin'],
-	scriptedText: [true, false, true, 'begin'],
+	scriptedText: [true, true, true, 'begin'],
 
 	openRange: [false, false, false, 'begin']
 }
