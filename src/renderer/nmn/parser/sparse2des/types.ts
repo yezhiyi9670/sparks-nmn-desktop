@@ -60,6 +60,13 @@ export type AttrTop = {
 	margin: number
 }
 /**
+ * 小节的额外水平边距
+ */
+export type AttrPadding = {
+	type: 'padding'
+	padding: number
+}
+/**
  * 开放区间属性
  * 
  * 用在小节线属性上，表示属性渲染时强制换行
@@ -227,6 +234,7 @@ export type SeparatorAttrBase =
 	AttrReset |
 	AttrWeight |
 	AttrTop |
+	AttrPadding |
 	AttrRepeat |
 	AttrOpenRange |
 	AttrQpm |
@@ -243,6 +251,7 @@ export const separatorAttrPosition: {
 } = {
 	weight: [false, false, true, 'begin'],
 	top: [false, false, true, 'begin'],
+	padding: [false, false, true, 'begin'],
 	
 	iter: [true, false, true, 'begin'],
 	reset: [true, false, true, 'begin'],

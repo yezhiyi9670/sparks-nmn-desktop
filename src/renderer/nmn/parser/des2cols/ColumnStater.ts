@@ -3,7 +3,7 @@ import { Frac, Fraction } from "../../util/frac";
 import { randomToken } from "../../util/random";
 import { LinedIssue } from "../parser";
 import { addMusicProp, addRenderProp, ScoreContext, scoreContextDefault } from "../sparse2des/context";
-import { AttrWeight, DestructedArticle, DestructedFCA, DestructedLine, DestructedScore, LyricChar, MusicProps, MusicSection, NoteCharAny, NoteCharMusic } from "../sparse2des/types";
+import { AttrPadding, AttrWeight, DestructedArticle, DestructedFCA, DestructedLine, DestructedScore, LyricChar, MusicProps, MusicSection, NoteCharAny, NoteCharMusic } from "../sparse2des/types";
 import { SectionStat } from "./section/SectionStat";
 import { ColumnScore, Jumper, LinedArticle, LinedLine, LinedLyricLine, LinedPart, Linked1LyricLine, Linked2Article, Linked2LyricChar, Linked2LyricLine, Linked2LyricSection, LinkedArticle, LinkedPart, LyricLineSignature, lyricLineSignature, partSignature, PartSignature } from "./types";
 
@@ -445,6 +445,7 @@ export class ColumnStater {
 			const sigs: PartSignature[] = []
 			const parts: LinedPart[] = []
 			const sectionWeights: number[] = Array(sectionCount).fill(0)
+			const sectionPadding: number[] = Array(sectionCount).fill(0)
 			article.parts.forEach((part) => {
 				if(SectionStat.allNullish(part.notes.sections, sectionPtr, sectionCount)) {
 					// 此渲染行可以不包含这一声部。正常而言，空白区下方不会有非空的歌词行。
@@ -508,6 +509,10 @@ export class ColumnStater {
 					if(weightProp) {
 						sectionWeights[sectionIndex] = Math.max(sectionWeights[sectionIndex], weightProp.weight)
 					}
+					const paddingProp = findWithKey(section.separator.before.attrs, 'type', 'padding') as AttrPadding
+					if(paddingProp) {
+						sectionPadding[sectionIndex] = Math.max(sectionWeights[sectionIndex], paddingProp.padding)
+					}
 				})
 				parts.push({
 					lineNumber: part.lineNumber,
@@ -534,6 +539,7 @@ export class ColumnStater {
 			lines.push({
 				field: field,
 				sectionWeights: sectionWeights,
+				sectionPadding: sectionPadding,
 				startSection: sectionPtr,
 				sectionCountShould: sectionCountShould,
 				sectionCount: sectionCount,

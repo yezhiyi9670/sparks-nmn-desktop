@@ -7,7 +7,7 @@ import { LinedIssue, addIssue } from "../parser";
 import { BracketFilter, BracketPairFilters, BracketTokenList, TokenFilter, Tokens } from "../tokenizer/tokens";
 import { scoreContextDefault } from "./context";
 import { NoteEater } from "./sections/NoteEater";
-import { AttrBeats, AttrDecor, attrDecorCheck, attrDecorPriority, AttrDelta, AttrDurability, AttrIter, AttrNotes, AttrOctave, AttrOpenRange, AttrQpm, AttrRepeat, AttrReset, AttrScriptedText, AttrShift, AttrSlide, AttrText, AttrTop, AttrWeight, Beats, MusicSection, NoteCharMusic, Qpm } from "./types";
+import { AttrBeats, AttrDecor, attrDecorCheck, attrDecorPriority, AttrDelta, AttrDurability, AttrIter, AttrNotes, AttrOctave, AttrOpenRange, AttrPadding, AttrQpm, AttrRepeat, AttrReset, AttrScriptedText, AttrShift, AttrSlide, AttrText, AttrTop, AttrWeight, Beats, MusicSection, NoteCharMusic, Qpm } from "./types";
 
 export module AttrMatcher {
 	export function matchIter(tokens: BracketTokenList): AttrIter | undefined {
@@ -39,6 +39,20 @@ export module AttrMatcher {
 				return {
 					type: 'weight',
 					weight: val
+				}
+			}
+		}
+		return undefined
+	}
+	export function matchPadding(tokens: BracketTokenList): AttrPadding | undefined {
+		const str = Tokens.stringify(tokens, '', ',')
+		const matched = str.match(/^p=(.*?)$/)
+		if(matched) {
+			const val = +matched[1]
+			if(val == val && 0 < val && val < 65536) {
+				return {
+					type: 'padding',
+					padding: val
 				}
 			}
 		}

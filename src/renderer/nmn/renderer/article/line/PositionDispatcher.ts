@@ -201,10 +201,11 @@ export class PositionDispatcher {
 			let currentEnd = currentStart + (rightBoundary - leftBoundary) / totalWeights * this.line.sectionWeights[index]
 			const [ rangeL, rangeR ] = [ currentStart, currentEnd ]
 			currentStart = currentEnd
+			let localPadding = this.line.sectionPadding[index]
 			const newSec: SectionPositions = {
 				realRange: [rangeL, rangeR],
 				range: [rangeL, rangeR],
-				padding: [ sectionPadding, sectionPadding ],
+				padding: [ sectionPadding + localPadding, sectionPadding + localPadding ],
 				fraction: [ Frac.sub(fields[0], Frac.create(1, 2)), Frac.add(fields[0], fields[1]) ], // 开头扩展半个四分音符的位置，以调和“极不自然”的不对称性
 				columns: []
 			}

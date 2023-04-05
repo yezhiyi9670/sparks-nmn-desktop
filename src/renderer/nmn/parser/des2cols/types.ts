@@ -174,6 +174,10 @@ export type LinedLine = {
 	 */
 	sectionWeights: number[]
 	/**
+	 * 各小节的额外边距
+	 */
+	sectionPadding: number[]
+	/**
 	 * 起始小节编号
 	 */
 	startSection: number

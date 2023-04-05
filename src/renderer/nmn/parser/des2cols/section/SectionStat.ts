@@ -473,7 +473,7 @@ export module SectionStat {
 	export function hasSeparatorAttrs(section: MusicSection<unknown>, beforeOnly: boolean = false) {
 		function checkSeparatorAttrs(attrs: SeparatorAttr[]) {
 			return attrs.filter((attr) => {
-				return attr.type != 'weight' && attr.type != 'beats' && attr.type != 'top'
+				return attr.type != 'weight' && attr.type != 'padding' && attr.type != 'beats' && attr.type != 'top'
 			}).length != 0
 		}
 		return checkSeparatorAttrs(section.separator.before.attrs) || (!beforeOnly && checkSeparatorAttrs(section.separator.after.attrs))

@@ -313,6 +313,9 @@ class SectionsParserClass {
 				rangize(AttrMatcher.matchTop(tokens))
 			)
 			success ||= pushIfNonNull(ret,
+				rangize(AttrMatcher.matchPadding(tokens))
+			)
+			success ||= pushIfNonNull(ret,
 				rangize(AttrMatcher.matchDurability(tokens))
 			)
 			success ||= pushIfNonNull(ret,
