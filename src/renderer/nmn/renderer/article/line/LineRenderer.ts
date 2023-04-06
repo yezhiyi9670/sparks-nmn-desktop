@@ -59,15 +59,15 @@ export class LineRenderer {
 		})
 
 		// ===== 连谱号 =====
-		if(line.parts.length > 1) {
-			const upperY = this.musicLineYs[0].top
-			let lastIndex = this.musicLineYs.length - 1
-			while(lastIndex >= 0 && line.parts[lastIndex].notes.head == 'Na') {
-				lastIndex -= 1
-			}
-			if(lastIndex == 0) {
-				lastIndex = this.musicLineYs.length - 1
-			}
+		const upperY = this.musicLineYs[0].top
+		let lastIndex = this.musicLineYs.length - 1
+		while(lastIndex >= 0 && line.parts[lastIndex].notes.head == 'Na') {
+			lastIndex -= 1
+		}
+		if(lastIndex < 0) {
+			lastIndex = this.musicLineYs.length - 1
+		}
+		if(lastIndex >= 1) {
 			const lowerY = this.musicLineYs[lastIndex].bottom
 			const leftX = context.render.connector_left! * scale
 			const rightX = leftX + 1 * scale
