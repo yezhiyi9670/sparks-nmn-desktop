@@ -258,34 +258,16 @@ export const commandDefs: CommandDef[] = [
 		required: 1,
 		levels: [LineLevels.part]
 	},
-	// F 力度
+	// Na 鼓点音符
 	{
-		head: 'F',
-		headFull: 'Force',
+		head: 'Na',
+		headFull: 'NotesAccompany',
 		contentType: 'tokenized',
-		hasProps: 'none',
-		propsType: 'none',
-		unique: 'F',
-		levels: [LineLevels.part, LineLevels.lyricLine]
-	},
-	// C 和弦
-	{
-		head: 'C',
-		headFull: 'Chord',
-		contentType: 'tokenized',
-		hasProps: 'none',
-		propsType: 'none',
-		unique: 'C',
-		levels: [LineLevels.part, LineLevels.lyricLine]
-	},
-	// A 标记记号
-	{
-		head: 'A',
-		headFull: 'Annotation',
-		contentType: 'tokenized',
-		hasProps: 'none',
-		propsType: 'none',
-		levels: [LineLevels.part, LineLevels.lyricLine]
+		hasProps: 'optional',
+		propsType: 'multiple',
+		unique: 'N',
+		required: 1,
+		levels: [LineLevels.part]
 	},
 	// L 手动分割歌词
 	{
@@ -328,5 +310,34 @@ export const commandDefs: CommandDef[] = [
 		hasProps: 'optional',
 		propsType: 'multiple',
 		levels: [LineLevels.lyricLine]
-	}
+	},
+	// F 力度
+	{
+		head: 'F',
+		headFull: 'Force',
+		contentType: 'tokenized',
+		hasProps: 'none',
+		propsType: 'none',
+		unique: 'F',
+		levels: [LineLevels.part, LineLevels.lyricLine]
+	},
+	// C 和弦
+	{
+		head: 'C',
+		headFull: 'Chord',
+		contentType: 'tokenized',
+		hasProps: 'none',
+		propsType: 'none',
+		unique: 'C',
+		levels: [LineLevels.part, LineLevels.lyricLine]
+	},
+	// A 标记记号
+	{
+		head: 'A',
+		headFull: 'Annotation',
+		contentType: 'tokenized',
+		hasProps: 'none',
+		propsType: 'none',
+		levels: [LineLevels.part, LineLevels.lyricLine]
+	},
 ]

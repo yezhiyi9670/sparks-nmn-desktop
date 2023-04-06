@@ -715,7 +715,7 @@ export type DestructedLine = {
 	attrs: JumperAttr[]
 } | {
 	type: 'notes'
-	head: 'N'
+	head: 'N' | 'Na'
 	tags: PartAttr[]
 	sections: MusicSection<NoteCharMusic>[]
 } | {
@@ -839,7 +839,7 @@ export type DestructedPart = {
 	/**
 	 * 音符行
 	 */
-	notes: DestructedLine & {head: 'N'}
+	notes: DestructedLine & {head: 'N' | 'Na'}
 	/**
 	 * 歌词行
 	 */

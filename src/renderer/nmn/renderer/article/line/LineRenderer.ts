@@ -61,7 +61,14 @@ export class LineRenderer {
 		// ===== 连谱号 =====
 		if(line.parts.length > 1) {
 			const upperY = this.musicLineYs[0].top
-			const lowerY = this.musicLineYs[this.musicLineYs.length - 1].bottom
+			let lastIndex = this.musicLineYs.length - 1
+			while(lastIndex >= 0 && line.parts[lastIndex].notes.head == 'Na') {
+				lastIndex -= 1
+			}
+			if(lastIndex == 0) {
+				lastIndex = this.musicLineYs.length - 1
+			}
+			const lowerY = this.musicLineYs[lastIndex].bottom
 			const leftX = context.render.connector_left! * scale
 			const rightX = leftX + 1 * scale
 			root.drawLine(leftX, upperY, leftX, lowerY, 0.2, 0.1, scale)
@@ -106,9 +113,11 @@ export class LineRenderer {
 			msp.drawPartName(context, scale * (-0.5 + context.render.connector_left!), lastYs.middle, part.notes.tags, 1, scale)
 		}
 
-		currY += context.render.margin_after_part_notes!
-		if(part.lyricLines.length != 0) {
-			currY -= context.render.inset_before_lyrics!
+		if(!part.noMargin[1]) {
+			currY += context.render.margin_after_part_notes!
+			if(part.lyricLines.length != 0) {
+				currY -= context.render.inset_before_lyrics!
+			}
 		}
 
 		// ===== 根据回落模型计算歌词行起始高度 =====
@@ -143,7 +152,9 @@ export class LineRenderer {
 			this.renderLyricLine(stat.startY[index], lyricLine, part, line, root, context)
 		})
 
-		currY += context.render.margin_after_part!
+		if(!part.noMargin[1]) {
+			currY += context.render.margin_after_part!
+		}
 
 		return currY - startY
 	}
@@ -235,7 +246,7 @@ export class LineRenderer {
 
 				// 画小节
 				lineRendererStats.sectionsRenderTime -= +new Date()
-				new SectionsRenderer(localColumns).render(currY, { notes: { sections }, decorations: decorations }, root, context, false, false, true)
+				new SectionsRenderer(localColumns).render(currY, { notes: { sections }, decorations: decorations }, root, context, false, false, 'substitute')
 				lineRendererStats.sectionsRenderTime += +new Date()
 
 				// 画括号
@@ -609,15 +620,21 @@ export class LineRenderer {
 	 */
 	renderPartNotes(startY: number, part: NMNPart, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirst: boolean) {
 		let currY = startY
-		currY += 2.5
-		const fieldHeight = 5.5
+
+		const isAccompany = part.notes.head == 'Na'
+
+		if(!part.noMargin[0]) {
+			currY += context.render.margin_before_part_notes!
+		}
+		
+		const fieldHeight = isAccompany ? 4.4 : 5.5
 		const scale = context.render.scale!
 
 		currY += fieldHeight / 2
 
 		lineRendererStats.sectionsRenderTime -= +new Date()
 		
-		new SectionsRenderer(this.columns).render(currY, part, root, context, hasJumperOverlap, isFirst, false)
+		new SectionsRenderer(this.columns).render(currY, part, root, context, hasJumperOverlap, isFirst, isAccompany ? 'accompany' : 'normal')
 		lineRendererStats.sectionsRenderTime += +new Date()
 
 		currY += fieldHeight / 2

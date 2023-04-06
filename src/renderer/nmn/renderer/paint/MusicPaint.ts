@@ -618,7 +618,7 @@ export class MusicPaint {
 	/**
 	 * 绘制音乐音符
 	 */
-	drawMusicNote(context: RenderContext, x: number, y: number, note: MusicNote<NoteCharMusic>, reductionLevel: number, isSmall: boolean, scale: number = 1, extraStyles: ExtraStyles = {}) {
+	drawMusicNote(context: RenderContext, x: number, y: number, note: MusicNote<NoteCharMusic>, reductionLineSpace: number, reductionLevel: number, isSmall: boolean, scale: number = 1, extraStyles: ExtraStyles = {}) {
 		let grayoutStyle = {}
 		if(note.type == 'note' && note.voided && context.render.grayout!) {
 			grayoutStyle = {
@@ -661,14 +661,15 @@ export class MusicPaint {
 			'.', noteMetric,
 			scale, { ...extraStyles, ...grayoutStyle }
 		)
+		const octaveSpace = reductionLineSpace * 0.4
 		while(octave > 0) {
 			dotToken.drawFast(this.root, x, topCur + noteMeasure[1] * 0.2, 'center', 'bottom')
-			topCur -= noteMeasure[1] * 0.22
+			topCur -= noteMeasure[1] * octaveSpace
 			octave -= 1
 		}
 		while(octave < 0) {
 			dotToken.drawFast(this.root, x, bottomCur - noteMeasure[1] * 0.7, 'center', 'top')
-			bottomCur += noteMeasure[1] * 0.22
+			bottomCur += noteMeasure[1] * octaveSpace
 			octave += 1
 		}
 		// ===== 顶部属性 =====

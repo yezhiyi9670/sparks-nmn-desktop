@@ -34,15 +34,25 @@ export class SectionsRenderer {
 		this.columns = columns
 	}
 
-	render(currY: number, part: SectionsRenderData, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirstPart: boolean, isSmall: boolean) {
+	render(currY: number, part: SectionsRenderData, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirstPart: boolean, type: 'normal' | 'accompany' | 'substitute') {
+		const isSmall = type != 'normal'
+
 		const sections = part.notes.sections
 		const msp = new MusicPaint(root)
 		const scale = context.render.scale!
-		const fieldHeight = isSmall ? 5.5 : 4.5
+		const reductionHeight = reductionLineSpace * (isSmall ? 0.8 : 1)
+		const fieldHeight = {
+			'normal': 5.5,
+			'substitute': 4.5,
+			'accompany': 4.4,
+		}[type]
 
 		// ===== 小节线 =====
 		let firstSection = true
 		sections.forEach((section, index) => {
+			if(type == 'accompany') {
+				return
+			}
 			const isLast = index == sections.length - 1
 			if(firstSection && section.type != 'nullish' && section.type != 'empty') {
 				msp.drawSectionSeparator(
@@ -60,6 +70,24 @@ export class SectionsRenderer {
 			}
 			firstSection = (section.type == 'nullish')
 		})
+		// ===== 压行框线 =====
+		if(type == 'accompany') {
+			const topY = currY - fieldHeight / 2
+			const bottomY = currY + fieldHeight / 2
+			const count = this.columns.data.length
+
+			const startX = this.columns.startPosition(0)
+			const endX = this.columns.endPosition(count - 1)
+
+			root.drawLine(startX, topY, endX, topY, 0.15, 0.15 / 2, scale)
+			root.drawLine(startX, bottomY, endX, bottomY, 0.15, 0.15 / 2, scale)
+			root.drawLine(startX, topY, startX, bottomY, 0.15, 0.15 / 2, scale)
+
+			sections.forEach((section, index) => {
+				const afterX = this.columns.endPosition(index)
+				root.drawLine(afterX, topY, afterX, bottomY, 0.15, 0.15 / 2, scale)
+			})
+		}
 
 		// ===== 小节序号 =====
 		const ordinalMode = context.render!.sectionorder
@@ -174,7 +202,7 @@ export class SectionsRenderer {
 					return this.columns.startPosition(sectionIndex)
 				}
 			})
-			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + 0.1)
+			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (reductionHeight * maxTopOctave + 0.1)
 			const baseHeight = noteMeasure[1] * 0.45
 			const heightSpacing = noteMeasure[1] * 0.15
 			let baseY = topY - baseHeight
@@ -223,7 +251,7 @@ export class SectionsRenderer {
 		// ===== 小节音符 =====
 		sections.forEach((section, sectionIndex) => {
 			// 画高亮区
-			if(!isSmall && section.idCard.lineNumber != -1 && section.idCard.uuid != '') {
+			if(type != 'substitute' && section.idCard.lineNumber != -1 && section.idCard.uuid != '') {
 				const startX = this.columns.startPosition(sectionIndex)
 				const endX = this.columns.endPosition(sectionIndex)
 				const centerY = currY + fieldHeight / 4
@@ -249,14 +277,14 @@ export class SectionsRenderer {
 					})
 
 					const noteX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, note.startPos))
-					msp.drawMusicNote(context, noteX, currY, note, reductionLevel, isSmall, scale)
+					msp.drawMusicNote(context, noteX, currY, note, reductionHeight, reductionLevel, isSmall, scale)
 				})
 				// 画减时线
 				section.decoration.forEach((decor) => {
 					if(decor.char == '_') {
 						const startX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.startPos)) - noteMeasure[0] / 2
 						const endX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.endPos)) + noteMeasure[0] / 2
-						const redY = currY + noteMeasure[1] / 2 - noteMeasure[1] * 0.03 + (decor.level - 1) * reductionLineSpace
+						const redY = currY + noteMeasure[1] / 2 - noteMeasure[1] * 0.03 + (decor.level - 1) * reductionHeight
 						root.drawLine(startX, redY, endX, redY, 0.2, 0, scale)
 					}
 				})

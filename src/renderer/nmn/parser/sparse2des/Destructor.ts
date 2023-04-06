@@ -386,7 +386,7 @@ export class Destructor {
 			attrs: attrs
 		}
 	}
-	destructNotes(line: SparseLine & {head: 'N'}, issues: LinedIssue[], context: ScoreContext, acceptVariation?: boolean): DestructedLine {
+	destructNotes(line: SparseLine & {head: 'N' | 'Na'}, issues: LinedIssue[], context: ScoreContext, acceptVariation?: boolean): DestructedLine {
 		return {
 			lineNumber: line.lineNumber,
 			type: 'notes',

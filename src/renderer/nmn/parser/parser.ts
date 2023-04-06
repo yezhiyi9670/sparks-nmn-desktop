@@ -221,7 +221,7 @@ class ParserClass {
 			}
 			article.lines.forEach((line) => {
 				line.parts.forEach((part) => {
-					handleSections('N', part.notes.sections, part.notes.sections)
+					handleSections(part.notes.head, part.notes.sections, part.notes.sections)
 					handleFCA(part.notes.sections, part)
 					part.lyricLines.forEach((lrcLine) => {
 						handleFCA(part.notes.sections, lrcLine)

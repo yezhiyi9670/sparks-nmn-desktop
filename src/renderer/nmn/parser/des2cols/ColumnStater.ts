@@ -69,7 +69,7 @@ export class ColumnStater {
 				maxSectionCount = Math.max(maxSectionCount, part.notes.sections.length)
 			})
 			fragment.parts.forEach((part, index) => {
-				const sig = partSignature(part.notes.tags, index)
+				const sig = partSignature(part.notes.head, part.notes.tags, index)
 				if(!findWithKey(partSignatures, 'hash', sig.hash)) {
 					partSignatures.push(sig)
 					parts1[sig.hash] = {
@@ -78,7 +78,7 @@ export class ColumnStater {
 						notes: {
 							lineNumber: -1,
 							type: 'notes',
-							head: 'N',
+							head: part.notes.head,
 							tags: part.notes.tags,
 							sections: [],
 						},
@@ -527,6 +527,7 @@ export class ColumnStater {
 					notes: mappedNotes,
 					lyricLineSignatures: lrcSigs,
 					lyricLines: lrcLines,
+					noMargin: [false, false],
 					...this.subFCA(part, sectionPtr, sectionCount, sectionsIn),
 				})
 			})
@@ -534,6 +535,18 @@ export class ColumnStater {
 			sectionWeights.forEach((val, index) => {
 				if(val == 0) {
 					sectionWeights[index] = 1
+				}
+			})
+			parts.forEach((part, index) => {
+				// 标记鼓点压行机制中要去掉的边距
+				if(part.notes.head == 'Na' && index != 0) {
+					part.noMargin[0] = true
+				}
+				if(index != parts.length - 1) {
+					const nextPart = parts[index + 1]
+					if(part.notes.head == 'Na' && nextPart.notes.head == 'Na') {
+						part.noMargin[1] = true
+					}
 				}
 			})
 			lines.push({
