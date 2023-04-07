@@ -202,7 +202,7 @@ export class SectionsRenderer {
 					return this.columns.startPosition(sectionIndex)
 				}
 			})
-			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (reductionHeight * maxTopOctave + 0.1)
+			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + 0.1)
 			const baseHeight = noteMeasure[1] * 0.45
 			const heightSpacing = noteMeasure[1] * 0.15
 			let baseY = topY - baseHeight
