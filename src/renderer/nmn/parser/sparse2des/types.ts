@@ -131,6 +131,13 @@ export type AttrDurability = {
 	value: number
 }
 /**
+ * 小节线段落标记
+ */
+export type AttrLabel = {
+	type: 'label'
+	label: AttrText | AttrScriptedText
+}
+/**
  * 音符上方装饰符
  */
 export type AttrDecor = {
@@ -242,7 +249,8 @@ export type SeparatorAttrBase =
 	AttrShift |
 	AttrDurability |
 	AttrText |
-	AttrScriptedText
+	AttrScriptedText |
+	AttrLabel
 /**
  * 小节线属性的可用位置
  */
@@ -264,6 +272,7 @@ export const separatorAttrPosition: {
 
 	text: [true, true, true, 'begin'],
 	scriptedText: [true, true, true, 'begin'],
+	label: [true, false, true, 'begin'],
 
 	openRange: [false, false, false, 'begin']
 }
@@ -451,6 +460,7 @@ export type NoteCharChord = {
 	delta: number
 	root: string
 	suffix: string
+	baseDelta: number
 	base?: string
 } | {
 	type: 'chord'

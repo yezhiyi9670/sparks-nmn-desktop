@@ -646,7 +646,7 @@ export class NoteEater {
 					)
 					return undefined
 				}
-				const [ pref, base ] = splitBy(token1.content, '/')
+				let [ pref, base ] = splitBy(token1.content, '/')
 				let prefSplitPos = 1
 				let accidentalDeltas: {[_: string]: number} = {'#': 1, 'b': -1, '$': 0, '^': 0.5, '%': -0.5}
 				while(prefSplitPos < pref.length && (
@@ -657,16 +657,25 @@ export class NoteEater {
 				}
 				let prefRoot = pref.substring(0, prefSplitPos)
 				let prefSuffix = pref.substring(prefSplitPos)
+				
 				let delta = 0
 				while(inCheck(prefRoot[0], accidentalDeltas)) {
 					delta += accidentalDeltas[prefRoot[0]]
 					prefRoot = prefRoot.substring(1)
 				}
+
+				let baseDelta = 0
+				while(inCheck(base[0], accidentalDeltas)) {
+					baseDelta += accidentalDeltas[base[0]]
+					base = base.substring(1)
+				}
+
 				const ret: NoteCharChord = {
 					type: typeSampler as any,
 					delta: delta,
 					root: prefRoot,
 					suffix: prefSuffix,
+					baseDelta: baseDelta,
 					base: base == '' ? undefined : base
 				}
 				return ret as any

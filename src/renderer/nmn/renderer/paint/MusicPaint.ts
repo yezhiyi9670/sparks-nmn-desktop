@@ -192,7 +192,7 @@ export class MusicPaint {
 		}
 		let lastAttr: SeparatorAttr | undefined = undefined
 		;(sign > 0 ? attrs : attrs.reverse()).forEach((attr) => {
-			if(['iter', 'repeat', 'qpm', 'shift', 'durability', 'text', 'scriptedText', 'reset'].indexOf(attr.type) != -1) {
+			if(['iter', 'repeat', 'qpm', 'shift', 'durability', 'text', 'scriptedText', 'label', 'reset'].indexOf(attr.type) != -1) {
 				if(lastAttr && !(lastAttr.type == 'iter' && attr.type == 'iter')) {
 					currX += sign * margin
 				}
@@ -260,7 +260,7 @@ export class MusicPaint {
 	/**
 	 * 绘制单个类文本小节线属性
 	 */
-	drawSeparatorAttrText(context: RenderContext, x: number, y: number, attr: SeparatorAttrBase, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false, isLabelCall: boolean = false) {
+	drawSeparatorAttrText(context: RenderContext, x: number, y: number, attr: SeparatorAttrBase, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false, isLabelCall: boolean = false): number[] {
 		const fontMetricA = new FontMetric(context.render.font_attr!, 2.16 * fontScale)
 		const fontSize = fontMetricA.fontSize * fontMetricA.fontScale
 		const fontMetricB = new FontMetric('SimSun/400', fontSize)
@@ -338,6 +338,21 @@ export class MusicPaint {
 				token2.drawFast(this.root, currX, y - 0.2 * measure1[1], 'left', 'top')
 			}
 			return measure
+		}
+		if(attr.type == 'label') {
+			const rectTopY = y - 1.4
+			const rectBottomY = y + 1.4
+			const rectCenterY = (rectTopY + rectBottomY) / 2
+			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, false)
+			const rectWidth = Math.max(measure[0] + 0.5 * scale * 2, (rectBottomY - rectTopY) * scale)
+			x += rectWidth / 2
+			const rectLeftX = x - rectWidth / 2
+			const rectRightX = x + rectWidth / 2
+			if(!dryRun) {
+				this.root.drawRectOutline(rectLeftX, rectTopY, rectRightX, rectBottomY, 0.15, scale, extraStyles)
+				this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr.label, 1, scale, extraStyles, false, false)
+			}
+			return [rectWidth, rectBottomY - rectTopY]
 		}
 		return [0, 0]
 	}
@@ -463,7 +478,15 @@ export class MusicPaint {
 				scale, extraStyles
 			)
 			const token3 = new PaintTextToken(
-				note.base === undefined ? '' : '/' + note.base,
+				note.base === undefined ? '' : '/',
+				annotationMetric, scale, extraStyles
+			)
+			const token4 = new PaintTextToken(
+				(note.baseDelta != note.baseDelta || note.baseDelta == 0) ? '' : this.symbolAccidental(note.baseDelta),
+				metric0, scale, extraStyles
+			)
+			const token5 = new PaintTextToken(
+				note.base === undefined ? '' : note.base,
 				annotationMetric, scale, extraStyles
 			)
 			let currX = startX
@@ -474,6 +497,13 @@ export class MusicPaint {
 			token2.drawFast(this.root, currX, y + noteMeasure[1] * 0.2, 'left', 'bottom')
 			currX += token2.measureFast(this.root)[0]
 			token3.drawFast(this.root, currX, y, 'left', 'middle')
+			currX += token3.measureFast(this.root)[0]
+			if(token4.text != '') {
+				currX += 0.1 * scale
+			}
+			token4.drawFast(this.root, currX, y, 'left', 'bottom')
+			currX += token4.measureFast(this.root)[0]
+			token5.drawFast(this.root, currX, y, 'left', 'middle')
 		} else {
 			this.root.drawTextFast(startX, y, note.text, annotationMetric, scale, 'left', 'middle', extraStyles)
 		}

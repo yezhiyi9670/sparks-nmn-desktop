@@ -336,6 +336,9 @@ class SectionsParserClass {
 			success ||= pushIfNonNull(ret,
 				rangize(AttrMatcher.matchScriptedText(tokens))
 			)
+			success ||= pushIfNonNull(ret,
+				rangize(AttrMatcher.matchLabel(tokens))
+			)
 			if(!success) {
 				addIssue(issues,
 					lineNumber, tokens[0] ? tokens[0].range[0] : 0,
