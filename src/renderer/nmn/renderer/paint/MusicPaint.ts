@@ -177,7 +177,7 @@ export class MusicPaint {
 	/**
 	 * 绘制属性
 	 */
-	drawBeforeAfterAttrs(context: RenderContext, x: number, y: number, attrs: SeparatorAttr[], section: MusicSection<unknown>, isFirstSection: boolean, pos: 'before' | 'after', fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}) {
+	drawBeforeAfterAttrs(context: RenderContext, x: number, y: number, attrs: SeparatorAttr[], section: MusicSection<unknown>, isFirstSection: boolean, pos: 'before' | 'after', fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, showTextLike: boolean = false) {
 		let sign = pos == 'before' ? 1 : -1
 		let currX = x
 		let attrY = y - 4.5
@@ -192,7 +192,7 @@ export class MusicPaint {
 		}
 		let lastAttr: SeparatorAttr | undefined = undefined
 		;(sign > 0 ? attrs : attrs.reverse()).forEach((attr) => {
-			if(['iter', 'repeat', 'qpm', 'shift', 'durability', 'text', 'scriptedText', 'label', 'reset'].indexOf(attr.type) != -1) {
+			if(showTextLike && ['iter', 'repeat', 'qpm', 'shift', 'durability', 'text', 'scriptedText', 'label', 'reset'].indexOf(attr.type) != -1) {
 				if(lastAttr && !(lastAttr.type == 'iter' && attr.type == 'iter')) {
 					currX += sign * margin
 				}

@@ -362,8 +362,8 @@ export class SectionsRenderer {
 				// 画属性
 				const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
 				const topAdjust = (topAttr && topAttr.type == 'top') ? topAttr.margin : 0
-				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY - topAdjust, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale)
-				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY - topAdjust, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale)
+				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY - topAdjust, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale, {}, type == 'normal')
+				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY - topAdjust, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale, {}, type == 'normal')
 			} else if(section.type == 'omit') {
 				const omitFontMetric = new FontMetric('SimHei/400', 2.16)
 				if(section.count != section.count) {
