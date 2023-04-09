@@ -164,12 +164,12 @@ export class MusicPaint {
 					const rectTopY = topPosY - 3
 					const rectBottomY = topPosY + 0.5
 					const rectCenterY = (rectTopY + rectBottomY) / 2
-					const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr, 1, scale, extraStyles, true, true)
+					const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr, 1, scale, extraStyles, true, 'large')
 					const rectWidth = Math.max(measure[0] + 1 * scale * 2, (rectBottomY - rectTopY) * scale)
 					const rectLeftX = x - rectWidth / 2
 					const rectRightX = x + rectWidth / 2
 					this.root.drawRectOutline(rectLeftX, rectTopY, rectRightX, rectBottomY, 0.15, scale, extraStyles)
-					this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr, 1, scale, extraStyles, false, true)
+					this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr, 1, scale, extraStyles, false, 'large')
 				}
 			})
 		}
@@ -260,12 +260,14 @@ export class MusicPaint {
 	/**
 	 * 绘制单个类文本小节线属性
 	 */
-	drawSeparatorAttrText(context: RenderContext, x: number, y: number, attr: SeparatorAttrBase, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false, isLabelCall: boolean = false): number[] {
+	drawSeparatorAttrText(context: RenderContext, x: number, y: number, attr: SeparatorAttrBase, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false, labelType: 'normal' | 'large' | 'bold' = 'normal'): number[] {
 		const fontMetricA = new FontMetric(context.render.font_attr!, 2.16 * fontScale)
 		const fontSize = fontMetricA.fontSize * fontMetricA.fontScale
 		const fontMetricB = new FontMetric('SimSun/400', fontSize)
 		const fontMetricC = new FontMetric('SparksNMN-Bravura/400', fontSize * 1.5)
 		const fontMetricLx = new FontMetric(context.render.font_checkpoint!, 2.3 * fontScale)
+		const fontMetricLxr = new FontMetric(context.render.font_attr!, 2.16 * fontScale)
+		fontMetricLxr.fontWeight = 700
 		const extraStylesItalic = {
 			...extraStyles,
 			fontStyle: 'italic'
@@ -318,10 +320,10 @@ export class MusicPaint {
 				subs = attr.sub
 			}
 			const token1 = new PaintTextToken(
-				text, isLabelCall ? fontMetricLx : fontMetricA,
+				text, {large: fontMetricLx, normal: fontMetricA, bold: fontMetricLxr}[labelType],
 				scale, extraStyles
 			)
-			const fontMetricAs = isLabelCall ? new FontMetric(context.render.font_checkpoint!, 2.3 * 0.75 * fontScale) : new FontMetric(context.render.font_attr!, 2.16 * 0.75 * fontScale)
+			const fontMetricAs = labelType == 'large' ? new FontMetric(context.render.font_checkpoint!, 2.3 * 0.75 * fontScale) : new FontMetric(context.render.font_attr!, 2.16 * 0.75 * fontScale)
 			const token2 = new PaintTextToken(
 				subs, fontMetricAs,
 				scale, extraStyles
@@ -343,14 +345,14 @@ export class MusicPaint {
 			const rectTopY = y - 1.4
 			const rectBottomY = y + 1.4
 			const rectCenterY = (rectTopY + rectBottomY) / 2
-			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, false)
+			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, 'bold')
 			const rectWidth = Math.max(measure[0] + 0.5 * scale * 2, (rectBottomY - rectTopY) * scale)
 			x += rectWidth / 2
 			const rectLeftX = x - rectWidth / 2
 			const rectRightX = x + rectWidth / 2
 			if(!dryRun) {
 				this.root.drawRectOutline(rectLeftX, rectTopY, rectRightX, rectBottomY, 0.15, scale, extraStyles)
-				this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr.label, 1, scale, extraStyles, false, false)
+				this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr.label, 1, scale, extraStyles, false, 'bold')
 			}
 			return [rectWidth, rectBottomY - rectTopY]
 		}

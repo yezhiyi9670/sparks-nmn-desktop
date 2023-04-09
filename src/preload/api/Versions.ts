@@ -1,4 +1,4 @@
 export default {
-	app: '0.8.7',
-	core: '1.8.7'
+	app: '0.8.8',
+	core: '1.8.8'
 }
