@@ -114,7 +114,7 @@ export interface RenderProps {
 	/**
 	 * 声部曲谱部分前的间距
 	 */
-	margin_before_part_notes?: number
+	margin_between_parts?: number
 	/**
 	 * 声部曲谱部分后的间距
 	 */
@@ -172,7 +172,7 @@ export const renderPropsDefault: RenderProps = {
 	margin_after_header_text: 1.5,
 	margin_before_line: 1.7, // diff 1.7
 	margin_after_line: 0.1, // diff 1.1
-	margin_before_part_notes: 2.5,
+	margin_between_parts: 2.5,
 	margin_after_part_notes: 2,
 	inset_before_lyrics: 1.3,
 	margin_after_part: 1,

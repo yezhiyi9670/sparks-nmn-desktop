@@ -624,7 +624,7 @@ export class LineRenderer {
 		const isAccompany = part.notes.head == 'Na'
 
 		if(!part.noMargin[0]) {
-			currY += context.render.margin_before_part_notes!
+			currY += isFirst ? 2.5 : context.render.margin_between_parts!
 		}
 		
 		const fieldHeight = isAccompany ? 4.4 : 5.5

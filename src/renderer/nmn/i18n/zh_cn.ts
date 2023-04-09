@@ -155,7 +155,7 @@ export default {
 		'margin_after_header_text': '(1.5)间距/额外 - 文本章节标题之后',
 		'margin_before_line': '(1.7)间距 - 乐谱行之前',
 		'margin_after_line': '(0.1)间距 - 乐谱行之后',
-		'margin_before_part_notes': '(2.5)间距 - 声部曲谱部分之前',
+		'margin_between_parts': '(2.5)间距 - 声部之间',
 		'margin_after_part_notes': '(2)间距 - 声部曲谱部分之后',
 		'inset_before_lyrics': '(1.3)负间距 - 声部歌词组之前',
 		'margin_after_part': '(1)间距 - 声部之后',
