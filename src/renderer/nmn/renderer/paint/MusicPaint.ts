@@ -266,7 +266,7 @@ export class MusicPaint {
 		const fontMetricB = new FontMetric('SimSun/400', fontSize)
 		const fontMetricC = new FontMetric('SparksNMN-Bravura/400', fontSize * 1.5)
 		const fontMetricLx = new FontMetric(context.render.font_checkpoint!, 2.3 * fontScale)
-		const fontMetricLxr = new FontMetric(context.render.font_attr!, 2.16 * fontScale)
+		const fontMetricLxr = new FontMetric(context.render.font_attr!, 2.06 * fontScale)
 		fontMetricLxr.fontWeight = 700
 		const extraStylesItalic = {
 			...extraStyles,
@@ -342,8 +342,9 @@ export class MusicPaint {
 			return measure
 		}
 		if(attr.type == 'label') {
-			const rectTopY = y - 1.4
-			const rectBottomY = y + 1.4
+			y -= 0.45
+			const rectTopY = y - 1.3
+			const rectBottomY = y + 1.3
 			const rectCenterY = (rectTopY + rectBottomY) / 2
 			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, 'bold')
 			const rectWidth = Math.max(measure[0] + 0.5 * scale * 2, (rectBottomY - rectTopY) * scale)
