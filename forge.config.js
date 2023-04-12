@@ -2,6 +2,7 @@ module.exports = {
 	packagerConfig: {
 		name: "sparks-nmn-desktop",
 		asar: true,
+		icon: "./logo/logo",
 		ignore: (path) => {
 			if(['', '/package.json'].includes(path)) {
 				return false

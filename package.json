@@ -4,6 +4,7 @@
   "description": "Desktop application of SparksNMN, a natural text format for composing numbered music notation scores.",
   "author": "yezhiyi9670",
   "license": "MIT",
+  "icon": "./logo/logo.png",
   "main": "dist/main/index.js",
   "config": {
     "arch": "ia32"
