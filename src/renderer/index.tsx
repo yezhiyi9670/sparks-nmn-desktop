@@ -335,22 +335,22 @@ function AppIn() {
 	// ===== 键盘事件 =====
 	useEffect(() => {
 		const keyHandler = (evt: KeyboardEvent) => {
-			if(evt.ctrlKey && evt.key == 'i') {
+			if(evt.ctrlKey && evt.shiftKey && evt.key.toLowerCase() == 'i') {
 				window.AppMain.openDevTools()
-			} else if(evt.ctrlKey) {
-				if(evt.altKey && evt.key == 's') {
+			} else if(evt.ctrlKey && !evt.shiftKey) {
+				if(evt.altKey && evt.key.toLowerCase() == 's') {
 					saveAs()
-				} else if(evt.key == 's') {
+				} else if(evt.key.toLowerCase() == 's') {
 					saveDocument()
-				} else if(evt.key == 'n') {
+				} else if(evt.key.toLowerCase() == 'n') {
 					newDocument()
-				} else if(evt.key == 'o') {
+				} else if(evt.key.toLowerCase() == 'o') {
 					openDocument()
-				} else if(evt.key == 'r') {
+				} else if(evt.key.toLowerCase() == 'r') {
 					callRef(editorApiRef, api => {
 						api.triggerBeforeSave()
 					})
-				} else if(evt.key == 'p') {
+				} else if(evt.key.toLowerCase() == 'p') {
 					printHtml()
 				}
 			}
