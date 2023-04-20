@@ -590,12 +590,12 @@ export class MusicPaint {
 				shift: -0.7
 			},
 			lpr: {
-				metric: new FontMetric('SimHei/700', noteMeasure[1] * 1.1),
+				metric: new FontMetric('SimSun/400', noteMeasure[1] * 1.1),
 				text: "(",
 				shift: 0
 			},
 			rpr: {
-				metric: new FontMetric('SimHei/700', noteMeasure[1] * 1.1),
+				metric: new FontMetric('SimSun/400', noteMeasure[1] * 1.1),
 				text: ")",
 				shift: 0
 			},
