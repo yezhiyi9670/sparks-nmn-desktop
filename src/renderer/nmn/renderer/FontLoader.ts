@@ -20,7 +20,7 @@ export module FontLoader {
 	/**
 	 * 加载字体
 	 */
-	export function loadFont(data: FontData, callback?: (_: boolean) => void) {
+	export function loadFont(data: FontData, callback?: (_: boolean) => void, error?: (_: any) => void) {
 		if(hasFont(data.name)) {
 			if(callback) {
 				callback(false)
@@ -33,6 +33,10 @@ export module FontLoader {
 				if(callback) {
 					callback(true)
 				}
+			}).catch((e) => {
+				if(error) {
+					error(e)
+				}
 			})
 		}
 	}
@@ -40,21 +44,58 @@ export module FontLoader {
 	 * 加载多个字体
 	 */
 	export function loadFonts(data: FontData[], finishCallback?: () => void, loadCallback?: () => void) {
-		let loaded = 0
-		data.forEach((font) => {
-			loadFont(font, (state) => {
-				loaded += 1
-				if(state) {
-					if(loadCallback) {
-						loadCallback()
-					}
+		// let loaded = 0
+		// data.forEach((font) => {
+		// 	loadFont(font, (state) => {
+		// 		loaded += 1
+		// 		if(state) {
+		// 			if(loadCallback) {
+		// 				loadCallback()
+		// 			}
+		// 		}
+		// 		if(loaded == data.length) {
+		// 			if(finishCallback) {
+		// 				finishCallback()
+		// 			}
+		// 		}
+		// 	})
+		// })
+		const tasks = data.map(font => ({
+			...font,
+			state: 'none' as ('none' | 'loading' | 'loaded')
+		}))
+		const maxLoadOnce = 3
+		let loadings = 0
+		const startTasks = () => {
+			let loaded = 0
+			tasks.forEach(task => {
+				if(task.state == 'loaded') {
+					loaded += 1
 				}
-				if(loaded == data.length) {
-					if(finishCallback) {
-						finishCallback()
-					}
+				if(task.state != 'none') {
+					return
 				}
+				if(loadings >= maxLoadOnce) {
+					return
+				}
+				loadings += 1
+				task.state = 'loading'
+				loadFont(task, () => {
+					loadings -= 1
+					task.state = 'loaded'
+					startTasks()
+				}, () => {
+					loadings -= 1
+					task.state = 'none'
+					startTasks()
+				})
 			})
-		})
+			if(loaded == data.length) {
+				if(finishCallback) {
+					finishCallback()
+				}
+			}
+		}
+		startTasks()
 	}
 }
