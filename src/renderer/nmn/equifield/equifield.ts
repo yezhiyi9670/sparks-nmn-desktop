@@ -51,6 +51,9 @@ export class Equifield {
 				.append(
 					$content
 				)
+			if(section.label) {
+				$field.attr('data-label', section.label)
+			}
 			if(section.noBreakAfter) {
 				$field.css('page-break-after', 'avoid')
 			}
