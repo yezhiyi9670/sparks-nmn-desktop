@@ -77,7 +77,10 @@ class I18nClass {
 	 * Equifield 分节标签
 	 */
 	efLabel(context: LanguageArray, key: string, ...args: string[]) {
-		return getLanguageValue(context.efLabels[key] ?? key, ...args)
+		return {
+			label: [key, ...args].join('-'),
+			localeLabel: getLanguageValue(context.efLabels[key] ?? key, ...args)
+		}
 	}
 }
 

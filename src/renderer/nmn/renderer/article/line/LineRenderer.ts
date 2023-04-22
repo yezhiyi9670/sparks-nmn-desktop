@@ -79,14 +79,14 @@ export class LineRenderer {
 		sections.push({
 			element: root.getElement(),
 			height: currY * scale,
-			label: I18n.efLabel(context.language, 'musicLine', title, '' + (line.startSection + 1))
+			...I18n.efLabel(context.language, 'musicLine', title, '' + (line.startSection + 1))
 		})
 
 		sections.push({
 			element: new DomPaint().getElement(),
 			height: context.render.margin_after_line! * scale,
 			isMargin: true,
-			label: I18n.efLabel(context.language, 'musicLineMargin')
+			...I18n.efLabel(context.language, 'musicLineMargin')
 		})
 	}
 

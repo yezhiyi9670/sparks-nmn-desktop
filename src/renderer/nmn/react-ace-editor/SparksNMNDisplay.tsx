@@ -8,21 +8,19 @@ import { positionDispatcherStats } from '../renderer/article/line/PositionDispat
 import { domPaintStats } from '../renderer/backend/DomPaint'
 import { randomToken } from '../util/random'
 
-type SparksNMNPreviewProps = {
+type Props = {
 	result: NMNResult | undefined
 	language: LanguageArray
+	efRange?: [string, string]
 	onPosition?: (row: number, col: number) => void
-	logTimeStat?: boolean
 	cursor?: {
 		code: string,
 		position: [number, number]
 	}
-	onReportTiming?: (value: number) => void
-	onReportSize?: (value: number) => void
 	onReportError?: (_err: any | undefined) => void
 }
-export function SparksNMNPreview(props: SparksNMNPreviewProps) {
-	const { onPosition, result, language, logTimeStat } = props
+export function SparksNMNDisplay(props: Props) {
+	const { onPosition, result, language } = props
 	
 	const divRef = React.createRef<HTMLDivElement>()
 
@@ -64,19 +62,6 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 					}]
 				}
 			})()
-			// console.log(fields)
-			let endTime = +new Date()
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-			timing = endTime - startTime
-			if(logTimeStat) {
-				console.log('===== Preview Render Stats =====')
-				console.log(fields.map(item => item.label))
-				console.log('Render took ', endTime - startTime, 'milliseconds')
-				console.log('  Measure took ', domPaintStats.measureTime, 'milliseconds')
-				console.log('  Dom draw took ', domPaintStats.domDrawTime, 'milliseconds')
-				console.log('  Section render took ', lineRendererStats.sectionsRenderTime, 'milliseconds')
-				console.log('  Dispatching took ', positionDispatcherStats.computeTime, 'milliseconds')
-			}
 
 			return fields
 		} else {
@@ -85,25 +70,8 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 				height: 3
 			}]
 		}
-	}, [result, language, logTimeStat, positionCallback])
+	}, [result, language, positionCallback])
 
-	useEffect(() => {
-		if(hasRendered) {
-			if(props.onReportTiming) {
-				props.onReportTiming(timing)
-			}
-			if(props.onReportSize) {
-				const textData = JSON.stringify(renderResultFields.map((field) => {
-					return {
-						...field,
-						element: field.element.outerHTML
-					}
-				})).replace(/</g, "\\x3c")
-				props.onReportSize(new TextEncoder().encode(textData).length)
-			}
-		}
-	})
-	
 	React.useEffect(() => {
 		const element = divRef.current
 		if(!element) {
@@ -114,17 +82,26 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 		}
 		let startTime = +new Date()
 		const ef = new Equifield(element)
-		ef.render(renderResultFields)
-		let endTime = +new Date()
-		if(logTimeStat) {
-			console.log('Actuation took', endTime - startTime, 'milliseconds')
+
+		const labels = renderResultFields.map(field => field.label)
+		let startIndex = 0
+		let endIndex = labels.length
+		if(props.efRange) {
+			startIndex = Math.max(0, labels.indexOf(props.efRange[0]))
+			endIndex = labels.lastIndexOf(props.efRange[1]) + 1
+			if(endIndex == 0) {
+				endIndex = labels.length
+			}
 		}
+
+		ef.render(renderResultFields.slice(startIndex, endIndex))
+		let endTime = +new Date()
 
 		return () => {
 			ef.destroy()
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [renderResultFields, logTimeStat, tokenClass])
+	}, [renderResultFields, tokenClass, props.efRange])
 
 	React.useEffect(() => {
 		if(!result) {

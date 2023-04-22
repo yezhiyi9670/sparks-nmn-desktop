@@ -44,22 +44,6 @@ export module FontLoader {
 	 * 加载多个字体
 	 */
 	export function loadFonts(data: FontData[], finishCallback?: () => void, loadCallback?: () => void) {
-		// let loaded = 0
-		// data.forEach((font) => {
-		// 	loadFont(font, (state) => {
-		// 		loaded += 1
-		// 		if(state) {
-		// 			if(loadCallback) {
-		// 				loadCallback()
-		// 			}
-		// 		}
-		// 		if(loaded == data.length) {
-		// 			if(finishCallback) {
-		// 				finishCallback()
-		// 			}
-		// 		}
-		// 	})
-		// })
 		const tasks = data.map(font => ({
 			...font,
 			state: 'none' as ('none' | 'loading' | 'loaded')
@@ -69,7 +53,7 @@ export module FontLoader {
 		const startTasks = () => {
 			let loaded = 0
 			tasks.forEach(task => {
-				if(task.state == 'loaded') {
+				if(task.state == 'loaded' && hasFont(task.name)) {
 					loaded += 1
 				}
 				if(task.state != 'none') {

@@ -35,7 +35,7 @@ class ArticleRendererClass {
 				element: new DomPaint().getElement(),
 				height: context.render.margin_after_article! * context.render.scale!,
 				isMargin: true,
-				label: I18n.efLabel(context.language, 'articleMargin')
+				...I18n.efLabel(context.language, 'articleMargin')
 			})
 		}
 	}
@@ -70,7 +70,7 @@ class ArticleRendererClass {
 		sections.push({
 			element: root.getElement(),
 			height: currY * scale,
-			label: I18n.efLabel(context.language, 'textArticle', article.title?.text ?? '')
+			...I18n.efLabel(context.language, 'textArticle', article.title?.text ?? '')
 		})
 	}
 	/**
@@ -92,7 +92,7 @@ class ArticleRendererClass {
 			sections.push({
 				element: halfRoot[0].getElement(),
 				height: halfRoot[1],
-				label: I18n.efLabel(context.language, 'musicArticleTitle', article.title?.text ?? '')
+				...I18n.efLabel(context.language, 'musicArticleTitle', article.title?.text ?? '')
 			})
 		}
 	}
