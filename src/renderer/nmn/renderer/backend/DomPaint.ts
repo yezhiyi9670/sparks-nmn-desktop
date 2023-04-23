@@ -89,12 +89,12 @@ export class DomPaint {
 	/**
 	 * 多边形模拟四分之一圆弧形状
 	 */
-	polygonQuarterCircle(innerRatio: number) {
+	polygonQuarterCircle(innerRatio: number, outerRatio: number = 1) {
 		let points: [number, number][] = []
 		let sides = 12
 		for(let i = 0; i <= sides; i++) {
 			let angle = Math.PI / 2 / sides * i
-			points.push([Math.cos(angle), Math.sin(angle)])
+			points.push([Math.cos(angle) * outerRatio, Math.sin(angle) * outerRatio])
 		}
 		for(let i = sides; i >= 0; i--) {
 			let angle = Math.PI / 2 / sides * i
@@ -290,7 +290,9 @@ export class DomPaint {
 		r *= scale
 		width *= scale
 		r += width / 2
+		const outerRatio = 0.95
 		const ratio = 1 - width / r
+		r /= outerRatio
 		let rotate = 0
 		if(halfX == 'left') {
 			if(halfY == 'top') {
@@ -309,7 +311,7 @@ export class DomPaint {
 		const textSpanText = `<div style="${translateStyles(
 			{
 				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(r / downScale)}em`,
-				clipPath: `polygon(${this.polygonQuarterCircle(ratio)})`,
+				clipPath: `polygon(${this.polygonQuarterCircle(ratio * outerRatio, outerRatio)})`,
 				position: 'absolute',
 				width: `${this.limitPrecisionEm(r * 2 / downScale)}em`,
 				height: `${this.limitPrecisionEm(r * 2 / downScale)}em`,

@@ -160,7 +160,7 @@ export const renderPropsDefault: RenderProps = {
 	font_footnote: 'SimSun/400',
 	font_attr: 'SimSun/400',
 	font_force: 'Deng/700',
-	font_chord: 'Deng/700',
+	font_chord: 'SimSun/600',
 	font_annotation1: 'SimSun/600',
 	font_annotation2: 'SimSun/600',
 	font_annotation3: 'SimSun/600',
