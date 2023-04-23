@@ -38,15 +38,15 @@ export class MusicPaint {
 		let absVal = Math.abs(delta)
 		let sign = Math.round(delta / absVal)
 		let ret = ''
+		// 微分记号
+		while(Math.round(absVal * 2) % 2 == 1) {
+			absVal -= 0.5
+			ret += sign > 0 ? "\uE10F" : "\uE118"
+		}
 		// 升降记号
 		while(absVal >= 1) {
 			absVal -= 1
 			ret += sign > 0 ? "\uE10E" : "\uE114"
-		}
-		// 微分记号
-		while(absVal >= 0.5) {
-			absVal -= 0.5
-			ret += sign > 0 ? "\uE1BE" : "\uE1BF"
 		}
 		if(ret == '') {
 			return "\uE113"

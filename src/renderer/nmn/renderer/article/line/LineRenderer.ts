@@ -79,7 +79,7 @@ export class LineRenderer {
 		sections.push({
 			element: root.getElement(),
 			height: currY * scale,
-			...I18n.efLabel(context.language, 'musicLine', title, '' + (line.startSection + 1))
+			...I18n.efLabel(context.language, 'musicLine', title, '' + (line.parts[0].notes.sections[0].ordinal + 1))
 		})
 
 		sections.push({

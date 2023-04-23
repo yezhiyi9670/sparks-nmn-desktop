@@ -252,6 +252,7 @@ export class PositionDispatcher {
 	 * 分配位置 - 统计布局列
 	 */
 	dispatch$statColumns() {
+		const msp = new MusicPaint(this.root)
 		// 记录限制条件信息
 		const addConstraint = (pos: Fraction, index: number, field: [number, number], occupiesSpace: boolean) => {
 			const currentSection = this.data[index]
@@ -299,7 +300,7 @@ export class PositionDispatcher {
 				section.notes.forEach((note) => {
 					const fracPos = Frac.add(this.line.sectionFields[actualIndex][0], note.startPos)
 					if(isMusic) {
-						let hasAccidental = false
+						let accidentalCount = 0
 						let hasSlide = false
 						let leftAddCount = 0
 						let rightAddCount = 0
@@ -309,9 +310,7 @@ export class PositionDispatcher {
 							if(noteChar.type != 'music') {
 								throw new Error('Position dispatching occured with a non-music note.')
 							}
-							if(noteChar.delta == noteChar.delta) {
-								hasAccidental = true
-							}
+							accidentalCount = msp.symbolAccidental(noteChar.delta).length
 							for(let attr of note.attrs) {
 								if(attr.type == 'notes') {
 									if(attr.slot == 'prefix') {
@@ -331,7 +330,7 @@ export class PositionDispatcher {
 							noteCharMeasure[0] / 2 * normalCharWidthRatio
 						], true) // 音符本身占据排版域
 						addConstraint(fracPos, actualIndex, [
-							noteCharMeasure[0] / 2 * normalCharWidthRatio + (+hasAccidental) * accidentalMeasure[0] + leftAddCount * addNoteCharMeasure[0] / 2 + noteCharMeasure[1] * 1.2,
+							noteCharMeasure[0] / 2 * normalCharWidthRatio + accidentalCount * accidentalMeasure[0] + leftAddCount * addNoteCharMeasure[0] / 2 + noteCharMeasure[1] * 1.2,
 							noteCharMeasure[0] / 2 * normalCharWidthRatio + Math.max(
 								noteCharMeasure[0] / 2 * dotCount,
 								rightAddCount * addNoteCharMeasure[0] / 2 + noteCharMeasure[1] * 1.2,
@@ -345,7 +344,6 @@ export class PositionDispatcher {
 				})
 			})
 		}
-		const msp = new MusicPaint(this.root)
 		this.line.parts.forEach((part) => {
 			handleSections(part.notes.sections, true, false)
 			handleSections(part.force?.sections, false, false)
