@@ -79,7 +79,7 @@ export class LineRenderer {
 		sections.push({
 			element: root.getElement(),
 			height: currY * scale,
-			...I18n.efLabel(context.language, 'musicLine', title, '' + (line.parts[0].notes.sections[0].ordinal + 1))
+			...I18n.efLabel(context.language, 'musicLine', title, '' + (line.startOrdinal + 1))
 		})
 
 		sections.push({
@@ -106,7 +106,7 @@ export class LineRenderer {
 		currY += jumperRet[0]
 		const hasJumperOverlap = jumperRet[1]
 		// ===== 渲染音乐行 =====
-		currY += this.renderPartNotes(currY, part, root, context, hasJumperOverlap, isFirst)
+		currY += this.renderPartNotes(currY, part, line.startOrdinal, root, context, hasJumperOverlap, isFirst)
 		const lastYs = this.musicLineYs[this.musicLineYs.length - 1]
 		// ===== 标记声部名称 =====
 		if(shouldLabel) {
@@ -246,7 +246,7 @@ export class LineRenderer {
 
 				// 画小节
 				lineRendererStats.sectionsRenderTime -= +new Date()
-				new SectionsRenderer(localColumns).render(currY, { notes: { sections }, decorations: decorations }, root, context, false, false, 'substitute')
+				new SectionsRenderer(localColumns).render(currY, { notes: { sections }, decorations: decorations }, -1, root, context, false, false, 'substitute')
 				lineRendererStats.sectionsRenderTime += +new Date()
 
 				// 画括号
@@ -618,7 +618,7 @@ export class LineRenderer {
 	/**
 	 * 渲染声部的音符行
 	 */
-	renderPartNotes(startY: number, part: NMNPart, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirst: boolean) {
+	renderPartNotes(startY: number, part: NMNPart, sectionCount: number, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirst: boolean) {
 		let currY = startY
 
 		const isAccompany = part.notes.head == 'Na'
@@ -634,7 +634,7 @@ export class LineRenderer {
 
 		lineRendererStats.sectionsRenderTime -= +new Date()
 		
-		new SectionsRenderer(this.columns).render(currY, part, root, context, hasJumperOverlap, isFirst, isAccompany ? 'accompany' : 'normal')
+		new SectionsRenderer(this.columns).render(currY, part, sectionCount, root, context, hasJumperOverlap, isFirst, isAccompany ? 'accompany' : 'normal')
 		lineRendererStats.sectionsRenderTime += +new Date()
 
 		currY += fieldHeight / 2

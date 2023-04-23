@@ -34,7 +34,7 @@ export class SectionsRenderer {
 		this.columns = columns
 	}
 
-	render(currY: number, part: SectionsRenderData, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirstPart: boolean, type: 'normal' | 'accompany' | 'substitute') {
+	render(currY: number, part: SectionsRenderData, sectionCount: number, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirstPart: boolean, type: 'normal' | 'accompany' | 'substitute') {
 		const isSmall = type != 'normal'
 
 		const sections = part.notes.sections
@@ -92,7 +92,7 @@ export class SectionsRenderer {
 		// ===== 小节序号 =====
 		const ordinalMode = context.render!.sectionorder
 		if(isFirstPart && !hasJumperOverlap && ordinalMode != 'none' && sections.length > 0) {
-			let ordinalText = (sections[0]!.ordinal + 1).toString()
+			let ordinalText = (sectionCount + 1).toString()
 			if(ordinalMode == 'paren') {
 				ordinalText = '(' + ordinalText + ')'
 			}

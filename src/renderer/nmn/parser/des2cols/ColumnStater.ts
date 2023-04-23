@@ -549,10 +549,17 @@ export class ColumnStater {
 					}
 				}
 			})
+			let startOrd = sectionPtr
+			parts.forEach((part, index) => {
+				if(part.notes.sections[0].type != 'nullish') {
+					startOrd = part.notes.sections[0].ordinal
+				}
+			})
 			lines.push({
 				field: field,
 				sectionWeights: sectionWeights,
 				sectionPadding: sectionPadding,
+				startOrdinal: startOrd,
 				startSection: sectionPtr,
 				sectionCountShould: sectionCountShould,
 				sectionCount: sectionCount,

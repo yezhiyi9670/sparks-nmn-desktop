@@ -178,6 +178,10 @@ export type LinedLine = {
 	 */
 	sectionPadding: number[]
 	/**
+	 * 起始小节的小节标号
+	 */
+	startOrdinal: number
+	/**
 	 * 起始小节编号
 	 */
 	startSection: number
