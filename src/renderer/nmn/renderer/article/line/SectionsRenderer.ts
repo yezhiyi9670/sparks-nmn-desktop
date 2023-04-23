@@ -101,7 +101,7 @@ export class SectionsRenderer {
 			}
 			const ordinalX = this.columns.startPosition(0) - 0.5 * scale
 			const ordinalMetric = new FontMetric('Deng/400', 2.0)
-			root.drawText(ordinalX, currY - fieldHeight * 0.7, ordinalText, ordinalMetric, scale, 'left', 'bottom', {
+			root.drawText(ordinalX, currY - fieldHeight * 0.65, ordinalText, ordinalMetric, scale, 'left', 'bottom', {
 				fontStyle: ordinalMode == 'plain' ? 'italic' : 'normal'
 			})
 		}

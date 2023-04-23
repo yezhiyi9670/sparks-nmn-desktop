@@ -342,7 +342,7 @@ export class MusicPaint {
 			return measure
 		}
 		if(attr.type == 'label') {
-			y -= 0.45
+			y -= 0.33
 			const rectTopY = y - 1.3
 			const rectBottomY = y + 1.3
 			const rectCenterY = (rectTopY + rectBottomY) / 2
