@@ -104,7 +104,7 @@ export class MusicPaint {
 			'hold': "\uE166",
 			'str': "\uE161",
 			'brk': "\uE1DB",
-			'brk+': "\uE1DC"
+			'tip': "\uE1DC"
 		}[char]
 		if(ret === undefined) {
 			throw new Error('Unknown note decorator ' + char)
@@ -716,7 +716,7 @@ export class MusicPaint {
 					scale, {}
 				)
 				let xShift = 0
-				if(['brk', 'brk+'].indexOf(attr.char) != -1) {
+				if(['brk', 'tip'].indexOf(attr.char) != -1) {
 					xShift = -0.3
 				} else if(attr.char == 'ext') {
 					xShift = +0.1

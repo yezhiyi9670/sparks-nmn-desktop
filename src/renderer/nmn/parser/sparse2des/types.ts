@@ -148,13 +148,13 @@ export type AttrDecor = {
 export const attrDecorCheck = {
 	'tr': 1, 'tr+': 1, 'wav': 1, 'wav+': 1, 'wavd': 1, 'wavd+': 1,
 	'echo': 1, 'recho': 1, 'ext': 1, 'hold': 1, 'str': 1,
-	'brk': 1, 'brk+': 1
+	'brk': 1, 'tip': 1
 }
 /**
  * 音符上方装饰符的优先级
  */
 export function attrDecorPriority(char: string) {
-	if(['hold', 'str', 'brk', 'brk+'].indexOf(char) != -1) {
+	if(['hold', 'str', 'brk', 'tip'].indexOf(char) != -1) {
 		return 2
 	}
 	if(char == 'ext') {
