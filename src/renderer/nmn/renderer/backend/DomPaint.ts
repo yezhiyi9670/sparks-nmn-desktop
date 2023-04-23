@@ -9,9 +9,20 @@ type ExtraStyles = {[_: string]: number | string}
 const measureCache: {[_: string]: [number, number]} = {}
 const measureCacheFast: {[_: string]: [number, number]} = {}
 
-const upScale = window.navigator.userAgent.indexOf('Edg') != -1 ? 2 : 5  // 将字体和图元大小数据调高，然后通过 transform scale 还原，一可以提高打印质量，二可以避免最小字体问题。
-const downScale = window.navigator.userAgent.indexOf('Edg') != -1 ? 0.5 : 1
-// upScale 小了会出事情，现在暂时不管为什么
+const browserType =
+	window.navigator.userAgent.indexOf('Edg') != -1 ? 'edge' :
+	window.navigator.userAgent.indexOf('Firefox') != -1 ? 'firefox' :
+	'normal'
+
+/*
+Edge 与 Chrome 有最小字体限制，通过调节字体尺度绕过
+Edge 与 Chrome 导致连音线等图形出现不规则边缘，通过较大的放缩可缓解
+*/
+const [ textUpScale, figureUpScale ] = {
+	edge: [ 5, 4 ],
+	normal: [ 5, 4 ],
+	firefox: [ 2, 2 ]
+}[browserType]
 
 export const domPaintStats = {
 	measureTime: 0,
@@ -213,12 +224,12 @@ export class DomPaint {
 				position: 'absolute',
 				textAlign: align,
 				fontFamily: font.fontFamily,
-				fontSize: `${this.limitPrecisionEm(fontSize * scale * upScale)}em`,
+				fontSize: `${this.limitPrecisionEm(fontSize * scale * textUpScale)}em`,
 				fontWeight: font.fontWeight,
 				top: 0,
 				left: 0,
 				transformOrigin: 'top left',
-				transform: `translateX(${this.limitPrecisionEm(x/scale/upScale)}em) translateY(${this.limitPrecisionEm(y / upScale)}em) scale(${this.limitPrecisionEm(1/upScale)}) translateX(${tx}%) translateY(${ty}%)`,
+				transform: `translateX(${this.limitPrecisionEm(x/scale/textUpScale)}em) translateY(${this.limitPrecisionEm(y / textUpScale)}em) scale(${this.limitPrecisionEm(1/textUpScale)}) translateX(${tx}%) translateY(${ty}%)`,
 				...(clickHandler ? {
 					cursor: 'pointer',
 					zIndex: 1
@@ -269,13 +280,13 @@ export class DomPaint {
 		domPaintStats.domDrawTime -= +new Date()
 		const textSpanText = `<div style="${translateStyles(
 			{
-				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(width * upScale)}em`,
+				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(width * figureUpScale)}em`,
 				position: 'absolute',
-				width: `${this.limitPrecisionEm((lineLength + 2 * padding) * upScale)}em`,
-				height: `${width * upScale}em`,
+				width: `${this.limitPrecisionEm((lineLength + 2 * padding) * figureUpScale)}em`,
+				height: `${width * figureUpScale}em`,
 				left: 0,
 				top: 0,
-				transform: `translateX(${this.limitPrecisionEm(centerX)}em) translateY(${this.limitPrecisionEm(centerY)}em) translateX(-50%) translateY(-50%) rotate(${this.limitPrecisionEm(angle)}deg) scale(${this.limitPrecisionEm(1/upScale)})`,
+				transform: `translateX(${this.limitPrecisionEm(centerX)}em) translateY(${this.limitPrecisionEm(centerY)}em) translateX(-50%) translateY(-50%) rotate(${this.limitPrecisionEm(angle)}deg) scale(${this.limitPrecisionEm(1/figureUpScale)})`,
 				...extraStyles
 			}
 		)}" class="${extraClasses.join(' ')}"></div>`
@@ -310,14 +321,14 @@ export class DomPaint {
 		domPaintStats.domDrawTime -= +new Date()
 		const textSpanText = `<div style="${translateStyles(
 			{
-				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(r / downScale)}em`,
+				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(r * figureUpScale)}em`,
 				clipPath: `polygon(${this.polygonQuarterCircle(ratio * outerRatio, outerRatio)})`,
 				position: 'absolute',
-				width: `${this.limitPrecisionEm(r * 2 / downScale)}em`,
-				height: `${this.limitPrecisionEm(r * 2 / downScale)}em`,
+				width: `${this.limitPrecisionEm(r * 2 * figureUpScale)}em`,
+				height: `${this.limitPrecisionEm(r * 2 * figureUpScale)}em`,
 				left: 0,
 				top: 0,
-				transform: `translateX(${this.limitPrecisionEm(x)}em) translateY(${this.limitPrecisionEm(y)}em) translateX(-${50}%) translateY(-${50}%) scale(${this.limitPrecisionEm(downScale)}) rotate(${this.limitPrecisionEm(rotate)}deg)`,
+				transform: `translateX(${this.limitPrecisionEm(x)}em) translateY(${this.limitPrecisionEm(y)}em) translateX(-${50}%) translateY(-${50}%) scale(${this.limitPrecisionEm(1 / figureUpScale)}) rotate(${this.limitPrecisionEm(rotate)}deg)`,
 				...extraStyles
 			}
 		)}"></div>`
