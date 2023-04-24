@@ -4,9 +4,11 @@ let fontPhase: 'none' | 'loading' | 'loaded' = 'none'
 let pendingRequests: (() => void)[] = []
 
 const fonts = [
-	{ family: 'SimSun', name: 'simsun', format: 'woff' },
-	{ family: 'SimHei', name: 'simhei', format: 'woff' },
-	{ family: 'Deng', name: 'deng', format: 'woff' },
+	{ family: 'Deng', name: 'deng', format: 'woff2' },
+	{ family: 'Deng', name: 'deng', format: 'woff2', weight: 'bold' },
+	{ family: 'SimSun', name: 'simsun', format: 'woff2' },
+	{ family: 'SimSun', name: 'simsun', format: 'woff2', weight: 'bold' },
+	{ family: 'SimHei', name: 'simhei', format: 'woff2' },
 	{ family: 'SparksNMN-EOPNumber', name: 'eop_number', format: 'ttf' },
 	{ family: 'SparksNMN-mscore-20', name: 'mscore-20', format: 'ttf' },
 	{ family: 'SparksNMN-Bravura', name: 'bravura', format: 'woff' },
@@ -14,7 +16,8 @@ const fonts = [
 
 const tasksRaw = fonts.map(font => ({
 	name: font.family,
-	url: `${font.name}/${font.name}.${font.format}`
+	url: `${font.name}/${font.name}${font.weight ? ('-' + font.weight) : ''}.${font.format}`,
+	weight: font.weight ?? 'normal'
 }))
 
 export module FontLoaderProxy {
@@ -29,7 +32,8 @@ export module FontLoaderProxy {
 		if(fontPhase == 'none') {
 			const tasks = tasksRaw.map(task => ({
 				...task,
-				url: fontStatic + '/' + task.url
+				url: fontStatic + '/' + task.url,
+				weight: task.weight
 			}))
 			FontLoader.loadFonts(tasks, () => {
 				fontPhase = 'loaded'

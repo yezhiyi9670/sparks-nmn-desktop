@@ -2,6 +2,7 @@ export module FontLoader {
 	type FontData = {
 		name: string
 		url: string
+		weight: string
 	}
 	/**
 	 * 检测字体是否加载完成
@@ -21,15 +22,9 @@ export module FontLoader {
 	 * 加载字体
 	 */
 	export function loadFont(data: FontData, callback?: (_: boolean) => void, error?: (_: any) => void) {
-		if(hasFont(data.name)) {
-			if(callback) {
-				callback(false)
-			}
-		}
 		if(document.fonts) {
 			let fontFace = new FontFace(data.name, `url('${data.url}')`)
-			fontFace.weight = 'normal'
-			fontFace.stretch = '150%'
+			fontFace.weight = data.weight
 			fontFace.load().then((loaded) => {
 				document.fonts.add(loaded)
 				if(callback) {
@@ -55,7 +50,7 @@ export module FontLoader {
 		const startTasks = () => {
 			let loaded = 0
 			tasks.forEach(task => {
-				if(task.state == 'loaded' && hasFont(task.name)) {
+				if(task.state == 'loaded') {
 					loaded += 1
 				}
 				if(task.state != 'none') {
