@@ -310,7 +310,9 @@ export class PositionDispatcher {
 							if(noteChar.type != 'music') {
 								throw new Error('Position dispatching occured with a non-music note.')
 							}
-							accidentalCount = msp.symbolAccidental(noteChar.delta).length
+							if(noteChar.delta == noteChar.delta) {
+								accidentalCount = msp.symbolAccidental(noteChar.delta).length
+							}
 							for(let attr of note.attrs) {
 								if(attr.type == 'notes') {
 									if(attr.slot == 'prefix') {
