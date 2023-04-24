@@ -28,6 +28,8 @@ export module FontLoader {
 		}
 		if(document.fonts) {
 			let fontFace = new FontFace(data.name, `url('${data.url}')`)
+			fontFace.weight = 'normal'
+			fontFace.stretch = '150%'
 			fontFace.load().then((loaded) => {
 				document.fonts.add(loaded)
 				if(callback) {

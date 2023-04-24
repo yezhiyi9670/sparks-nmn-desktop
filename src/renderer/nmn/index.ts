@@ -6,6 +6,7 @@ import { I18n, LanguageArray } from './i18n'
 import { commandDefs } from "./parser/commands"
 import { EquifieldSection, Renderer, RenderPositionCallback } from "./renderer/renderer"
 import { FontLoader } from "./renderer/FontLoader"
+import { FontLoaderProxy } from "./renderer/FontLoaderProxy"
 
 /**
  * 渲染错误
@@ -106,23 +107,7 @@ class SparksNMNClass {
 		}
 	}
 
-	/**
-	 * 加载需要的字体
-	 */
-	loadFonts(finishCallback?: () => void, loadCallback?: () => void) {
-		if(!window || !('document' in window)) {
-			throw new NoRendererError('Sparks NMN renderer cannot work without a DOM window.')
-		}
-		const fonts = [
-			{ name: 'SimSun', url: './nmn/font/simsun/simsun.woff', type: 'application/x-font-woff' },
-			{ name: 'SimHei', url: './nmn/font/simhei/simhei.woff', type: 'application/x-font-woff' },
-			{ name: 'Deng', url: './nmn/font/deng/deng.woff', type: 'application/x-font-woff' },
-			{ name: 'SparksNMN-EOPNumber', url: './nmn/font/eop_number/eop_number.ttf', type: 'application/x-font-ttf' },
-			{ name: 'SparksNMN-mscore-20', url: './nmn/font/mscore-20/mscore-20.ttf', type: 'application/x-font-ttf' },
-			{ name: 'SparksNMN-Bravura', url: './nmn/font/bravura/bravura.woff', type: 'application/x-font-woff' }
-		]
-		FontLoader.loadFonts(fonts, finishCallback)
-	}
+	fontLoader = FontLoaderProxy
 }
 
 export const SparksNMN = new SparksNMNClass()

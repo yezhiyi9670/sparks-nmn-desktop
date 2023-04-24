@@ -390,7 +390,7 @@ export function useExportTemplate() {
 	return useContext(ExportTemplateContext)
 }
 
-SparksNMN.loadFonts(() => {
+SparksNMN.fontLoader.requestFontLoad('./nmn/font', () => {
 	$.get('static/export-template.txt', (data) => {
 		createRoot(document.getElementById('root')!).render(
 			<ErrorBoundary fallback={(recover) => (<>
