@@ -9,20 +9,21 @@ type ExtraStyles = {[_: string]: number | string}
 const measureCache: {[_: string]: [number, number]} = {}
 const measureCacheFast: {[_: string]: [number, number]} = {}
 
-const browserType =
-	window.navigator.userAgent.indexOf('Edg') != -1 ? 'edge' :
-	window.navigator.userAgent.indexOf('Firefox') != -1 ? 'firefox' :
-	'normal'
-
 /*
 Edge 与 Chrome 有最小字体限制，通过调节字体尺度绕过
 Edge 与 Chrome 导致连音线等图形出现不规则边缘，通过较大的放缩可缓解
 */
-const [ textUpScale, figureUpScale ] = {
-	edge: [ 5, 4 ],
-	normal: [ 5, 4 ],
-	firefox: [ 2, 2 ]
-}[browserType]
+const getScaler = () => {
+	const browserType =
+		window.navigator.userAgent.indexOf('Edg') != -1 ? 'edge' :
+		window.navigator.userAgent.indexOf('Firefox') != -1 ? 'firefox' :
+		'normal'
+	return {
+		edge: [ 5, 4 ],
+		normal: [ 5, 4 ],
+		firefox: [ 2, 2 ]
+	}[browserType]
+}
 
 export const domPaintStats = {
 	measureTime: 0,
@@ -204,6 +205,8 @@ export class DomPaint {
 	 * @returns 文本的尺寸测量数据，不受 scale 参数影响，但受 fontScale 影响
 	 */
 	drawTextFast(x: number, y: number, text: string, font: FontMetric, scale: number, align: 'left' | 'center' | 'right' = 'left', alignY: 'top' | 'middle' | 'bottom' = 'top', extraStyles: ExtraStyles = {}, clickHandler?: () => void) {
+		const textUpScale = getScaler()[0]
+		
 		let fontSize = font.fontSize * font.fontScale
 		x /= fontSize
 		y /= fontSize
@@ -267,6 +270,8 @@ export class DomPaint {
 	 * @param extraStyles 应用在 <div> 元素上的额外样式
 	 */
 	drawLine(x1: number, y1: number, x2: number, y2: number, width: number, padding: number = 0, scale: number = 1, extraStyles: ExtraStyles = {}, extraClasses: string[] = []) {
+		const figureUpScale = getScaler()[1]
+		
 		y1 *= scale
 		y2 *= scale
 		padding *= scale
@@ -297,6 +302,8 @@ export class DomPaint {
 	 * 绘制圆弧线
 	 */
 	drawQuarterCircle(x: number, y: number, r: number, halfX: 'left' | 'right', halfY: 'top' | 'bottom', width: number, scale: number = 1, extraStyles: ExtraStyles = {}) {
+		const figureUpScale = getScaler()[1]
+		
 		y *= scale
 		r *= scale
 		width *= scale
