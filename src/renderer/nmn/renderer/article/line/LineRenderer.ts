@@ -606,7 +606,7 @@ export class LineRenderer {
 		if(hasJumperAttrOverlap) {
 			currY += overlapField
 		} else {
-			if(hasAnnAttrOverlap) {
+			if(hasAnnAttrOverlap && line.jumpers.length == 0) {
 				currY += overlapField
 			}
 		}
