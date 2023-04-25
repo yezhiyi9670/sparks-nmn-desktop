@@ -63,6 +63,12 @@ function generateToken() {
 	return str
 }
 
+// 用于测量的组件
+const measurer = {
+	span: undefined as (undefined | HTMLSpanElement),
+	canvas: undefined as (undefined | HTMLCanvasElement),
+}
+
 export class DomPaint {
 	element: HTMLDivElement
 	htmlContent: string
@@ -138,21 +144,30 @@ export class DomPaint {
 			return [ width * widthScale, height ]
 		}
 		let fontSize = font.fontSize * font.fontScale
-		const $measure = $('<span></span>').text(text)
-		.css('line-height', 1.15)
-		.css('white-space', 'pre')
+		
+		if(!measurer.span) {
+			measurer.span = $('<span></span>')
+				.addClass('DomPaint-text-measure')
+				.css('display', 'none')
+				.css('line-height', 1.15)
+				.css('white-space', 'pre')
+				.css('position', 'fixed')
+				.css('top', 0)
+				.css('left', 0)
+				[0]
+		}
+		
+		const $measure = $(measurer.span!).text(text)
 		.css('display', 'inline-block')
-		.css('position', 'fixed')
-		.css('top', 0)
-		.css('left', 0)
 		.css('font-family', font.fontFamily)
-		.css('font-size', `${fontSize * 100}px`)  // 100 倍的尺寸减小最小字体限制造成的影响
+		.css('font-size', `${fontSize * 50}px`)  // 50 倍的尺寸减小最小字体限制造成的影响
 		.css('font-weight', font.fontWeight)
 		.css(extraStyles)
 		$('body').append($measure)
-		const width = $measure[0].clientWidth / 100
-		const height = $measure[0].clientHeight / 100
-		$measure.remove()
+		const width = $measure[0].clientWidth / 50
+		const height = $measure[0].clientHeight / 50
+		$measure.css('display', 'none')
+		
 		measureCache[hash] = [ width, height ]
 		domPaintStats.measureTime += +new Date()
 		return [ width * widthScale, height ]
@@ -178,7 +193,12 @@ export class DomPaint {
 			domPaintStats.measureTime += +new Date()
 			return [ width * widthScale, height ]
 		}
-		let canvas = document.createElement('canvas')
+		
+		if(!measurer.canvas) {
+			measurer.canvas = document.createElement('canvas')
+		}
+
+		let canvas = measurer.canvas
 		let context = canvas.getContext('2d')
 		let fontSize = font.fontSize * font.fontScale
 		if(context == null) {
@@ -187,7 +207,7 @@ export class DomPaint {
 		}
 		context.font = `${font.fontWeight >= 550 ? 'bold ' : ''}${fontSize}px "${font.fontFamily}"`
 		let width = context.measureText(text).width
-		canvas.remove()
+		
 		measureCacheFast[hash] = [ width, 0 ]
 		domPaintStats.measureTime += +new Date()
 		return [width * widthScale, 0]
