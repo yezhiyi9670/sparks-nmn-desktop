@@ -167,6 +167,10 @@ export class DomPaint {
 		const width = $measure[0].clientWidth / 50
 		const height = $measure[0].clientHeight / 50
 		$measure.css('display', 'none')
+
+		// 暂时去除 span 测量复用。因为存在 ExtraStyles，这玩意可能会爆炸
+		$measure.remove()
+		measurer.span = undefined
 		
 		measureCache[hash] = [ width, height ]
 		domPaintStats.measureTime += +new Date()
