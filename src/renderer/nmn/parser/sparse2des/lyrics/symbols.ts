@@ -51,6 +51,8 @@ export function getLrcSymbolType(symbol: string, typeSampler: LyricDestructionTy
 
 /**
  * 查找歌词前后缀字符的测量等价类
+ * 
+ * 注：目的是将中文全角标点当作半角标点测量，以避免其占据不必要的排版空间。
  */
 export function getLrcSymbolEquivalent(symbol: string) {
 	let symbolMap: {[_: string]: string} = {

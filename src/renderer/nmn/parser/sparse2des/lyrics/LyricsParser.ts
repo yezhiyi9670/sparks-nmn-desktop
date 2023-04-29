@@ -156,6 +156,7 @@ export class LyricsParser {
 		const ret: LyricToken[] = []
 		let lastToken: LyricToken | undefined = undefined as any
 		let lastCharToken: LyricToken | undefined = undefined as any
+		let waitingAfterSymbol = false
 		while(true) {
 			const ch = this.getchar()
 			if(ch === undefined) {
@@ -164,6 +165,7 @@ export class LyricsParser {
 			if(typeof(ch) == 'object') {
 				this.passchar()
 				if(ch.bracket == '(' || ch.bracket == '[[') {
+					// 小括号：带下划线的一音多字；双中括号：角色标记
 					const brPad = ch.bracket.length
 					ret.push(lastCharToken = lastToken = {
 						charIndex: ch.range[0],
@@ -171,13 +173,9 @@ export class LyricsParser {
 						char: ch.text.substring(brPad, ch.text.length - brPad),
 						isCharBased: typeSampler == 'char'
 					})
+					waitingAfterSymbol = false
 				} else if(ch.bracket == '[') {
-					// ret.push(lastToken = {
-					// 	charIndex: ch.range[0],
-					// 	type: 'symbol',
-					// 	slot: 'before',
-					// 	char: '['
-					// })
+					// 中括号：内部的歌词作为 Lw 类型处理
 					const innerResult = new LyricsParser(Tokens.join(ch.tokens, {
 						type: 'symbol',
 						range: [0, 0],
@@ -187,12 +185,7 @@ export class LyricsParser {
 					for(let item of innerResult) {
 						ret.push(lastToken = item)
 					}
-					// ret.push(lastToken = {
-					// 	charIndex: ch.range[1] - 1,
-					// 	type: 'symbol',
-					// 	slot: 'after',
-					// 	char: ']'
-					// })
+					waitingAfterSymbol = false
 				} else {
 					addIssue(issues,
 						this.lineNumber, ch.range[0], 'error', 'unexpected_lrc_bracket',
@@ -215,10 +208,16 @@ export class LyricsParser {
 					} else {
 						ret.push(lastCharToken = lastToken = {
 							charIndex: charIndex,
-							type: 'char',
 							char: ch,
-							isCharBased: typeSampler == 'char'
+							...(waitingAfterSymbol ? {
+								type: 'symbol',
+								slot: 'after'
+							} : {
+								type: 'char',
+								isCharBased: typeSampler == 'char'
+							})
 						})
+						waitingAfterSymbol = false
 					}
 				} else if(symbolType == 'divide' || symbolType == 'placeholder') {
 					let repeats = 1
@@ -250,13 +249,26 @@ export class LyricsParser {
 							char: ch
 						})
 					}
+					waitingAfterSymbol = false
 				} else if(symbolType == 'postfix' || symbolType == 'prefix') {
-					ret.push(lastToken = {
-						charIndex: charIndex,
-						type: 'symbol',
-						slot: symbolType == 'postfix' ? 'after' : 'before',
-						char: ch
-					})
+					if(ch == '>') {
+						if(lastToken && lastToken.type == 'char') {
+							Object.assign(lastToken, {
+								slot: 'before',
+								type: 'symbol'
+							})
+						}
+					} else if(ch == '<') {
+						waitingAfterSymbol = true
+					} else {
+						ret.push(lastToken = {
+							charIndex: charIndex,
+							type: 'symbol',
+							slot: (symbolType == 'postfix' || waitingAfterSymbol) ? 'after' : 'before',
+							char: ch
+						})
+						waitingAfterSymbol = false
+					}
 				} else {
 					const _: never = symbolType
 				}
