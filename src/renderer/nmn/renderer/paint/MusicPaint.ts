@@ -682,8 +682,9 @@ export class MusicPaint {
 					'.', noteMetric,
 					scale, extraStyles
 				)
-				dotToken.drawFast(this.root, rightCur, y, 'left', 'middle')
-				rightCur += dotToken.measureFast(this.root)[0]
+				const dotWidth = dotToken.measureFast(this.root)[0]
+				dotToken.drawFast(this.root, rightCur + (noteMeasure[0] * 0.5 - dotWidth) / 2, y - noteMeasure[1] * 0.1, 'left', 'middle')
+				rightCur += noteMeasure[0] * 0.5
 			}
 		})
 		// ===== 八度跨越 =====
