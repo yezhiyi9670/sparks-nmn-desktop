@@ -70,6 +70,14 @@ export class SectionsRenderer {
 			}
 			firstSection = (section.type == 'nullish')
 		})
+		// ===== 调试用中心线 =====
+		if(false) {
+			root.drawLine(
+				this.columns.startPosition(0), currY,
+				this.columns.endPosition(this.columns.data.length - 1),
+				currY, 0.05, 0, scale
+			)
+		}
 		// ===== 压行框线 =====
 		if(type == 'accompany') {
 			const topY = currY - fieldHeight / 2

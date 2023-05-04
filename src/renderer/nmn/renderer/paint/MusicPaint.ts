@@ -150,7 +150,7 @@ export class MusicPaint {
 		const separatorMetric = new FontMetric('SparksNMN-Bravura/400' , 5.072 * fontScale) // 实际高度 5.184
 		const separatorSize = separatorMetric.fontScale * separatorMetric.fontSize
 		// 此处行首小节线定位方式取 left，避免与连谱号发生重叠
-		this.root.drawTextFast(x, y - separatorSize * 0.092, separatorText, separatorMetric, scale, pos == 'before' ? 'left' : 'center', 'top', extraStyles)
+		this.root.drawTextFast(x, y - separatorSize * 0.075, separatorText, separatorMetric, scale, pos == 'before' ? 'left' : 'center', 'top', extraStyles)
 
 		let topPosY = y - 3.75
 
