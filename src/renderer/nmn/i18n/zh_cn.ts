@@ -22,7 +22,7 @@ export default {
 		'token.invalid_escape': '无效的转义序列 ${0}',
 
 		'bad_command_format': '此指令行格式不正确。应当形如 <指令>: <内容> 或 <指令>[<属性>]: 内容。',
-		'wtf_line': '无法确定此行的意义',
+		'wtf_line': '无法确定此行的意义，因为此行不是分割线，并且找不到冒号。',
 
 		'empty_document': '文档似乎是空的',
 		'empty_tree': '此${0}被丢弃，因为其不包含任何内容',

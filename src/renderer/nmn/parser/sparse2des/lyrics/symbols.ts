@@ -23,7 +23,6 @@ export function getLrcSymbolType(symbol: string, typeSampler: LyricDestructionTy
 		'!', '！',
 		'^', '…',
 		';', '；',
-		'*',
 		':', '：',
 		'）', '>', '》', '⟩', '⟧', '⟫' ,'⟭', '〉', '』', '〗', '】', '〙', '」', '〕', '〛',
 		',', '，',
