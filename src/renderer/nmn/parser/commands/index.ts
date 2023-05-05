@@ -340,4 +340,14 @@ export const commandDefs: CommandDef[] = [
 		propsType: 'none',
 		levels: [LineLevels.part, LineLevels.lyricLine]
 	},
+	// La 歌词标记
+	{
+		head: 'La',
+		headFull: 'LyricAnnotation',
+		contentType: 'tokenized',
+		hasProps: 'none',
+		propsType: 'none',
+		unique: 'La',
+		levels: [LineLevels.lyricLine]
+	}
 ]

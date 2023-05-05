@@ -307,6 +307,9 @@ export module SectionStat {
 		if(!allEmpty([lyricLine.chord!.sections[index]], 0, 1)) {
 			return true
 		}
+		if(!allEmpty([lyricLine.lyricAnnotations!.sections[index]], 0, 1)) {
+			return true
+		}
 		for(let ann of lyricLine.annotations) {
 			if(!allEmpty([ann.sections[index]], 0, 1)) {
 				return true
@@ -328,13 +331,17 @@ export module SectionStat {
 	/**
 	 * 统计歌词小节组是否无实质内容
 	 */
-	export function allLyricEmpty(sections: Linked2LyricSection[]) {
+	export function isLrcLineTextRenderWorthy(lyricLine: LinedLyricLine | Linked2LyricLine) {
+		const sections = lyricLine.sections
 		for(let section of sections) {
 			if(!isLyricSectionEmpty(section)) {
-				return false
+				return true
 			}
 		}
-		return true
+		if(lyricLine.lyricAnnotations && !allEmpty(lyricLine.lyricAnnotations.sections, 0, lyricLine.lyricAnnotations.sections.length)) {
+			return true
+		}
+		return false
 	}
 	/**
 	 * 含小节行切取

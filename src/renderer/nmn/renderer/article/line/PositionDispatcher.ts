@@ -363,7 +363,7 @@ export class PositionDispatcher {
 					chars.forEach((char, charIndex) => {
 						const lrcMetric = getLineFont('lyrics', this.context)
 						if(char.occupiesSpace) {
-							const boundaries = msp.drawLyricChar(this.context, 0, 0, 0, char, 'center', this.scale, {}, true)
+							const boundaries = msp.drawLyricChar(this.context, 0, 0, char, 'center', this.scale, {}, true)
 							let rpt = charIndex + 1
 							while(true) {
 								const rChar = chars[rpt]
@@ -374,7 +374,7 @@ export class PositionDispatcher {
 							}
 							for(let i = charIndex + 1; i < rpt; i++) {
 								const char2 = chars[i]
-								boundaries[1] += msp.drawLyricChar(this.context, 0, 0, 0, char2, 'left', this.scale, {}, true)[1]
+								boundaries[1] += msp.drawLyricChar(this.context, 0, 0, char2, 'left', this.scale, {}, true)[1]
 							}
 							let lm = 0
 							let rm = 0
@@ -399,6 +399,7 @@ export class PositionDispatcher {
 				})
 				handleSections(lrcLine.force?.sections, false, false)
 				handleSections(lrcLine.chord?.sections, false, false)
+				handleSections(lrcLine.lyricAnnotations?.sections, false, false)
 				lrcLine.annotations.forEach((ann) => {
 					handleSections(ann.sections, false, false)
 				})

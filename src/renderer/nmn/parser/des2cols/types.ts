@@ -106,6 +106,10 @@ export type Linked2LyricLineBase = DestructedFCA & {
 	 */
 	sections: Linked2LyricSection[]
 	/**
+	 * 标注文本型歌词
+	 */
+	lyricAnnotations?: DestructedLine & {head: 'La'}
+	/**
 	 * 标签签名
 	 */
 	signature: LyricLineSignature

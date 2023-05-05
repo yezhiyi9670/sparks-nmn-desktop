@@ -277,6 +277,12 @@ export class ColumnStater {
 								head: 'F',
 								sections: []
 							},
+							lyricAnnotations: {
+								lineNumber: -1,
+								type: 'annotationsText',
+								head: 'La',
+								sections: []
+							},
 							chord: {
 								lineNumber: -1,
 								type: 'annotationsChord',
@@ -292,6 +298,7 @@ export class ColumnStater {
 					const frontier = lyricLines1[sig.hash]
 					// 合并小节
 					this.mergeFCA(frontier, lyricLine, lyricLine.offset, -1)
+					SectionStat.paint(frontier.lyricAnnotations!.sections, lyricLine.lyricAnnotations?.sections, lyricLine.offset, -1)
 					// 合并 indexMap
 					fillArray(frontier.indexMap, lyricLine.offset, sectionCount - lyricLine.offset, lyricLine.index, -1)
 					// 合并 attrsMap
@@ -318,6 +325,7 @@ export class ColumnStater {
 				// 填充
 				iterateMap(lyricLines1, (lyricLine) => {
 					expandArray(lyricLine.sections, sectionCount, lyricSectionNullish)
+					expandArray(lyricLine.lyricAnnotations!.sections, sectionCount, SectionStat.nullish)
 					this.refineFCA(lyricLine, sectionCount)
 					let val0 = -1
 					for(let i = lyricLine.indexMap.length - 1; i >= 0; i--) {
@@ -346,6 +354,7 @@ export class ColumnStater {
 						lyricLine.annotations.forEach((ann) => {
 							allocateLyricLineFCA(ann.sections)
 						})
+						allocateLyricLineFCA(lyricLine.lyricAnnotations!.sections)
 						return lyricLine
 					}),
 					lyricLineSignatures: [],
@@ -492,11 +501,15 @@ export class ColumnStater {
 						return
 					}
 					lrcSigs.push(lrcLine.signature)
-					const { force, chord, annotations, sections, indexMap, attrsMap, notesSubstitute, ...others } = lrcLine
+					const { force, chord, annotations, sections, indexMap, attrsMap, lyricAnnotations, notesSubstitute, ...others } = lrcLine
 					lrcLines.push({
 						sections: sections.slice(sectionPtr, sectionPtr + sectionCount),
 						index: indexMap.slice(sectionPtr, sectionPtr + sectionCount),
 						attrs: attrsMap[sectionPtr],
+						lyricAnnotations: lyricAnnotations ? {
+							...lyricAnnotations,
+							sections: lyricAnnotations.sections.slice(sectionPtr, sectionPtr + sectionCount)
+						} : undefined,
 						notesSubstitute: mappedNs,
 						...this.subFCA({ force, chord, annotations }, sectionPtr, sectionCount, sectionsIn),
 						...others

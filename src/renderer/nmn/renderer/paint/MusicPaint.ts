@@ -362,7 +362,7 @@ export class MusicPaint {
 	/**
 	 * 绘制歌词字符
 	 */
-	drawLyricChar(context: RenderContext, startX: number, endX: number, y: number, note: Linked2LyricChar, baseAnchor: 'left' | 'center' | 'right', scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false): [number, number] {
+	drawLyricChar(context: RenderContext, startX: number, y: number, note: Linked2LyricChar, baseAnchor: 'left' | 'center' | 'right', scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false): [number, number] {
 		const lrcMetric = new FontMetric(context.render.font_lyrics!, 2.16)
 		const underlineExtraStyles = {
 			...extraStyles,

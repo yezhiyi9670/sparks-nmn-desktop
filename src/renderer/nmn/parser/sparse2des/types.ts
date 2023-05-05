@@ -749,6 +749,10 @@ export type DestructedLine = {
 	index: number
 	sections: MusicSection<NoteCharText>[]
 } | {
+	type: 'annotationsText'
+	head: 'La'
+	sections: MusicSection<NoteCharText>[]
+} | {
 	type: 'lyrics'
 	head: 'L' | 'Lc' | 'Lw'
 	tags: LrcAttr[]
@@ -861,6 +865,10 @@ export type DestructedLyricLine = {
 	 * 歌词行
 	 */
 	lyric: DestructedLine & {type: 'lyrics'}
+	/**
+	 * 标注文本型歌词
+	 */
+	lyricAnnotations?: DestructedLine & {head: 'La'}
 	/**
 	 * 替代旋律
 	 */

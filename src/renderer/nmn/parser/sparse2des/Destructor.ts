@@ -155,6 +155,7 @@ export class Destructor {
 			}),
 			force: this.destruct(lyricLine.uniqueLines['F'], issues, context) as any,
 			chord: this.destruct(lyricLine.uniqueLines['C'], issues, context) as any,
+			lyricAnnotations: this.destruct(lyricLine.uniqueLines['La'], issues, context) as any,
 			annotations: lyricLine.lines.filter((line) => line.head == 'A').map((line, index) => {
 				return this.destructAnnotation(line as any, issues, context, index) as DestructedLine & {head: 'A'}
 			})
@@ -201,7 +202,7 @@ export class Destructor {
 		if(['C'].indexOf(line.head) != -1) {
 			return this.destructChord(line as any, issues, context)
 		}
-		if(['A'].indexOf(line.head) != -1) {
+		if(['A', 'La'].indexOf(line.head) != -1) {
 			return this.destructAnnotation(line as any, issues, context, 0)
 		}
 		if(['L', 'Lc', 'Lw'].indexOf(line.head) != -1) {
@@ -435,7 +436,7 @@ export class Destructor {
 			sections: this.destructSections<'chord'>(line.content.tokens[0], line.lineNumber, issues, context, 'chord')
 		}
 	}
-	destructAnnotation(line: SparseLine & {head: 'A'}, issues: LinedIssue[], context: ScoreContext, index: number): DestructedLine {
+	destructAnnotation(line: SparseLine & {head: 'A' | 'La'}, issues: LinedIssue[], context: ScoreContext, index: number): DestructedLine {
 		return {
 			lineNumber: line.lineNumber,
 			type: 'annotationsText',

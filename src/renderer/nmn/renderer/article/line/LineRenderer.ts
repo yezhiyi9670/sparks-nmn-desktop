@@ -191,7 +191,7 @@ export class LineRenderer {
 		const lrcLineMarginBottom = 1.0
 
 		let currY = startY
-		const shouldDrawLyrics = !SectionStat.allLyricEmpty(lyricLine.sections)
+		const shouldDrawLyrics = SectionStat.isLrcLineTextRenderWorthy(lyricLine)
 		const shouldDrawSubstitute = lyricLine.notesSubstitute.length > 0
 		currY += this.heightLineFCA(startY, lyricLine, true, root, context)
 		if(shouldDrawSubstitute) {
@@ -224,7 +224,7 @@ export class LineRenderer {
 		// ===== 渲染歌词行FCA =====
 		currY += this.renderLineFCA(startY, lyricLine, true, root, context)
 
-		const shouldDrawLyrics = !SectionStat.allLyricEmpty(lyricLine.sections)
+		const shouldDrawLyrics = SectionStat.isLrcLineTextRenderWorthy(lyricLine)
 		const shouldDrawSubstitute = lyricLine.notesSubstitute.length > 0
 
 		// ===== 替代旋律 =====
@@ -291,10 +291,36 @@ export class LineRenderer {
 					})
 				})
 			})
+			// 渲染简单轻松愉快的标记类歌词
+			lyricLine.lyricAnnotations!.sections.forEach((section, index) => {
+				if(section.type != 'section') {
+					return
+				}
+				section.notes.forEach((note) => {
+					if(note.type != 'note' || note.voided || 'void' in note.char) {
+						return
+					}
+					const text = note.char.type == 'text'
+					
+					const fracPos = Frac.add(section.startPos, note.startPos)
+					const startX = this.columns.fracPosition(index, fracPos) - noteMeasure[0] / 2
+					msp.drawLyricChar(context, startX, currY, {
+						startPos: fracPos,
+						length: Frac.create(0),
+						text: note.char.text,
+						prefix: '',
+						postfix: '',
+						isCharBased: true,
+						extension: false,
+						occupiesSpace: false,
+						grouped: false
+					}, 'left', scale)
+				})
+			})
 			// 渲染不需要推断位置的符号
 			lrcSymbols.forEach((symbol, index) => {
 				if(symbol.char.occupiesSpace) {
-					symbol.boundaries = msp.drawLyricChar(context, symbol.startX, symbol.endX, currY, symbol.char, 'center', scale)
+					symbol.boundaries = msp.drawLyricChar(context, symbol.startX, currY, symbol.char, 'center', scale)
 					if(symbol.char.postfix || symbol.char.prefix || symbol.char.text || symbol.char.rolePrefix || symbol.char.extension) {
 						labelPrevPos = Math.min(labelPrevPos, symbol.boundaries[0])
 					}
@@ -333,11 +359,11 @@ export class LineRenderer {
 					if(!leftSymbol) {
 						// 左端孤儿
 						const anchor = rightSymbol.boundaries[0]
-						symbol.boundaries = msp.drawLyricChar(context, anchor, 0, currY, symbol.char, 'right', scale)
+						symbol.boundaries = msp.drawLyricChar(context, anchor, currY, symbol.char, 'right', scale)
 					} else if(!rightSymbol) {
 						// 右端孤儿
 						const anchor = leftSymbol.boundaries[1]
-						symbol.boundaries = msp.drawLyricChar(context, anchor, 0, currY, symbol.char, 'left', scale)
+						symbol.boundaries = msp.drawLyricChar(context, anchor, currY, symbol.char, 'left', scale)
 					} else {
 						// 双端
 						let dispY = countInserts(lrcSymbols, indexLpt, indexRpt) + 1
@@ -345,7 +371,7 @@ export class LineRenderer {
 						let leftAnchor = leftSymbol.boundaries[1]
 						let rightAnchor = rightSymbol.boundaries[0]
 						const anchor = (rightAnchor - leftAnchor) * (dispX / dispY) + leftAnchor
-						symbol.boundaries = msp.drawLyricChar(context, anchor, 0, currY, symbol.char, 'center', scale)
+						symbol.boundaries = msp.drawLyricChar(context, anchor, currY, symbol.char, 'center', scale)
 					}
 					labelPrevPos = Math.min(labelPrevPos, symbol.boundaries[0])
 				}

@@ -22,7 +22,7 @@ export type SparseLine = {
 } | {
 	head: 'B'
 } | {
-	head: 'J' | 'F' | 'C' | 'A'
+	head: 'J' | 'F' | 'C' | 'A' | 'La'
 	content: BracketPair
 } | {
 	head: 'N' | 'Na' | 'Lc' | 'Lw' | 'L' | 'Ns'
@@ -111,7 +111,7 @@ export class SparseBuilder {
 				head: line.head
 			}
 		}
-		if(['J', 'F', 'C', 'A'].indexOf(line.head) != -1) {
+		if(['J', 'F', 'C', 'A', 'La'].indexOf(line.head) != -1) {
 			return {
 				lineNumber: line.lineNumber,
 				head: line.head as 'J',
