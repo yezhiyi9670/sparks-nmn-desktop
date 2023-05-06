@@ -432,6 +432,43 @@ export class NoteEater {
 				}
 			}
 		})()
+
+		// Swing 节奏下的时间扭曲
+		if(this.level == 0 && this.context.musical.beats!.swing) {
+			const swingPos = (frac: Fraction) => {
+				if(Frac.isIndeterminate(frac)) {
+					return frac
+				}
+				let result = frac
+				
+				let intPart = Frac.create(Math.floor(Frac.toFloat(frac)))
+				let remain = Frac.sub(frac, intPart)
+				
+				if(Frac.compare(remain, Frac.create(1,2)) <= 0) {
+					result = Frac.add(intPart, Frac.mul(Frac.create(4,3), remain))
+				} else {
+					result = Frac.sum(intPart, Frac.create(1,3), Frac.mul(Frac.create(2,3), remain))
+				}
+
+				return result
+			}
+			section.notes.forEach(note => {
+				const startPos = note.startPos
+				const endPos = Frac.add(note.startPos, note.length)
+				note.startPos = swingPos(startPos)
+				note.length = Frac.sub(swingPos(endPos), note.startPos)
+			})
+			section.decoration.forEach(decor => {
+				if(decor.type == 'insert') {
+					decor.target = swingPos(decor.target)
+				}
+				if(decor.type == 'range') {
+					decor.startPos = swingPos(decor.startPos)
+					decor.endPos = swingPos(decor.endPos)
+				}
+			})
+		}
+
 		return [Frac.mul(ratio, position), lastColumn]
 	}
 

@@ -16,7 +16,7 @@ type RangedSectionSeparators = SectionSeparators & {
 type SampledSection<TypeSampler> = MusicSection<NoteCharAny & {type: TypeSampler}>
 
 class SectionsParserClass {
-	parseSections<TypeSampler>(tokens: BracketTokenList, lineNumber: number, issues: LinedIssue[], context: ScoreContext, typeSampler: TypeSampler, acceptVariation?: boolean): SampledSection<TypeSampler>[] {
+	parseSections<TypeSampler>(tokens: BracketTokenList, lineNumber: number, issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number] | undefined, typeSampler: TypeSampler, acceptVariation?: boolean): SampledSection<TypeSampler>[] {
 		// 空的？
 		if(
 			tokens.length == 0 || // 可能从 NotesSubstitute 截取而来
@@ -262,11 +262,21 @@ class SectionsParserClass {
 				}
 			}
 			// 枚举每一对相邻小节线，并取出相应区间进行操作。
+			let sectionContext = context
+			if(musicalPropsOverride) {
+				const corresponding = musicalPropsOverride[0][(i - 1) + (musicalPropsOverride[1] - 1)]
+				if(corresponding) {
+					sectionContext = {
+						...sectionContext,
+						musical: corresponding
+					}
+				}
+			}
 			ret.push(this.parseSection<TypeSampler>(
 				tokens.slice(lpt, rpt),
 				i - 1,
 				lineNumber,
-				context,
+				sectionContext,
 				issues,
 				{range: [
 					Tokens.rangeSafe(tokens, lpt, 0),

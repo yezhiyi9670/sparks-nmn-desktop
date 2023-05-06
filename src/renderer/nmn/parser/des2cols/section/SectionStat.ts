@@ -442,12 +442,10 @@ export module SectionStat {
 	export function locateSection<T>(pos: Fraction, sections: MusicSection<T>[]) {
 		for(let i = 0; i < sections.length; i++) {
 			const section = sections[i]
-			if(section.type != 'section') {
-				continue
-			}
 			const startPos = sections[i].startPos
-			let quarters = section.statQuarters ?? section.totalQuarters
+			let quarters = section.statQuarters ?? (section.type == 'section' ? section.totalQuarters : Frac.create(0))
 			const endPos = Frac.add(sections[i].startPos, quarters)
+			console.log('Find', Frac.repr(startPos), Frac.repr(endPos), Frac.repr(pos))
 			if(Frac.compare(startPos, pos) <= 0 && Frac.compare(pos, endPos) < 0) {
 				return i
 			}

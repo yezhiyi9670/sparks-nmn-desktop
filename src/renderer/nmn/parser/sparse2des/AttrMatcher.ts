@@ -366,7 +366,7 @@ export module AttrMatcher {
 			leftSplitVoid: false,
 			rightSplit: false
 		}
-		const [ writtenQuarters ] = new NoteEater(tokenIn.tokens[0] ?? [], lineNumber, scoreContextDefault, 0).parse<'music'>(
+		const [ writtenQuarters ] = new NoteEater(tokenIn.tokens[0] ?? [], lineNumber, scoreContextDefault, -65536).parse<'music'>(
 			section,
 			Frac.create(1),
 			Frac.create(0),
@@ -435,19 +435,28 @@ export module AttrMatcher {
 		}
 	}
 	export function stringBeats(item: string, lineNumber: number, index: number, issues: LinedIssue[]): Beats | undefined {
-		if(!(/^(\d+)\/(\d+)T?$/.test(item) || /^(\d+)\/(\d+)T?=/.test(item))) {
+		if(!(/^(\d+)\/(\d+)(T|S|)$/.test(item) || /^(\d+)\/(\d+)(T|S|)=/.test(item))) {
 			return undefined
 		}
+
 		let leftPart = item
 		let rightPart: string | undefined = undefined
 		let defaultTriplet = false
+		let swing = false
+		
 		if(item.indexOf('=') != -1) {
 			[leftPart, rightPart] = splitBy(item, '=')
 		}
+
 		if(leftPart[leftPart.length - 1] == 'T') {
 			leftPart = leftPart.substring(0, leftPart.length - 1)
 			defaultTriplet = true
 		}
+		if(leftPart[leftPart.length - 1] == 'S') {
+			leftPart = leftPart.substring(0, leftPart.length - 1)
+			swing = true
+		}
+		
 		function __extractFraction(name: string): Fraction {
 			if(name.indexOf('/') == -1) {
 				return { x: +name, y: 1 }
@@ -491,7 +500,8 @@ export module AttrMatcher {
 		return {
 			value: value,
 			component: component,
-			defaultReduction: defaultTriplet ? 3 : 2
+			defaultReduction: defaultTriplet ? 3 : 2,
+			swing: swing
 		}
 	}
 }

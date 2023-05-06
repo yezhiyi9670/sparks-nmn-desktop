@@ -133,25 +133,32 @@ export class Destructor {
 		return retData
 	}
 	parsePart(part: LineTree<SparseLine>, context: ScoreContext, issues: LinedIssue[]): DestructedPart {
+		const eatenNotes = this.destructNotes(part.uniqueLines['N'] as any, issues, context, true) as (DestructedLine & {head: 'N' | 'Na'})
+
+		// 此部分提取旋律中经过处理的音乐属性，确保正确的音乐属性应用到替代旋律中
+		const musicalPropsOverride = eatenNotes.sections.map(section => {
+			return section.musicalProps
+		})
+
 		return {
 			lineNumber: part.lineNumber,
-			notes: this.destructNotes(part.uniqueLines['N'] as any, issues, context, true) as any,
+			notes: eatenNotes,
 			force: this.destruct(part.uniqueLines['F'], issues, context) as any,
 			chord: this.destruct(part.uniqueLines['C'], issues, context) as any,
 			annotations: part.lines.filter((line) => line.head == 'A').map((line, index) => {
 				return this.destructAnnotation(line as any, issues, context, index) as DestructedLine & {head: 'A'}
 			}),
 			lyricLines: part.children.map((lyricLine) => {
-				return this.parseLyricLine(lyricLine, context, issues)
+				return this.parseLyricLine(lyricLine, context, musicalPropsOverride, issues)
 			})
 		}
 	}
-	parseLyricLine(lyricLine: LineTree<SparseLine>, context: ScoreContext, issues: LinedIssue[]): DestructedLyricLine {
+	parseLyricLine(lyricLine: LineTree<SparseLine>, context: ScoreContext, musicalPropsOverride: MusicProps[], issues: LinedIssue[]): DestructedLyricLine {
 		return {
 			lineNumber: lyricLine.lineNumber,
 			lyric: this.destruct(lyricLine.uniqueLines['L'], issues, context) as any,
 			notesSubstitute: lyricLine.lines.filter((line) => line.head == 'Ns').map((line) => {
-				return this.destruct(line, issues, context) as DestructedLine & {head: 'Ns'}
+				return this.destructNotesSubstitute(line as any, issues, context, musicalPropsOverride) as DestructedLine & {head: 'Ns'}
 			}),
 			force: this.destruct(lyricLine.uniqueLines['F'], issues, context) as any,
 			chord: this.destruct(lyricLine.uniqueLines['C'], issues, context) as any,
@@ -194,7 +201,7 @@ export class Destructor {
 			return this.destructNotes(line as any, issues, context)
 		}
 		if(['Ns'].indexOf(line.head) != -1) {
-			return this.destructNotesSubstitute(line as any, issues, context)
+			return this.destructNotesSubstitute(line as any, issues, context, [])
 		}
 		if(['F'].indexOf(line.head) != -1) {
 			return this.destructForce(line as any, issues, context)
@@ -396,7 +403,7 @@ export class Destructor {
 			sections: this.destructSections<'music'>(line.content.tokens[0], line.lineNumber, issues, context, 'music', acceptVariation)
 		}
 	}
-	destructNotesSubstitute(line: SparseLine & {head: 'Ns'}, issues: LinedIssue[], context: ScoreContext): DestructedLine | undefined {
+	destructNotesSubstitute(line: SparseLine & {head: 'Ns'}, issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: MusicProps[]): DestructedLine | undefined {
 		const tokens = line.content.tokens[0]
 		let splitIndex = new TokenFilter('symbol', ':').findIn(tokens)
 		let substituteIndex = NaN
@@ -417,7 +424,7 @@ export class Destructor {
 			substituteLocation: substituteIndex,
 			tags: this.matchLrcAttr(line.props.tokens, line.lineNumber, issues),
 			decorations: [],
-			sections: this.destructSections<'music'>(tokens.slice(splitIndex + 1), line.lineNumber, issues, context, 'music')
+			sections: this.destructSubstituteSections<'music'>(tokens.slice(splitIndex + 1), line.lineNumber, issues, context, [musicalPropsOverride, substituteIndex], 'music')
 		}
 	}
 	destructForce(line: SparseLine & {head: 'F'}, issues: LinedIssue[], context: ScoreContext): DestructedLine {
@@ -460,7 +467,10 @@ export class Destructor {
 	}
 
 	destructSections<TypeSampler>(tokens: BracketTokenList, lineNumber: number, issues: LinedIssue[], context: ScoreContext, typeSampler: TypeSampler, acceptVariation?: boolean): MusicSection<NoteCharAny & {type: TypeSampler}>[] {
-		return SectionsParser.parseSections<TypeSampler>(tokens, lineNumber, issues, context, typeSampler, acceptVariation) as any
+		return SectionsParser.parseSections<TypeSampler>(tokens, lineNumber, issues, context, undefined, typeSampler, acceptVariation) as any
+	}
+	destructSubstituteSections<TypeSampler>(tokens: BracketTokenList, lineNumber: number, issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number], typeSampler: TypeSampler, acceptVariation?: boolean): MusicSection<NoteCharAny & {type: TypeSampler}>[] {
+		return SectionsParser.parseSections<TypeSampler>(tokens, lineNumber, issues, context, musicalPropsOverride, typeSampler, acceptVariation) as any
 	}
 
 	matchPartAttr(items: BracketTokenList[], lineNumber: number, issues: LinedIssue[]): PartAttr[] {

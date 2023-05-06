@@ -884,7 +884,7 @@ export class MusicPaint {
 		const tMargin = fontScale * 0.35 * scale
 		const tMeasure = this.root.measureTextFast('T', textMetrics, scale)
 		const totalMeasure = [
-			lineWidth + (beats.defaultReduction > 2 ? tMargin + tMeasure[0] : 0),
+			lineWidth + ((beats.defaultReduction > 2 || beats.swing) ? tMargin + tMeasure[0] : 0),
 			(lineSpacing + numberHeight) * 2
 		]
 		if(dryRun) {
@@ -896,6 +896,9 @@ export class MusicPaint {
 		this.root.drawTextFast(x + lineWidth / 2, y + lineSpacing, beats.value.y.toString(), numberMetrics, scale, 'center', 'top', extraStyles)
 		if(beats.defaultReduction > 2) {
 			this.root.drawTextFast(x + lineWidth + tMargin, y, 'T', textMetrics, scale, 'left', 'middle')
+		}
+		if(beats.swing) {
+			this.root.drawTextFast(x + lineWidth + tMargin, y, 'S', textMetrics, scale, 'left', 'middle')
 		}
 
 		return totalMeasure

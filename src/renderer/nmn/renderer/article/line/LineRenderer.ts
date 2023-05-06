@@ -304,6 +304,7 @@ export class LineRenderer {
 					
 					const fracPos = Frac.add(section.startPos, note.startPos)
 					const startX = this.columns.fracPosition(index, fracPos) - noteMeasure[0] / 2
+					labelPrevPos = Math.min(labelPrevPos, startX)
 					msp.drawLyricChar(context, startX, currY, {
 						startPos: fracPos,
 						length: Frac.create(0),
