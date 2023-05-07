@@ -445,7 +445,6 @@ export module SectionStat {
 			const startPos = sections[i].startPos
 			let quarters = section.statQuarters ?? (section.type == 'section' ? section.totalQuarters : Frac.create(0))
 			const endPos = Frac.add(sections[i].startPos, quarters)
-			console.log('Find', Frac.repr(startPos), Frac.repr(endPos), Frac.repr(pos))
 			if(Frac.compare(startPos, pos) <= 0 && Frac.compare(pos, endPos) < 0) {
 				return i
 			}
