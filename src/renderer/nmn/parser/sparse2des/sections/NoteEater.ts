@@ -467,6 +467,8 @@ export class NoteEater {
 					decor.endPos = swingPos(decor.endPos)
 				}
 			})
+			position = Frac.div(swingPos(Frac.mul(ratio, position)), ratio)
+			lastColumn = swingPos(lastColumn)
 		}
 
 		return [Frac.mul(ratio, position), lastColumn]
