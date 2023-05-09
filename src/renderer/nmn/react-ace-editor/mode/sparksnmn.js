@@ -93,6 +93,20 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 				},
 				{
 					token: 'string',
+					regex: /$/,
+					next: 'start'
+				},
+			]
+		}
+		function continueOrRestartString(modeName) {
+			return [
+				{
+					token: 'text',
+					regex: "\\\\$",
+					next: modeName
+				},
+				{
+					token: 'string',
 					regex: /"|$/,
 					next: 'start'
 				},
@@ -158,7 +172,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			const mode = 'line_general'
 			addMode(mode, [
 				...commonMode(mode, false),
-				...continueOrRestart(mode),
+				...continueOrRestartString(mode),
 				{
 					token: 'constant.numeric',
 					regex: /,/
@@ -177,7 +191,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			const mode = 'line_notes'
 			addMode(mode + '_bracket', [
 				...commonMode(mode + '_bracket', false),
-				...continueOrRestart(mode + '_bracket'),
+				...continueOrRestartString(mode + '_bracket'),
 				{
 					token: 'constant.numeric',
 					regex: /\]$/,
@@ -194,7 +208,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			])
 			addMode(mode + '_brace', [
 				...commonMode(mode + '_brace', false),
-				...continueOrRestart(mode + '_brace'),
+				...continueOrRestartString(mode + '_brace'),
 				{
 					token: 'keyword',
 					regex: /\}$/,
@@ -211,7 +225,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			])
 			addMode(mode, [
 				...commonMode(mode, false),
-				...continueOrRestart(mode),
+				...continueOrRestartString(mode),
 				{
 					token: 'comment',
 					regex: /[\(\)]/
@@ -240,7 +254,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			const mode = 'line_auto_lyrics'
 			addMode(mode + '_bracket', [
 				...commonMode(mode + '_bracket', false),
-				...continueOrRestart(mode + '_bracket'),
+				...continueOrRestartString(mode + '_bracket'),
 				{
 					token: 'constant.numeric',
 					regex: /\]\]$/,
@@ -257,7 +271,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			])
 			addMode(mode + '_brace', [
 				...commonMode(mode + '_brace', false),
-				...continueOrRestart(mode + '_brace'),
+				...continueOrRestartString(mode + '_brace'),
 				{
 					token: 'keyword',
 					regex: /\}$/,
@@ -274,7 +288,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			])
 			addMode(mode, [
 				...commonMode(mode, false),
-				...continueOrRestart(mode),
+				...continueOrRestartString(mode),
 				{
 					token: 'comment',
 					regex: /[\(\)]/
@@ -307,7 +321,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			const mode = 'line_lyrics'
 			addMode(mode + '_bracket', [
 				...commonMode(mode + '_bracket', false),
-				...continueOrRestart(mode + '_bracket'),
+				...continueOrRestartString(mode + '_bracket'),
 				{
 					token: 'constant.numeric',
 					regex: /\]\]/,
@@ -319,7 +333,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			])
 			addMode(mode, [
 				...commonMode(mode, false),
-				...continueOrRestart(mode),
+				...continueOrRestartString(mode),
 				{
 					token: 'constant.comment',
 					regex: /\//

@@ -506,10 +506,9 @@ export class ColumnStater {
 						sections: sections.slice(sectionPtr, sectionPtr + sectionCount),
 						index: indexMap.slice(sectionPtr, sectionPtr + sectionCount),
 						attrs: attrsMap[sectionPtr],
-						lyricAnnotations: lyricAnnotations ? {
-							...lyricAnnotations,
-							sections: lyricAnnotations.sections.slice(sectionPtr, sectionPtr + sectionCount)
-						} : undefined,
+						lyricAnnotations: lyricAnnotations ?
+							SectionStat.subLine(lyricAnnotations, sectionPtr, sectionCount, sectionsIn) :
+							undefined,
 						notesSubstitute: mappedNs,
 						...this.subFCA({ force, chord, annotations }, sectionPtr, sectionCount, sectionsIn),
 						...others

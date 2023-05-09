@@ -225,11 +225,15 @@ class ParserClass {
 					handleFCA(part.notes.sections, part)
 					part.lyricLines.forEach((lrcLine) => {
 						handleFCA(part.notes.sections, lrcLine)
+						if(lrcLine.lyricAnnotations) {
+							handleSections('La', part.notes.sections, lrcLine.lyricAnnotations.sections)
+						}
 					})
 				})
 			})
 		})
 
+		console.log(ret)
 		return ret
 	}
 
