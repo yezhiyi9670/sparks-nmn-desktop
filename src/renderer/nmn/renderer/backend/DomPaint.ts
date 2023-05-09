@@ -47,7 +47,7 @@ function escapeXml(unsafe: string) {
 // 生成 style 字符串
 function translateStyles(styles: ExtraStyles) {
 	return escapeXml(iterateMap(styles, (value, key) => {
-		return `${camelCase2Hyphen(key)}:${value};`
+		return `${camelCase2Hyphen(key)}:${escapeXml(value.toString())};`
 	}).join(''))
 }
 
@@ -209,7 +209,7 @@ export class DomPaint {
 			domPaintStats.measureTime += +new Date()
 			return [0, 0]
 		}
-		context.font = `${font.fontWeight >= 550 ? 'bold ' : ''}${fontSize}px "${font.fontFamily}"`
+		context.font = `${font.fontWeight >= 550 ? 'bold ' : ''}${fontSize}px ${font.fontFamily}`
 		let width = context.measureText(text).width
 		
 		measureCacheFast[hash] = [ width, 0 ]
