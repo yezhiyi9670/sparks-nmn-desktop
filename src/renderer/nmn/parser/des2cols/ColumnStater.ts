@@ -340,21 +340,20 @@ export class ColumnStater {
 				return {
 					lyricLines: iterateMap(lyricLines1, (lyricLine) => {
 						// 分配 FCA 的位置
-						function allocateLyricLineFCA(sections: MusicSection<NoteCharAny>[]) {
+						function allocateLyricLineFCA(article: LinkedArticle & {type: 'music'}, sections: MusicSection<NoteCharAny>[]) {
 							sections.forEach((section, index) => {
-								const mySection = part.notes.sections[index]
-								if(mySection) {
-									section.startPos = mySection.startPos
-									section.statQuarters = mySection.statQuarters
+								if(index < article.sectionCount) {
+									section.startPos = article.sectionFields[index][0]
+									section.statQuarters = article.sectionFields[index][1]
 								}
 							})
 						}
-						allocateLyricLineFCA(lyricLine.force!.sections)
-						allocateLyricLineFCA(lyricLine.chord!.sections)
+						allocateLyricLineFCA(article, lyricLine.force!.sections)
+						allocateLyricLineFCA(article, lyricLine.chord!.sections)
 						lyricLine.annotations.forEach((ann) => {
-							allocateLyricLineFCA(ann.sections)
+							allocateLyricLineFCA(article, ann.sections)
 						})
-						allocateLyricLineFCA(lyricLine.lyricAnnotations!.sections)
+						allocateLyricLineFCA(article, lyricLine.lyricAnnotations!.sections)
 						return lyricLine
 					}),
 					lyricLineSignatures: [],
