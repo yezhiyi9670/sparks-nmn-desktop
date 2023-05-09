@@ -233,7 +233,6 @@ class ParserClass {
 			})
 		})
 
-		console.log(ret)
 		return ret
 	}
 
