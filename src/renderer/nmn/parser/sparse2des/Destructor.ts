@@ -309,7 +309,7 @@ export class Destructor {
 					return
 				}
 				// beats
-				if(/^(\d+)\/(\d+)T?$/.test(item) || /^(\d+)\/(\d+)T?=/.test(item)) {
+				if(/^(\d+)\/(\d+)(T|S|)$/.test(item) || /^(\d+)\/(\d+)(T|S|)=/.test(item)) {
 					let result = AttrMatcher.stringBeats(item, line.lineNumber, 0, issues)
 					if(result !== undefined) {
 						props.beats = result
