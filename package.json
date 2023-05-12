@@ -64,8 +64,8 @@
     "build": "npm run clean && npm run build:renderer && npm run build:main",
     "build:renderer": "cross-env ELECTRON_COMPONENT=renderer parcel build --dist-dir dist/public/ --public-url ./ public/template.html",
     "build:main": "node config/compile.mjs",
-    "package": "npm run build && electron-forge package --arch=ia32",
-    "make": "npm run build && electron-forge make --arch=ia32"
+    "package": "npm run build && electron-forge package",
+    "make": "npm run build && electron-forge make"
   },
   "dependencies": {
     "@types/jquery": "^3.5.16",
