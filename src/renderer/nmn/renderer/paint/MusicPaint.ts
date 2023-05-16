@@ -433,18 +433,20 @@ export class MusicPaint {
 		const forceScale = 0.7
 		const noteMeasure = this.measureNoteChar(context, isSmall, scale)
 		const annotationMetric = (() => {
-			if(annotationIndex == -1) {
-				if(note.type == 'force') {
-					return new FontMetric(context.render.font_force!, noteMeasure[1] * annotationScale)
-				} else {
-					return new FontMetric(context.render.font_chord!, noteMeasure[1] * annotationScale)
-				}
+			if(note.type == 'force') {
+				return new FontMetric(context.render.font_force!, noteMeasure[1] * annotationScale)
+			} else if(note.type == 'chord') {
+				return new FontMetric(context.render.font_chord!, noteMeasure[1] * annotationScale)
 			} else {
 				return [
+					new FontMetric(context.render.font_annotation0!, noteMeasure[1] * annotationScale),
 					new FontMetric(context.render.font_annotation1!, noteMeasure[1] * annotationScale),
 					new FontMetric(context.render.font_annotation2!, noteMeasure[1] * annotationScale),
 					new FontMetric(context.render.font_annotation3!, noteMeasure[1] * annotationScale),
-				][Math.min(annotationIndex, 2)]
+					new FontMetric(context.render.font_annotation4!, noteMeasure[1] * annotationScale),
+					new FontMetric(context.render.font_annotation5!, noteMeasure[1] * annotationScale),
+					new FontMetric(context.render.font_annotation6!, noteMeasure[1] * annotationScale),
+				][(0 <= annotationIndex && annotationIndex < 6) ? (annotationIndex + 1) : 0]
 			}
 		})()
 		startX -= noteMeasure[0] / 2

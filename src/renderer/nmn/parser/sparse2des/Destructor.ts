@@ -452,12 +452,24 @@ export class Destructor {
 		}
 	}
 	destructAnnotation(line: SparseLine & {head: 'A' | 'La'}, issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number], index: number, originIndex: number): DestructedLine {
+		let specifiedIndex = originIndex
+		if(line.head == 'A' && line.props !== null) {
+			specifiedIndex = +line.props - 1
+			if(Math.floor(specifiedIndex) != specifiedIndex) {
+				addIssue(issues, line.lineNumber, 0,
+					'error', 'unknown_annotation_index',
+					'Invalid annotation index `${0}`',
+					line.props
+				)
+				specifiedIndex = originIndex
+			}
+		}
 		return {
 			lineNumber: line.lineNumber,
 			type: 'annotationsText',
 			head: line.head,
 			index: index,
-			originIndex: originIndex,
+			originIndex: specifiedIndex,
 			sections: this.destructOverrideSections<'text'>(line.content.tokens[0], line.lineNumber, issues, context, musicalPropsOverride, 'text')
 		}
 	}

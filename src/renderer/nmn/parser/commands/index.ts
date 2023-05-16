@@ -334,8 +334,8 @@ export const commandDefs: CommandDef[] = [
 		head: 'A',
 		headFull: 'Annotation',
 		contentType: 'tokenized',
-		hasProps: 'none',
-		propsType: 'none',
+		hasProps: 'optional',
+		propsType: 'text',
 		levels: [LineLevels.part, LineLevels.lyricLine]
 	},
 	// La 歌词标记

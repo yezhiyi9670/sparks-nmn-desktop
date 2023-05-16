@@ -53,6 +53,7 @@ export default {
 		'unknown_jumper_attr': '无法将 `${0}` 解析为跳房子属性',
 		'nan_substitute_index': '无法确定替代音符的开始位置。你是不是忘了？',
 		'unknown_part_attr': '无法将 `${0}` 解析为声部属性',
+		'unknown_annotation_index': '无法将 `${0}` 解析为标记序号',
 		'unknown_lrc_attr': '无法将 `${0}` 解析为歌词行属性',
 
 		'lrc_unused_symbol': '歌词中有标点因为位置无效而未被使用',

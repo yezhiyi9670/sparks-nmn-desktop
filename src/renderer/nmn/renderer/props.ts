@@ -76,9 +76,13 @@ export interface RenderProps {
 	font_attr?: string
 	font_force?: string
 	font_chord?: string
+	font_annotation0?: string
 	font_annotation1?: string
 	font_annotation2?: string
 	font_annotation3?: string
+	font_annotation4?: string
+	font_annotation5?: string
+	font_annotation6?: string
 	/**
 	 * 字体-歌词
 	 */
@@ -161,9 +165,13 @@ export const renderPropsDefault: RenderProps = {
 	font_attr: 'SimSun/400',
 	font_force: 'Deng/700',
 	font_chord: 'SimSun/600',
+	font_annotation0: 'SimSun/600',
 	font_annotation1: 'SimSun/600',
 	font_annotation2: 'SimSun/600',
 	font_annotation3: 'SimSun/600',
+	font_annotation4: 'SimSun/600',
+	font_annotation5: 'SimSun/600',
+	font_annotation6: 'SimSun/600',
 	font_lyrics: 'SimSun/600',
 	font_checkpoint: 'SimSun/700',
 	margin_after_props: 2,

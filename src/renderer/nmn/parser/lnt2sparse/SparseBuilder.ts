@@ -22,8 +22,12 @@ export type SparseLine = {
 } | {
 	head: 'B'
 } | {
-	head: 'J' | 'F' | 'C' | 'A' | 'La'
+	head: 'J' | 'F' | 'C' | 'La'
 	content: BracketPair
+} | {
+	head: 'A'
+	content: BracketPair
+	props: string
 } | {
 	head: 'N' | 'Na' | 'Lc' | 'Lw' | 'L' | 'Ns'
 	props: BracketPair
@@ -115,7 +119,10 @@ export class SparseBuilder {
 			return {
 				lineNumber: line.lineNumber,
 				head: line.head as 'J',
-				content: new BracketSplitter(line.content, line.text, line.lineNumber).parse(issues, line.head == 'J' ? 'true' : 'others')
+				content: new BracketSplitter(line.content, line.text, line.lineNumber).parse(issues, line.head == 'J' ? 'true' : 'others'),
+				...(line.head == 'A' && {
+					props: line.propsText,
+				})
 			}
 		}
 		if(['N', 'Na', 'Ns'].indexOf(line.head) != -1) {
