@@ -348,9 +348,7 @@ export class PositionDispatcher {
 		}
 		this.line.parts.forEach((part) => {
 			handleSections(part.notes.sections, true, false)
-			handleSections(part.force?.sections, false, false)
-			handleSections(part.chord?.sections, false, false)
-			part.annotations.forEach((ann) => {
+			part.fcaItems.forEach((ann) => {
 				handleSections(ann.sections, false, false)
 			})
 			part.lyricLines.forEach((lrcLine) => {
@@ -397,10 +395,8 @@ export class PositionDispatcher {
 						}
 					})
 				})
-				handleSections(lrcLine.force?.sections, false, false)
-				handleSections(lrcLine.chord?.sections, false, false)
 				handleSections(lrcLine.lyricAnnotations?.sections, false, false)
-				lrcLine.annotations.forEach((ann) => {
+				lrcLine.fcaItems.forEach((ann) => {
 					handleSections(ann.sections, false, false)
 				})
 				lrcLine.notesSubstitute.forEach((Ns) => {

@@ -301,16 +301,10 @@ export module SectionStat {
 		if(!isLyricSectionEmpty(lyricLine.sections[index])) {
 			return true
 		}
-		if(!allEmpty([lyricLine.force!.sections[index]], 0, 1)) {
-			return true
-		}
-		if(!allEmpty([lyricLine.chord!.sections[index]], 0, 1)) {
-			return true
-		}
 		if(!allEmpty([lyricLine.lyricAnnotations!.sections[index]], 0, 1)) {
 			return true
 		}
-		for(let ann of lyricLine.annotations) {
+		for(let ann of lyricLine.fcaItems) {
 			if(!allEmpty([ann.sections[index]], 0, 1)) {
 				return true
 			}
@@ -347,14 +341,15 @@ export module SectionStat {
 	 * 含小节行切取
 	 */
 	export function subLine<T extends {sections: MusicSection<unknown>[]}>(line: T, startSection: number, sectionCount: number, overwriteIdSections?: MusicSection<unknown>[]): T {
-		return Object.assign({}, line, {
+		return {
+			...line,
 			sections: line.sections.slice(startSection, startSection + sectionCount).map((section, index) => {
 				if(overwriteIdSections && overwriteIdSections.length > index) {
 					section.idCard.uuid = overwriteIdSections[index].idCard.uuid
 				}
 				return section
 			})
-		})
+		}
 	}
 	/**
 	 * 索引排序
@@ -476,6 +471,9 @@ export module SectionStat {
 	 */
 	export function hasSeparatorAttrs(section: MusicSection<unknown>, beforeOnly: boolean = false) {
 		function checkSeparatorAttrs(attrs: SeparatorAttr[]) {
+			if(attrs.filter(attr => attr.type == 'openRange').length != 0) {
+				return false
+			}
 			return attrs.filter((attr) => {
 				return attr.type != 'weight' && attr.type != 'padding' && attr.type != 'beats' && attr.type != 'top'
 			}).length != 0
@@ -487,14 +485,8 @@ export module SectionStat {
 	 * 获取 FCA 中的第一标记行的小节
 	 */
 	export function fcaPrimary(section: DestructedFCA) {
-		if(section.chord && !SectionStat.allEmpty(section.chord.sections, 0, section.chord.sections.length)) {
-			return section.chord.sections
-		}
-		if(section.force && !SectionStat.allEmpty(section.force.sections, 0, section.force.sections.length)) {
-			return section.force.sections
-		}
-		if(section.annotations.length > 0) {
-			for(let ann of section.annotations) {
+		if(section.fcaItems.length > 0) {
+			for(let ann of section.fcaItems) {
 				if(!SectionStat.allEmpty(ann.sections, 0, ann.sections.length)) {
 					return ann.sections
 				}

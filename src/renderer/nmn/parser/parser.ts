@@ -205,14 +205,8 @@ class ParserClass {
 			})
 		}
 		function handleFCA(masterSections: MusicSection<unknown>[], data: DestructedFCA) {
-			if(data.chord) {
-				handleSections('C', masterSections, data.chord.sections)
-			}
-			if(data.force) {
-				handleSections('F', masterSections, data.force.sections)
-			}
-			data.annotations.forEach((ann) => {
-				handleSections('A', masterSections, ann.sections)
+			data.fcaItems.forEach((ann) => {
+				handleSections(ann.head, masterSections, ann.sections)
 			})
 		}
 		data.articles.forEach((article) => {

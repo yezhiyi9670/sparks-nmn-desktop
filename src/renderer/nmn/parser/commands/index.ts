@@ -318,7 +318,6 @@ export const commandDefs: CommandDef[] = [
 		contentType: 'tokenized',
 		hasProps: 'none',
 		propsType: 'none',
-		unique: 'F',
 		levels: [LineLevels.part, LineLevels.lyricLine]
 	},
 	// C 和弦
@@ -328,7 +327,6 @@ export const commandDefs: CommandDef[] = [
 		contentType: 'tokenized',
 		hasProps: 'none',
 		propsType: 'none',
-		unique: 'C',
 		levels: [LineLevels.part, LineLevels.lyricLine]
 	},
 	// A 标记记号

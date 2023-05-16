@@ -275,7 +275,7 @@ export const separatorAttrPosition: {
 	scriptedText: [true, true, true, 'begin'],
 	label: [true, false, true, 'begin'],
 
-	openRange: [false, false, false, 'begin']
+	openRange: [true, false, true, 'begin']
 }
 /**
  * 音符的属性
@@ -739,15 +739,20 @@ export type DestructedLine = {
 } | {
 	type: 'annotationsForce'
 	head: 'F'
+	index: number
+	originIndex: number
 	sections: MusicSection<NoteCharForce>[]
 } | {
 	type: 'annotationsChord'
 	head: 'C'
+	index: number
+	originIndex: number
 	sections: MusicSection<NoteCharChord>[]
 } | {
 	type: 'annotationsText'
 	head: 'A'
 	index: number
+	originIndex: number
 	sections: MusicSection<NoteCharText>[]
 } | {
 	type: 'annotationsText'
@@ -837,17 +842,9 @@ export type DestructedFragment = {
 }
 export type DestructedFCA = {
 	/**
-	 * 力度
+	 * 标记符号
 	 */
-	force?: DestructedLine & {head: 'F'}
-	/**
-	 * 和弦
-	 */
-	chord?: DestructedLine & {head: 'C'}
-	/**
-	 * 标记
-	 */
-	annotations: (DestructedLine & {head: 'A'})[]
+	fcaItems: (DestructedLine & {head: 'F' | 'C' | 'A'})[]
 }
 export type DestructedPart = {
 	lineNumber: number

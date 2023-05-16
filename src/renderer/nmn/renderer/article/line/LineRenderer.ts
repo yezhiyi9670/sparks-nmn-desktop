@@ -424,21 +424,11 @@ export class LineRenderer {
 		const FCALineField = 1.0 * noteMeasure[1]
 
 		// ===== 文本标记 =====
-		for(let i = line.annotations.length - 1; i >= 0; i--){
-			let ann = line.annotations[i]
+		for(let i = line.fcaItems.length - 1; i >= 0; i--){
+			let ann = line.fcaItems[i]
 			if(SectionStat.allEmpty(ann.sections, 0, ann.sections.length)) {
 				continue
 			}
-			currY += FCALineField / 2
-			currY += FCALineField / 2
-		}
-		// ===== 力度 =====
-		if(line.force && !SectionStat.allEmpty(line.force.sections, 0, line.force.sections.length)) {
-			currY += FCALineField / 2
-			currY += FCALineField / 2
-		}
-		// ===== 和弦 =====
-		if(line.chord && !SectionStat.allEmpty(line.chord.sections, 0, line.chord.sections.length)) {
 			currY += FCALineField / 2
 			currY += FCALineField / 2
 		}
@@ -487,40 +477,34 @@ export class LineRenderer {
 			}
 		}
 
-		// ===== 文本标记 =====
-		for(let i = line.annotations.length - 1; i >= 0; i--){
-			let ann = line.annotations[i]
+		// ===== 标记 =====
+		for(let i = line.fcaItems.length - 1; i >= 0; i--){
+			let ann = line.fcaItems[i]
 			if(SectionStat.allEmpty(ann.sections, 0, ann.sections.length)) {
 				continue
 			}
 			currY += FCALineField / 2
-			handleSections<NoteCharText>(ann.sections, createNoteHandler((note, fracPos, pos) => {
-				msp.drawFCANote(context, pos, 0, currY, ann.index, note.char, isSmall, scale)
-			}))
-			currY += FCALineField / 2
-		}
-		// ===== 力度 =====
-		if(line.force && !SectionStat.allEmpty(line.force.sections, 0, line.force.sections.length)) {
-			currY += FCALineField / 2
-			handleSections<NoteCharForce>(line.force.sections, createNoteHandler((note, fracPos, pos) => {
-				if(note.voided) {
-					return
-				}
-				const endFracPos = Frac.add(fracPos, note.length)
-				let endPos = this.columns.fracEndPosition(endFracPos, true)
-				msp.drawFCANote(context, pos, endPos, currY, -1, note.char, isSmall, scale)
-			}))
-			currY += FCALineField / 2
-		}
-		// ===== 和弦 =====
-		if(line.chord && !SectionStat.allEmpty(line.chord.sections, 0, line.chord.sections.length)) {
-			currY += FCALineField / 2
-			handleSections<NoteCharChord>(line.chord.sections, createNoteHandler((note, fracPos, pos) => {
-				if(note.voided) {
-					return
-				}
-				msp.drawFCANote(context, pos, 0, currY, -1, note.char, isSmall, scale)
-			}))
+			if(ann.head == 'A') {
+				handleSections<NoteCharText>(ann.sections, createNoteHandler((note, fracPos, pos) => {
+					msp.drawFCANote(context, pos, 0, currY, ann.originIndex, note.char, isSmall, scale)
+				}))
+			} else if(ann.head == 'F') {
+				handleSections<NoteCharForce>(ann.sections, createNoteHandler((note, fracPos, pos) => {
+					if(note.voided) {
+						return
+					}
+					const endFracPos = Frac.add(fracPos, note.length)
+					let endPos = this.columns.fracEndPosition(endFracPos, true)
+					msp.drawFCANote(context, pos, endPos, currY, -1, note.char, isSmall, scale)
+				}))
+			} else if(ann.head == 'C') {
+				handleSections<NoteCharChord>(ann.sections, createNoteHandler((note, fracPos, pos) => {
+					if(note.voided) {
+						return
+					}
+					msp.drawFCANote(context, pos, 0, currY, -1, note.char, isSmall, scale)
+				}))
+			}
 			currY += FCALineField / 2
 		}
 

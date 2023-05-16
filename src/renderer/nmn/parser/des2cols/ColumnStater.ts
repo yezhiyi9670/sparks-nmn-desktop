@@ -83,19 +83,7 @@ export class ColumnStater {
 							sections: [],
 						},
 						lyricLines: [],
-						force: {
-							lineNumber: -1,
-							type: 'annotationsForce',
-							head: 'F',
-							sections: []
-						},
-						chord: {
-							lineNumber: -1,
-							type: 'annotationsChord',
-							head: 'C',
-							sections: []
-						},
-						annotations: [],
+						fcaItems: [],
 						indexMap: [],
 						decorations: []
 					}
@@ -165,28 +153,51 @@ export class ColumnStater {
 			sectionFields: []
 		}
 	}
+
 	mergeFCA(frontier: DestructedFCA, data: DestructedFCA, offset: number, length: number) {
-		SectionStat.paint(frontier.force!.sections, data.force?.sections, offset, length)
-		SectionStat.paint(frontier.chord!.sections, data.chord?.sections, offset, length)
 		// 辅助符号
-		data.annotations.forEach((ann) => {
-			expandArray(frontier.annotations, ann.index + 1, {
-				lineNumber: -1,
-				type: 'annotationsText',
-				head: 'A',
-				index: -1,
-				sections: []
-			})
-			const curr = frontier.annotations[ann.index]
-			curr.index = ann.index
-			SectionStat.paint(curr.sections, ann.sections, offset, length)
+		data.fcaItems.forEach((ann) => {
+			let curr = frontier.fcaItems.filter(item => {
+				return item.head == ann.head && item.index == ann.index && item.originIndex == ann.originIndex
+			})[0]
+			if(curr === undefined) {
+				expandArray(frontier.fcaItems, frontier.fcaItems.length + 1, curr = (() => {
+					if(ann.head == 'F') {
+						return {
+							lineNumber: -1,
+							type: 'annotationsForce',
+							head: 'F',
+							index: ann.index,
+							originIndex: ann.originIndex,
+							sections: []
+						}
+					} else if(ann.head == 'C') {
+						return {
+							lineNumber: -1,
+							type: 'annotationsChord',
+							head: 'C',
+							index: ann.index,
+							originIndex: ann.originIndex,
+							sections: []
+						}
+					} else {
+						return {
+							lineNumber: -1,
+							type: 'annotationsText',
+							head: 'A',
+							index: ann.index,
+							originIndex: ann.originIndex,
+							sections: []
+						}
+					}
+				})())
+			}
+			SectionStat.paint(curr.sections as MusicSection<NoteCharAny>[], ann.sections, offset, length)
 		})
 	}
 	refineFCA(frontier: DestructedFCA, totalLength: number) {
-		expandArray(frontier.chord!.sections, totalLength, SectionStat.nullish)
-		expandArray(frontier.force!.sections, totalLength, SectionStat.nullish)
-		frontier.annotations.forEach((ann) => {
-			expandArray(ann.sections, totalLength, SectionStat.nullish)
+		frontier.fcaItems.forEach((ann) => {
+			expandArray(ann.sections as MusicSection<NoteCharAny>[], totalLength, SectionStat.nullish)
 		})
 	}
 
@@ -220,13 +231,7 @@ export class ColumnStater {
 		}
 	}
 	allocateFCA(part: LinkedPart, index: number, currOrdinal: number, currQuarter: Fraction, statQuarters: Fraction) {
-		part.force!.sections[index].ordinal = currOrdinal
-		part.force!.sections[index].startPos = currQuarter
-		part.force!.sections[index].statQuarters = statQuarters
-		part.chord!.sections[index].ordinal = currOrdinal
-		part.chord!.sections[index].startPos = currQuarter
-		part.chord!.sections[index].statQuarters = statQuarters
-		part.annotations.map((ann) => {
+		part.fcaItems.map((ann) => {
 			ann.sections[index].ordinal = currOrdinal
 			ann.sections[index].startPos = currQuarter
 			ann.sections[index].statQuarters = statQuarters
@@ -239,10 +244,8 @@ export class ColumnStater {
 		}
 		article.parts.forEach((part) => {
 			SectionStat.interLink(part.notes.sections, part.decorations)
-			SectionStat.interLink(part.chord!.sections, [])
-			SectionStat.interLink(part.force!.sections, [])
-			part.annotations.forEach((ann) => {
-				SectionStat.interLink(ann.sections, [])
+			part.fcaItems.forEach((ann) => {
+				SectionStat.interLink(ann.sections as MusicSection<NoteCharAny>[], [])
 			})
 		})
 	}
@@ -271,26 +274,14 @@ export class ColumnStater {
 							lineNumber: -1,
 							sections: [],
 							notesSubstitute: [],
-							force: {
-								lineNumber: -1,
-								type: 'annotationsForce',
-								head: 'F',
-								sections: []
-							},
 							lyricAnnotations: {
 								lineNumber: -1,
 								type: 'annotationsText',
 								head: 'La',
 								sections: []
 							},
-							chord: {
-								lineNumber: -1,
-								type: 'annotationsChord',
-								head: 'C',
-								sections: []
-							},
 							attrsMap: [],
-							annotations: [],
+							fcaItems: [],
 							indexMap: [],
 							signature: sig
 						}
@@ -348,10 +339,9 @@ export class ColumnStater {
 								}
 							})
 						}
-						allocateLyricLineFCA(article, lyricLine.force!.sections)
-						allocateLyricLineFCA(article, lyricLine.chord!.sections)
-						lyricLine.annotations.forEach((ann) => {
+						lyricLine.fcaItems.forEach((ann) => {
 							allocateLyricLineFCA(article, ann.sections)
+							SectionStat.interLink(ann.sections as MusicSection<NoteCharAny>[], [])
 						})
 						allocateLyricLineFCA(article, lyricLine.lyricAnnotations!.sections)
 						return lyricLine
@@ -500,7 +490,7 @@ export class ColumnStater {
 						return
 					}
 					lrcSigs.push(lrcLine.signature)
-					const { force, chord, annotations, sections, indexMap, attrsMap, lyricAnnotations, notesSubstitute, ...others } = lrcLine
+					const { fcaItems, sections, indexMap, attrsMap, lyricAnnotations, notesSubstitute, ...others } = lrcLine
 					lrcLines.push({
 						sections: sections.slice(sectionPtr, sectionPtr + sectionCount),
 						index: indexMap.slice(sectionPtr, sectionPtr + sectionCount),
@@ -509,7 +499,7 @@ export class ColumnStater {
 							SectionStat.subLine(lyricAnnotations, sectionPtr, sectionCount, sectionsIn) :
 							undefined,
 						notesSubstitute: mappedNs,
-						...this.subFCA({ force, chord, annotations }, sectionPtr, sectionCount, sectionsIn),
+						...this.subFCA({ fcaItems }, sectionPtr, sectionCount, sectionsIn),
 						...others
 					})
 				})
@@ -595,9 +585,9 @@ export class ColumnStater {
 	}
 	subFCA(part: DestructedFCA, startSection: number, sectionCount: number, overwriteIdSections?: MusicSection<unknown>[]): DestructedFCA {
 		return {
-			force: SectionStat.subLine(part.force!, startSection, sectionCount, overwriteIdSections),
-			chord: SectionStat.subLine(part.chord!, startSection, sectionCount, overwriteIdSections),
-			annotations: part.annotations.map((ann) => {
+			fcaItems: part.fcaItems.sort((a,b) => {
+				return a.index - b.index
+			}).map((ann) => {
 				return SectionStat.subLine(ann, startSection, sectionCount, overwriteIdSections)
 			})
 		}
