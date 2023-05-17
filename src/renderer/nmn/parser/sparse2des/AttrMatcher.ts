@@ -435,14 +435,14 @@ export module AttrMatcher {
 		}
 	}
 	export function stringBeats(item: string, lineNumber: number, index: number, issues: LinedIssue[]): Beats | undefined {
-		if(!(/^(\d+)\/(\d+)(T|S|)$/.test(item) || /^(\d+)\/(\d+)(T|S|)=/.test(item))) {
+		if(!(/^(\d+)\/(\d+)(T|S|s|)$/.test(item) || /^(\d+)\/(\d+)(T|S|s|)=/.test(item))) {
 			return undefined
 		}
 
 		let leftPart = item
 		let rightPart: string | undefined = undefined
 		let defaultTriplet = false
-		let swing = false
+		let swing: 'none' | '8th' | '16th' = 'none'
 		
 		if(item.indexOf('=') != -1) {
 			[leftPart, rightPart] = splitBy(item, '=')
@@ -454,7 +454,11 @@ export module AttrMatcher {
 		}
 		if(leftPart[leftPart.length - 1] == 'S') {
 			leftPart = leftPart.substring(0, leftPart.length - 1)
-			swing = true
+			swing = '8th'
+		}
+		if(leftPart[leftPart.length - 1] == 's') {
+			leftPart = leftPart.substring(0, leftPart.length - 1)
+			swing = '16th'
 		}
 		
 		function __extractFraction(name: string): Fraction {

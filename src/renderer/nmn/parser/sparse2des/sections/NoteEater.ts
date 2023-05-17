@@ -434,20 +434,29 @@ export class NoteEater {
 		})()
 
 		// Swing 节奏下的时间扭曲
-		if(this.level == 0 && this.context.musical.beats!.swing) {
+		if(this.level == 0 && this.context.musical.beats!.swing != 'none') {
+			const is16 = this.context.musical.beats!.swing == '16th'
 			const swingPos = (frac: Fraction) => {
 				if(Frac.isIndeterminate(frac)) {
 					return frac
 				}
 				let result = frac
+
+				if(is16) {
+					result = Frac.mul(Frac.create(2, 1), result)
+				}
 				
-				let intPart = Frac.create(Math.floor(Frac.toFloat(frac)))
-				let remain = Frac.sub(frac, intPart)
+				let intPart = Frac.create(Math.floor(Frac.toFloat(result)))
+				let remain = Frac.sub(result, intPart)
 				
 				if(Frac.compare(remain, Frac.create(1,2)) <= 0) {
 					result = Frac.add(intPart, Frac.mul(Frac.create(4,3), remain))
 				} else {
 					result = Frac.sum(intPart, Frac.create(1,3), Frac.mul(Frac.create(2,3), remain))
+				}
+
+				if(is16) {
+					result = Frac.mul(Frac.create(1, 2), result)
 				}
 
 				return result

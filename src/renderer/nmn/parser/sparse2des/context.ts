@@ -17,7 +17,7 @@ export const scoreContextDefault: ScoreContext = {
 			value: { x: 0, y: 4 },
 			component: [{ x: 0, y: 4 }],
 			defaultReduction: 2,
-			swing: false
+			swing: 'none'
 		},
 		qpm: {
 			value: 120,

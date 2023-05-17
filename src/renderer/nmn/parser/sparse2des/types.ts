@@ -8,7 +8,7 @@ export type Beats = {
 	}
 	component?: { x: number, y: number }[]  // 不规则拍号解析式
 	defaultReduction: number  // 一阶分划点的默认分割数
-	swing: boolean  // 是否使用摇摆节奏
+	swing: 'none' | '8th' | '16th'  // 是否使用摇摆节奏
 }
 
 export type Qpm = {
