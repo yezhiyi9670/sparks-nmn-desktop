@@ -451,6 +451,7 @@ export class MusicPaint {
 		})()
 		startX -= noteMeasure[0] / 2
 		endX += noteMeasure[0] / 2
+		startX += 0.5 * note.offset
 		if(note.type == 'force') {
 			const forceTextMetric = new FontMetric('SparksNMN-mscore-20/400', noteMeasure[1] * forceScale)
 			if(note.isText) {

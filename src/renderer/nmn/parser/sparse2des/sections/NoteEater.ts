@@ -627,9 +627,17 @@ export class NoteEater {
 			}
 			// 贴靠到 token 处
 			this.align()
-			const token1 = this.pass()
+			let token1 = this.pass()
 			if(token1 === undefined || 'bracket' in token1) {
 				return undefined
+			}
+			let offset = 0
+			while(token1.type == 'symbol' && token1.content == '+') {
+				offset += 1
+				token1 = this.pass()
+				if(token1 === undefined || 'bracket' in token1) {
+					return undefined
+				}
 			}
 			if(typeSampler == 'text') {
 				// 读取一个 stringLiteral
@@ -642,6 +650,7 @@ export class NoteEater {
 				}
 				return {
 					type: typeSampler as any,
+					offset: offset,
 					text: token1.content
 				}
 			} else if(typeSampler == 'force') {
@@ -649,6 +658,7 @@ export class NoteEater {
 					if(inCheck(token1.content, noteCharForceWeight)) {
 						return {
 							type: typeSampler as any,
+							offset: offset,
 							isText: false,
 							char: token1.content
 						}
@@ -663,6 +673,7 @@ export class NoteEater {
 					if(inCheck(token1.content, {'<': 1, '>': -1})) {
 						return {
 							type: typeSampler as any,
+							offset: offset,
 							isText: false,
 							char: token1.content
 						}
@@ -676,6 +687,7 @@ export class NoteEater {
 				} else if(token1.type == 'stringLiteral') {
 					return {
 						type: typeSampler as any,
+						offset: offset,
 						isText: true,
 						char: token1.content
 					}
@@ -720,6 +732,7 @@ export class NoteEater {
 
 				const ret: NoteCharChord = {
 					type: typeSampler as any,
+					offset: offset,
 					delta: delta,
 					root: prefRoot,
 					suffix: prefSuffix,

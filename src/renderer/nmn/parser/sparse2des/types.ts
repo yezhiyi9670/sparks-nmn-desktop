@@ -424,6 +424,7 @@ export const noteCharChecker: {[_: string]: number} = {
  */
 export type NoteCharForce = {
 	type: 'force'
+	offset: number
 	isText: boolean
 	char: string
 } | {
@@ -458,6 +459,7 @@ export const noteCharForceWeight = {
  */
 export type NoteCharChord = {
 	type: 'chord'
+	offset: number
 	delta: number
 	root: string
 	suffix: string
@@ -472,6 +474,7 @@ export type NoteCharChord = {
  */
 export type NoteCharText = {
 	type: 'text'
+	offset: number
 	text: string
 } | {
 	type: 'text'
