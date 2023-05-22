@@ -213,7 +213,9 @@ export class PositionDispatcher {
 		weights.forEach((weight) => {
 			totalWeights += weight
 		})
-		if(!this.context.render.time_lining!) {
+		if(this.context.render.time_lining! && this.line.sectionCount > 0) {
+			totalWeights += totalWeights / this.line.sectionCount * (this.line.sectionCountShould - this.line.sectionCount)
+		} else {
 			totalWeights += this.line.sectionCountShould - this.line.sectionCount
 		}
 		
