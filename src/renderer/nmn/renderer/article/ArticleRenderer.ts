@@ -50,7 +50,9 @@ class ArticleRendererClass {
 
 		let currY = created[1]
 
-		currY += context.render.margin_after_header_text!
+		if(article.title) {
+			currY += context.render.margin_after_header_text!
+		}
 
 		const textMetric = new FontMetric(context.render.font_text!, 2.16)
 		const textSize = textMetric.fontSize * textMetric.fontScale * scale
