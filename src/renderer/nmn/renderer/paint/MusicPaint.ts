@@ -191,7 +191,7 @@ export class MusicPaint {
 			hX -= separatorInset[1]
 		}
 		let lastAttr: SeparatorAttr | undefined = undefined
-		;(sign > 0 ? attrs : attrs.reverse()).forEach((attr) => {
+		;(sign > 0 ? attrs : attrs.slice().reverse()).forEach((attr) => {
 			if(showTextLike && ['iter', 'repeat', 'qpm', 'shift', 'durability', 'text', 'scriptedText', 'label', 'reset'].indexOf(attr.type) != -1) {
 				if(lastAttr && !(lastAttr.type == 'iter' && attr.type == 'iter')) {
 					currX += sign * margin
