@@ -127,6 +127,7 @@ export default {
 	},
 	'render_props': {
 		'n': '每行小节数',
+		'time_lining': '基于时值的小节宽度',
 		'debug': '显示错误警告',
 		'sectionorder': '小节线序号模式',
 		'scale': '文档缩放',

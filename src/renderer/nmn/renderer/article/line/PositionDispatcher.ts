@@ -189,16 +189,36 @@ export class PositionDispatcher {
 		const leftBoundary = gutterLeft * this.scale
 		const rightBoundary = 100
 		const sectionPadding = this.context.render.offset_section_boundary! * this.scale
-		
+		let weights = this.line.sectionWeights.slice()
+
 		let currentStart = leftBoundary
+
+		if(this.context.render.time_lining!) {
+			weights = weights.map((weight, index) => {
+				let maxBeatCount = 0
+				this.line.parts.forEach((part) => {
+					const section = part.notes.sections[index]
+					maxBeatCount = Math.max(
+						maxBeatCount,
+						(section.separator.after.attrs.filter(item => item.type == 'beats').length > 0 ? 1 : 0) +
+						(section.separator.before.attrs.filter(item => item.type == 'beats').length > 0 ? 1 : 0)
+					)
+				})
+				let beatWeight = Frac.toFloat(this.line.sectionFields[index][1]) + maxBeatCount * 0.25
+				return weight * beatWeight
+			})
+		}
+
 		let totalWeights = 0
-		this.line.sectionWeights.forEach((weight) => {
+		weights.forEach((weight) => {
 			totalWeights += weight
 		})
-		totalWeights += this.line.sectionCountShould - this.line.sectionCount
+		if(!this.context.render.time_lining!) {
+			totalWeights += this.line.sectionCountShould - this.line.sectionCount
+		}
 		
 		this.line.sectionFields.forEach((fields, index) => {
-			let currentEnd = currentStart + (rightBoundary - leftBoundary) / totalWeights * this.line.sectionWeights[index]
+			let currentEnd = currentStart + (rightBoundary - leftBoundary) / totalWeights * weights[index]
 			const [ rangeL, rangeR ] = [ currentStart, currentEnd ]
 			currentStart = currentEnd
 			let localPadding = this.line.sectionPadding[index]

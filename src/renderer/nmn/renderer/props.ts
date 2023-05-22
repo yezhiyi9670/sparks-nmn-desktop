@@ -7,6 +7,10 @@ export interface RenderProps {
 	 */
 	n?: number
 	/**
+	 * 基于时值的小节宽度
+	 */
+	time_lining?: boolean
+	/**
 	 * 调试模式
 	 */
 	debug?: boolean
@@ -146,6 +150,7 @@ export interface RenderProps {
  */
 export const renderPropsDefault: RenderProps = {
 	n: 4,
+	time_lining: false,
 	debug: true,
 	sectionorder: 'paren',
 	scale: 1.0,
@@ -199,7 +204,7 @@ export function renderPropConvert(key: string, val: string) {
 		}
 		return { error: 'value' }
 	}
-	if(key == 'debug' || key == 'grayout' || key == 'explicitmarkers' || key == 'left_separator') {
+	if(key == 'time_lining' || key == 'debug' || key == 'grayout' || key == 'explicitmarkers' || key == 'left_separator') {
 		if(val == 'true') {
 			return true
 		}

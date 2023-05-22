@@ -69,7 +69,8 @@ export module SectionStat {
 			if(section.count != section.count) {
 				return shouldBe
 			}
-			return Frac.mul(shouldBe, Frac.create(section.count))
+			// return Frac.mul(shouldBe, Frac.create(section.count))
+			return shouldBe
 		}
 		if(section.type != 'section') {
 			return shouldBe
