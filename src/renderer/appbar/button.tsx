@@ -1,6 +1,7 @@
 import React from 'react'
 import { createUseStyles } from 'react-jss'
 import { useI18n } from '../i18n/i18n'
+import ColorScheme from '../ColorScheme'
 
 const useStyles = createUseStyles({
 	item: {
@@ -10,10 +11,10 @@ const useStyles = createUseStyles({
 		border: '1px solid #0000',
 		background: '#0000',
 		'&:hover': {
-			background: '#0001'
+			background: ColorScheme.voidaryHover
 		},
 		'&:active': {
-			background: '#0002'
+			background: ColorScheme.voidaryActive
 		}
 	},
 	iconContainer: {

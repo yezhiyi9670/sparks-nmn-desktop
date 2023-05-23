@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from "electron";
+import { app, BrowserWindow, ipcMain, systemPreferences } from "electron";
 
 let openingPath: string | undefined = undefined
 export module EventAppMain {
@@ -33,6 +33,10 @@ export module EventAppMain {
 		// 打开开发者工具
 		ipcMain.handle('openDevTools', (evt) => {
 			win.webContents.openDevTools({mode: 'right'})
+		})
+		// 获取系统主题色
+		ipcMain.on('getSystemColor', (evt) => {
+			evt.returnValue = systemPreferences.getColor('highlight') ?? '#5C6BC0'
 		})
 	}
 }

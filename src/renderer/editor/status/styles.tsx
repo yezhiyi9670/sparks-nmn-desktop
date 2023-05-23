@@ -1,4 +1,5 @@
 import { createUseStyles } from "react-jss";
+import ColorScheme from "../../ColorScheme";
 
 export const useStyles = createUseStyles({
 	pill: {
@@ -10,13 +11,13 @@ export const useStyles = createUseStyles({
 		background: '#0000',
 		color: '#333',
 		'&:hover': {
-			background: '#0001',
+			background: ColorScheme.voidaryHover,
 		},
 		'&:active': {
-			background: '#0002',
+			background: ColorScheme.voidaryActive,
 		},
 		'&.active': {
-			background: '#00000019'
+			background: ColorScheme.voidarySelected
 		}
 	}
 })

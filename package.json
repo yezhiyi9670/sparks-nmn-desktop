@@ -7,9 +7,6 @@
   "icon": "./public/static/logo/logo.png",
   "main": "dist/main/index.js",
   "browserslist": "Chrome > 81",
-  "config": {
-    "arch": "ia32"
-  },
   "targets": {
     "main": false
   },
@@ -35,11 +32,13 @@
     "@electron-forge/maker-rpm": "^6.0.5",
     "@electron-forge/maker-squirrel": "^6.0.5",
     "@electron-forge/maker-zip": "^6.0.5",
+    "@types/color": "^3.0.3",
     "@types/node": "^18.13.0",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "@typescript-eslint/eslint-plugin": "^5.51.0",
     "@typescript-eslint/parser": "^5.51.0",
+    "color": "^4.2.3",
     "concurrently": "^7.6.0",
     "cross-env": "7.0.3",
     "electron": "^23.1.1",

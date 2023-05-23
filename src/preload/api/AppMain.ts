@@ -3,6 +3,7 @@ import { ipcRenderer } from "electron"
 let windowCloseAction = () => {
 	AppMain.close()
 }
+let systemColor: string | undefined = undefined
 const AppMain = {
 	/**
 	 * 打开开发者工具
@@ -33,6 +34,15 @@ const AppMain = {
 	 */
 	loaded: () => {
 		ipcRenderer.invoke('loaded')
+	},
+	/**
+	 * 获取系统主题色
+	 */
+	getSystemColor: () => {
+		if(systemColor) {
+			return systemColor
+		}
+		return systemColor = ipcRenderer.sendSync('getSystemColor')
 	}
 }
 ipcRenderer.on('close', () => {

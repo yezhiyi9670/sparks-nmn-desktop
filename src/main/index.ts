@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import path from 'path'
 import { PrefTypes } from '../util/prefs/types'
 import { PrefBackend } from '../util/prefs/PrefBackend'

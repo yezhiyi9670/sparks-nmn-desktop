@@ -4,6 +4,7 @@ import { iterateMap } from '../../util/array'
 import { PrefRendererInfo } from '../../util/prefs/PrefRenderer'
 import { getAvailableLanguages, useI18n } from '../i18n/i18n'
 import { SettingsFormUpdateHandler, SettingsFormValues } from './SettingsForm'
+import { useCheckboxClass } from '../style/checkbox'
 
 type Value = string | number | boolean
 type Validate = 'pass' | 'less' | 'more' | 'invalid'
@@ -85,6 +86,7 @@ function SettingsFormField(props: {
 	const classes = useStyles()
 	const entry = props.entry
 	const value = props.value
+	const checkboxClass = useCheckboxClass()
 
 	const inputRef = createRef<HTMLInputElement>()
 
@@ -100,7 +102,7 @@ function SettingsFormField(props: {
 	return <div className={classes.fieldLine}>
 		{/* 开关 */}
 		{entry.type == 'boolean' && typeof(value) == 'boolean' && <>
-			<label style={{userSelect: 'none'}}>
+			<label style={{userSelect: 'none'}} className={checkboxClass.label + ' ' + (value ? checkboxClass.checked : '')}>
 				<input
 					type='checkbox'
 					className={classes.checkbox}

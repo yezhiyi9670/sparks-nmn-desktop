@@ -15,6 +15,8 @@ import { StatusFileSize } from './status/file-size'
 import { PreviewCursor, PreviewView } from './preview/PreviewView'
 import { StatusDirty } from './status/dirty-state'
 import { useExportTemplate } from '..'
+import Color from 'color'
+import ColorScheme from '../ColorScheme'
 
 const useStyles = createUseStyles({
 	editor: {
@@ -38,7 +40,7 @@ const useStyles = createUseStyles({
 	groupStatusBar: {
 		borderTop: '1px solid #0002',
 		height: '28px',
-		background: '#F0EEF1',
+		background: ColorScheme.voidary,
 		whiteSpace: 'nowrap',
 		display: 'flex',
 		flexDirection: 'row'

@@ -2,6 +2,9 @@ import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from '
 import { createUseStyles } from 'react-jss'
 import { useOnceEffect } from '../../util/event'
 import FocusTrap from 'focus-trap-react'
+import Color from 'color'
+import ColorScheme from '../ColorScheme'
+import { useCheckboxClass } from '../style/checkbox'
 
 const useStyles = createUseStyles({
 	wrapper: {
@@ -105,16 +108,18 @@ const useStyles = createUseStyles({
 		'&:hover:not([disabled])': {background: '#0001'}, '&:active:not([disabled])': {background: '#0002'},
 		whiteSpace: 'pre',
 		'&.positive': {
-			background: '#5C6BC0',
+			background: ColorScheme.positive,
 			color: '#FFF',
 			borderColor: 'transparent',
-			'&:hover:not([disabled])': {background: '#3F51B5'}, '&:active:not([disabled])': {background: '#3949AB'},
+			'&:hover:not([disabled])': {background: ColorScheme.positiveHover},
+			'&:active:not([disabled])': {background: ColorScheme.positiveActive},
 		},
 		'&.negative': {
-			background: '#EC407A',
+			background: ColorScheme.negative,
 			color: '#FFF',
 			borderColor: 'transparent',
-			'&:hover:not([disabled])': {background: '#E91E63'}, '&:active:not([disabled])': {background: '#D81B60'},
+			'&:hover:not([disabled])': {background: ColorScheme.negativeHover},
+			'&:active:not([disabled])': {background: ColorScheme.negativeActive},
 		},
 		'&[disabled]': {
 			opacity: 0.75
@@ -122,7 +127,7 @@ const useStyles = createUseStyles({
 	},
 	outlink: {
 		textDecoration: 'none',
-		color: '#1E88E5'
+		color: ColorScheme.link
 	}
 })
 
@@ -151,6 +156,7 @@ interface Props {
 }
 export function Dialog(props: Props) {
 	const classes = useStyles()
+	const checkboxClass = useCheckboxClass()
 	const focusRef = React.createRef<HTMLButtonElement>()
 	const selfRef = React.createRef<HTMLDivElement>()
 	const [ checkboxState, setCheckboxState ] = useState(props.defaultCheck ?? false)
@@ -204,7 +210,7 @@ export function Dialog(props: Props) {
 				{(props.buttons || props.checkbox !== undefined) && <div className={classes.contentButtons + ' ' + (props.separators ? 'separator' : '')}>
 					<div className={classes.groupCheckbox}>
 						{props.checkbox !== undefined && (
-							<label>
+							<label className={checkboxClass.label + ' ' + (checkboxState ? checkboxClass.checked : '')}>
 								<input
 									type='checkbox'
 									className={classes.checkbox}

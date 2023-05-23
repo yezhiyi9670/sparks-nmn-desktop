@@ -16,6 +16,8 @@ import { SparksNMN } from './nmn'
 import { callRef, useMethod } from '../util/hook'
 import { ToastProvider, useToast } from './dialog/toast/ToastProvider'
 import $ from 'jquery'
+import Color from 'color'
+import ColorScheme from './ColorScheme'
 
 document.title = 'Sparks NMN Desktop'
 
@@ -32,7 +34,7 @@ const useStyles = createUseStyles({
 		flexShrink: 0,
 		width: 56,
 		height: '100%',
-		background: '#F0EEF1',
+		background: ColorScheme.voidary,
 		borderRight: '1px solid #0002'
 	},
 	content: {
@@ -380,6 +382,11 @@ function App() {
 	const prefs = usePref()
 
 	return <I18nProvider languageKey={prefs.getValue<string>('language')}>
+		<style>
+			::selection {'{'}
+				background: {ColorScheme.selection};
+			{'}'}
+		</style>
 		<AppIn />
 	</I18nProvider>
 }
