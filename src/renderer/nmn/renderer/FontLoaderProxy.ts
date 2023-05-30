@@ -4,11 +4,11 @@ let fontPhase: 'none' | 'loading' | 'loaded' = 'none'
 let pendingRequests: (() => void)[] = []
 
 const fonts = [
-	{ family: 'Deng', name: 'deng', format: 'woff2' },
-	{ family: 'Deng', name: 'deng', format: 'woff2', weight: 'bold' },
-	{ family: 'SimSun', name: 'simsun', format: 'woff2' },
-	{ family: 'SimSun', name: 'simsun', format: 'woff2', weight: 'bold' },
-	{ family: 'SimHei', name: 'simhei', format: 'woff2' },
+	{ family: 'CommonLight', name: 'noto_sans_sc_light', format: 'woff2', asc: 85, desc: 6 },
+	{ family: 'CommonLight', name: 'noto_sans_sc_light', format: 'woff2', weight: 'bold', asc: 85, desc: 6 },
+	{ family: 'CommonSerif', name: 'uming_cn_dotfix', format: 'woff2', asc: 85, desc: 6 },
+	{ family: 'CommonSerif', name: 'uming_cn_dotfix', format: 'woff2', weight: 'bold', asc: 85, desc: 6 },
+	{ family: 'CommonBlack', name: 'wqy_microhei', format: 'woff2' },
 	{ family: 'SparksNMN-EOPNumber', name: 'eop_number', format: 'ttf' },
 	{ family: 'SparksNMN-mscore-20', name: 'mscore-20', format: 'ttf' },
 	{ family: 'SparksNMN-Bravura', name: 'bravura', format: 'woff' },
@@ -16,8 +16,10 @@ const fonts = [
 
 const tasksRaw = fonts.map(font => ({
 	name: font.family,
-	url: `${font.name}/${font.name}${font.weight ? ('-' + font.weight) : ''}.${font.format}`,
-	weight: font.weight ?? 'normal'
+	url: `${font.name}/${font.name}${font.weight ? ('-transformed-' + font.weight) : ''}.${font.format}`,
+	weight: font.weight ?? 'normal',
+	asc: font.asc,
+	desc: font.desc,
 }))
 
 export module FontLoaderProxy {

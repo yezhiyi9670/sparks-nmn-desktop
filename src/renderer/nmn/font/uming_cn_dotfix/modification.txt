@@ -1,0 +1,4 @@
+Compared to the original AR PL UMing, this font is modified:
+- Chinese characters `。` and `、` adjusted so that they look correct.
+- Numbers and letters are stretched to match the proper height.
+- Font weight are adjusted. The regular copy has +4, and the bold copy has another +10.

@@ -29,7 +29,7 @@ const entries: HintEntries = [
 	},
 	{
 		key: 'largeHtml',
-		lines: 3,
+		lines: 4,
 		prefKey: 'hintLargeHtml',
 		dismiss: false,
 		confirm: true,

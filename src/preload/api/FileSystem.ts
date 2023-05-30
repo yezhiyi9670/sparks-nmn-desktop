@@ -48,5 +48,11 @@ export default {
 	 */
 	getTempPath: async (): Promise<string> => {
 		return await ipcRenderer.invoke('getTempPath')
-	}
+	},
+	/**
+	 * 获取资源文件目录
+	 */
+	getResourcePath: (): string => {
+		return ipcRenderer.sendSync('getResourcePath')
+	},
 }

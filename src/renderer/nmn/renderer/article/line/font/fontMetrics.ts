@@ -8,9 +8,9 @@ export const addNotesScale = 0.65
 
 const LineFonts: {[_: string]: FontMetric | ((_: RenderProps) => FontMetric)} = {
 	note: () => new FontMetric('SparksNMN-EOPNumber/400', 2.4),
-	noteAlt: () => new FontMetric('SimHei/700', 2.4 * noteAltScale),
+	noteAlt: () => new FontMetric('CommonBlack/700', 2.4 * noteAltScale),
 	noteSmall: () => new FontMetric('SparksNMN-EOPNumber/400', 2.4 * smallNoteScale),
-	noteAltSmall: () => new FontMetric('SimHei/700', 2.4 * smallNoteScale * noteAltScale),
+	noteAltSmall: () => new FontMetric('CommonBlack/700', 2.4 * smallNoteScale * noteAltScale),
 	accidental: () => new FontMetric('SparksNMN-mscore-20', 2.2),
 	accidentalSmall: () => new FontMetric('SparksNMN-mscore-20', 2.0),
 	lyrics: (prop) => new FontMetric(prop.font_lyrics!, 2.16)

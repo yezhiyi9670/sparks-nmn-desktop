@@ -263,7 +263,8 @@ export class MusicPaint {
 	drawSeparatorAttrText(context: RenderContext, x: number, y: number, attr: SeparatorAttrBase, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false, labelType: 'normal' | 'large' | 'bold' = 'normal'): number[] {
 		const fontMetricA = new FontMetric(context.render.font_attr!, 2.16 * fontScale)
 		const fontSize = fontMetricA.fontSize * fontMetricA.fontScale
-		const fontMetricB = new FontMetric('SimSun/400', fontSize)
+		const fontMetricB = new FontMetric('CommonSerif/400', fontSize)
+		const fontMetricIter = new FontMetric('CommonSerif/400', fontSize)
 		const fontMetricC = new FontMetric('SparksNMN-Bravura/400', fontSize * 1.5)
 		const fontMetricLx = new FontMetric(context.render.font_checkpoint!, 2.3 * fontScale)
 		const fontMetricLxr = new FontMetric(context.render.font_attr!, 2.06 * fontScale)
@@ -282,7 +283,7 @@ export class MusicPaint {
 				text = 'reset'
 			}
 			const token = new PaintTextToken(
-				text, fontMetricB,
+				text, fontMetricIter,
 				scale, extraStylesItalic
 			)
 			const measure = token.measureFast(this.root)
@@ -520,7 +521,8 @@ export class MusicPaint {
 	drawIterOrString(context: RenderContext, x: number, y: number, attr: JumperAttr, fontDesc: string, initialFontSize: number = 2, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false) {
 		const fontMetricA = new FontMetric(fontDesc, initialFontSize)
 		const fontSize = fontMetricA.fontSize * fontMetricA.fontScale
-		const fontMetricB = new FontMetric('SimSun/700', 1 * fontSize)
+		const fontMetricB = new FontMetric('CommonSerif/700', 1 * fontSize)
+		const fontMetricIter = new FontMetric('CommonSerif/700', 1 * fontSize)
 		const fontMetricC = new FontMetric('SparksNMN-Bravura/400', 1.5 * fontSize)
 		const extraStylesItalic = {
 			...extraStyles,
@@ -529,7 +531,7 @@ export class MusicPaint {
 		if(attr.type == 'iter') {
 			let text = attr.iter.toString() + '.'
 			const token = new PaintTextToken(
-				text, fontMetricB,
+				text, fontMetricIter,
 				scale, extraStylesItalic
 			)
 			const measure = token.measureFast(this.root)
@@ -593,12 +595,12 @@ export class MusicPaint {
 				shift: -0.7
 			},
 			lpr: {
-				metric: new FontMetric('SimSun/400', noteMeasure[1] * 1.1),
+				metric: new FontMetric('CommonSerif/400', noteMeasure[1] * 1.1),
 				text: "(",
 				shift: 0
 			},
 			rpr: {
-				metric: new FontMetric('SimSun/400', noteMeasure[1] * 1.1),
+				metric: new FontMetric('CommonSerif/400', noteMeasure[1] * 1.1),
 				text: ")",
 				shift: 0
 			},
@@ -875,7 +877,7 @@ export class MusicPaint {
 	 */
 	drawBeats(x: number, y: number, beats: Beats, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false) {
 		const numberMetrics = new FontMetric('SparksNMN-EOPNumber/400', 1.8 * fontScale)
-		const textMetrics = new FontMetric('SimHei/700', 1.9 * fontScale)
+		const textMetrics = new FontMetric('CommonBlack/400', 1.9 * fontScale)
 		const xMeasure = this.root.measureTextFast(beats.value.x.toString(), numberMetrics, scale)
 		const yMeasure = this.root.measureTextFast(beats.value.y.toString(), numberMetrics, scale)
 		const numberWidth = Math.max(xMeasure[0], yMeasure[0])
@@ -916,7 +918,7 @@ export class MusicPaint {
 	 * @returns 测量值，高度无效
 	 */
 	drawBase(x: number, y: number, base: BaseTune, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false) {
-		const textMetrics = new FontMetric('Deng/700', 2.16 * fontScale)
+		const textMetrics = new FontMetric('CommonLight/700', 2.16 * fontScale)
 		const accidentalMetrics = new FontMetric('SparksNMN-mscore-20', 2.16 * fontScale)
 		
 		const text1Measure = this.root.measureTextFast('1=', textMetrics, scale)
@@ -950,7 +952,7 @@ export class MusicPaint {
 	 * 绘制转调符号
 	 */
 	drawShift(context: RenderContext, x: number, y: number, shift: AttrShift, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false) {
-		const textMetrics = new FontMetric('Deng/700', 2.0 * fontScale)
+		const textMetrics = new FontMetric('CommonLight/700', 2.0 * fontScale)
 		const accidentalMetrics = new FontMetric('SparksNMN-mscore-20', 2.0 * fontScale)
 
 		let text1 = '', accidental = '', text2 = ''
@@ -1021,7 +1023,7 @@ export class MusicPaint {
 		}
 		const textToken = new PaintTextToken(
 			text,
-			new FontMetric('Deng/700', 2.0 * fontScale),
+			new FontMetric('CommonLight/700', 2.0 * fontScale),
 			scale, extraStyles
 		)
 		const textMeasure = textToken.measureFast(this.root)
@@ -1071,7 +1073,7 @@ export class MusicPaint {
 		}
 		const textToken = new PaintTextToken(
 			I18n.renderToken(context.language, 'transpose_prop', numberText),
-			new FontMetric('Deng/700', 2.0 * fontScale),
+			new FontMetric('CommonLight/700', 2.0 * fontScale),
 			scale, extraStyles
 		)
 		const measure = textToken.measureFast(this.root)
@@ -1090,7 +1092,7 @@ export class MusicPaint {
 	drawOther(x: number, y: number, text: string, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false) {
 		const textToken = new PaintTextToken(
 			text,
-			new FontMetric('Deng/700', 2.0 * fontScale),
+			new FontMetric('CommonLight/700', 2.0 * fontScale),
 			scale, extraStyles
 		)
 		const measure = textToken.measureFast(this.root)

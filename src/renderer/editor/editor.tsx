@@ -306,7 +306,11 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 			...field,
 			element: field.element.outerHTML
 		}))).replace(/</g, "\\x3c") + ';document.title=' + JSON.stringify(title).replace(/</g, "\\x3c")
-		const htmlData = exportTemplate.replace('/*{script:content:data}*/', packedData)
+		const htmlData = exportTemplate
+			.replace('/*{script:content:data}*/', packedData)
+			.replace('/*{script:content:flags}*/', 'window.localFontLocation = ' + JSON.stringify(
+				'file:///' + window.FileSystem.getResourcePath().replace(/\\/g, '/') + '/dist/public/nmn/font'
+			))
 		return htmlData
 	})
 	useImperativeHandle(ref, () => ({

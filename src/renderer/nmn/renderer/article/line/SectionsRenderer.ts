@@ -108,7 +108,7 @@ export class SectionsRenderer {
 				ordinalText = '[' + ordinalText + ']'
 			}
 			const ordinalX = this.columns.startPosition(0) - 0.5 * scale
-			const ordinalMetric = new FontMetric('Deng/400', 2.0)
+			const ordinalMetric = new FontMetric('CommonLight/400', 2.0)
 			root.drawText(ordinalX, currY - fieldHeight * 0.65, ordinalText, ordinalMetric, scale, 'left', 'bottom', {
 				fontStyle: ordinalMode == 'plain' ? 'italic' : 'normal'
 			})
@@ -373,7 +373,7 @@ export class SectionsRenderer {
 				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY - topAdjust, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale, {}, type == 'normal')
 				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY - topAdjust, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale, {}, type == 'normal')
 			} else if(section.type == 'omit') {
-				const omitFontMetric = new FontMetric('SimHei/400', 2.16)
+				const omitFontMetric = new FontMetric('CommonBlack/400', 2.16)
 				if(section.count != section.count) {
 					const startX = this.columns.paddedStartPosition(sectionIndex)
 					root.drawText(startX, currY, I18n.renderToken(context.language, 'omit'), omitFontMetric, scale, 'left', 'middle')

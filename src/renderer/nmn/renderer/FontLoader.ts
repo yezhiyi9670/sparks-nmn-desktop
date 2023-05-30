@@ -1,8 +1,10 @@
 export module FontLoader {
 	type FontData = {
 		name: string
-		url: string
+		url: string | string[]
 		weight: string
+		asc?: number
+		desc?: number
 	}
 	/**
 	 * 检测字体是否加载完成
@@ -23,8 +25,15 @@ export module FontLoader {
 	 */
 	export function loadFont(data: FontData, callback?: (_: boolean) => void, error?: (_: any) => void) {
 		if(document.fonts) {
-			let fontFace = new FontFace(data.name, `url('${data.url}')`)
+			let urlList = typeof(data.url) == 'string' ? [data.url] : data.url
+			let fontFace = new FontFace(data.name, urlList.map(e => `url('${e}')`).join(','))
 			fontFace.weight = data.weight
+			if(data.asc !== undefined) {
+				fontFace.ascentOverride = data.asc + '%'
+			}
+			if(data.desc !== undefined) {
+				fontFace.descentOverride = data.desc + '%'
+			}
 			fontFace.load().then((loaded) => {
 				document.fonts.add(loaded)
 				if(callback) {
@@ -68,7 +77,9 @@ export module FontLoader {
 				}, () => {
 					loadings -= 1
 					task.state = 'none'
-					startTasks()
+					setTimeout(() => {
+						startTasks()
+					}, 1000)
 				})
 			})
 			if(loaded == data.length) {

@@ -1,7 +1,9 @@
 module.exports = {
 	packagerConfig: {
 		name: "sparks-nmn-desktop",
-		asar: true,
+		asar: {
+			unpackDir: 'dist/public/nmn/font'  // Preview HTML need to load fonts from here
+		},
 		icon: "./public/static/logo/logo",
 		ignore: (path) => {
 			if(['', '/package.json'].includes(path)) {
