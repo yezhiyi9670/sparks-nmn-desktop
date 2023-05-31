@@ -7,6 +7,7 @@ import { SparksNMNPreview } from "../../nmn/react-ace-editor/SparksNMNPreview"
 import { usePref } from "../../prefs/PrefProvider"
 import $ from 'jquery'
 import { Equifield } from "../../nmn/equifield/equifield"
+import ColorScheme from "../../ColorScheme"
 
 const useStyles = createUseStyles({
 	root: {
@@ -15,7 +16,12 @@ const useStyles = createUseStyles({
 		width: '100%',
 		boxSizing: 'border-box',
 		userSelect: 'text',
-		minHeight: '100%'
+		minHeight: '100%',
+		'& .SparksNMN-sechl': {
+			boxShadow: 'none !important',
+			backgroundColor: ColorScheme.selection,
+			opacity: '1 !important'
+		}
 	}
 })
 
