@@ -1,4 +1,5 @@
 Compared to the original AR PL UMing, this font is modified:
-- Chinese characters `。` and `、` are adjusted so that they look correct.
+- Chinese characters `，` `。` and `、` are adjusted so that they look correct.
+- Chinese characters `起` fixed.
 - ASCII and latin characters are stretched (against coordinate 256,690 by 110%) to match the proper height.
 - Font weights are adjusted. The regular copy has (+4,+8), and the bold copy has another (+10,+10).

@@ -595,7 +595,7 @@ export class MusicPaint {
 				shift: -0.7
 			},
 			lpr: {
-				metric: new FontMetric('CommonSerif/400', noteMeasure[1] * 1.1),
+				metric: new FontMetric('CommonSerif/400', noteMeasure[1] * 1),
 				text: "(",
 				shift: 0
 			},

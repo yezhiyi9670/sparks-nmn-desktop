@@ -1,0 +1,1 @@
+Override ascent to 85%, descent to 6%
