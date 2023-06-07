@@ -49,7 +49,14 @@ export default flattenI18nData({
 		},
 		// 文件大小
 		"size": {
-			"source": "${0} KB"
+			"unit": {
+				"b": "B",
+				"kunb": "坤B",
+				"kb": "KB",
+				"kkunb": "K坤B",
+				"mb": "MB",
+				"mkunb": "M坤B"
+			}
 		}
 	},
 
@@ -187,6 +194,18 @@ export default flattenI18nData({
 					"off": "关",
 					"source": "仅源代码",
 					"all": "源代码和预览文件"
+				}
+			},
+			"fileSizeUnit": {
+				"title": "文件大小单位",
+				"desc": "显示文件大小所使用的单位。",
+				"choice": {
+					"b": "B",
+					"kunb": "坤B",
+					"kb": "KB",
+					"kkunb": "K坤B",
+					"mb": "MB",
+					"mkunb": "M坤B"
 				}
 			},
 			"showProcessTime": {

@@ -49,6 +49,12 @@ const entries: PrefRendererInfo = [
 				choices: ['off', 'source', 'all']
 			},
 			{
+				key: 'fileSizeUnit',
+				defaultValue: ['string', 'kb'],
+				type: 'select',
+				choices: ['b', 'kunb', 'kb', 'kkunb', 'mb', 'mkunb']
+			},
+			{
 				key: 'showProcessTime',
 				defaultValue: ['string', 'off'],
 				type: 'select',
