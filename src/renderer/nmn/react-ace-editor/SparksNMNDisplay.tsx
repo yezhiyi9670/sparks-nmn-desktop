@@ -7,6 +7,7 @@ import { lineRendererStats } from '../renderer/article/line/LineRenderer'
 import { positionDispatcherStats } from '../renderer/article/line/PositionDispatcher'
 import { domPaintStats } from '../renderer/backend/DomPaint'
 import { randomToken } from '../util/random'
+import { EquifieldSection } from '../renderer/renderer'
 
 type Props = {
 	result: NMNResult | undefined
@@ -18,6 +19,7 @@ type Props = {
 		position: [number, number]
 	}
 	onReportError?: (_err: any | undefined) => void
+	transformFields?: (fields: EquifieldSection[]) => EquifieldSection[]
 }
 export function SparksNMNDisplay(props: Props) {
 	const { onPosition, result, language } = props
@@ -44,7 +46,7 @@ export function SparksNMNDisplay(props: Props) {
 			lineRendererStats.sectionsRenderTime = 0
 			positionDispatcherStats.computeTime = 0
 			let startTime = +new Date()
-			const fields = (() => {
+			let fields = (() => {
 				try {
 					const ret = SparksNMN.render(result.result, language, positionCallback)
 					if(props.onReportError) {
@@ -62,6 +64,10 @@ export function SparksNMNDisplay(props: Props) {
 					}]
 				}
 			})()
+
+			if(props.transformFields) {
+				fields = props.transformFields(fields)
+			}
 
 			return fields
 		} else {
