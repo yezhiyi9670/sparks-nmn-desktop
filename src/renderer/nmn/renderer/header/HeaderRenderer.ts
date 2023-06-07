@@ -46,13 +46,18 @@ class HeaderRendererClass {
 
 		if(hasCornerLines || hasTitleLines) {
 			currY += 2.5
+			sections.push({
+				element: root.getElement(),
+				height: currY * scale,
+				...I18n.efLabel(context.language, 'top')
+			})
+		} else {
+			sections.push({
+				element: root.getElement(),
+				height: currY * scale,
+				...I18n.efLabel(context.language, 'topPrintMargin')
+			})
 		}
-		
-		sections.push({
-			element: root.getElement(),
-			height: currY * scale,
-			...I18n.efLabel(context.language, 'top')
-		})
 	}
 	renderPropsAndAuthors(score: NMNResult['result'], sections: EquifieldSection[], context: RenderContext) {
 		const root = new DomPaint()
