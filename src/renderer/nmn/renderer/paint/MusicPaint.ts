@@ -657,6 +657,7 @@ export class MusicPaint {
 	 * 绘制音乐音符
 	 */
 	drawMusicNote(context: RenderContext, x: number, y: number, note: MusicNote<NoteCharMusic>, reductionLineSpace: number, reductionLevel: number, isSmall: boolean, scale: number = 1, extraStyles: ExtraStyles = {}) {
+		y += 0.05 // 位置纠偏
 		let grayoutStyle = {}
 		if(note.type == 'note' && note.voided && context.render.grayout!) {
 			grayoutStyle = {
@@ -664,7 +665,8 @@ export class MusicPaint {
 			}
 		}
 		// ===== 音符 =====
-		const noteMeasure = this.drawMusicNoteChar(context, x, y, note, reductionLevel, isSmall, scale, grayoutStyle)
+		const noteMeasure = this.measureNoteChar(context, isSmall, scale)
+		this.drawMusicNoteChar(context, x, y, note, reductionLevel, isSmall, scale, grayoutStyle)
 		const noteMetric = getLineFont(isSmall ? 'noteSmall' : 'note', context)
 		let leftCur = x - noteMeasure[0] / 2
 		let rightCur = x + noteMeasure[0] / 2
