@@ -37,6 +37,7 @@ export function PreviewView(props: {
 	cursor?: PreviewCursor
 	onReportTiming?: (value: number) => void
 	onReportSize?: (value: number) => void
+	onReportPages?: (value: number) => void
 }) {
 	const classes = useStyles()
 	const prefs = usePref()
@@ -74,6 +75,7 @@ export function PreviewView(props: {
 				onPosition={props.onPosition}
 				onReportTiming={props.onReportTiming}
 				onReportSize={props.onReportSize}
+				onReportPages={props.onReportPages}
 			/> : blankPreview}
 		</div>
 	)

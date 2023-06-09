@@ -43,6 +43,11 @@ export default flattenI18nData({
 				"dirty": "未刷新预览"
 			}
 		},
+		// 页面数
+		"pages": {
+			"nan": "粗排模式",
+			"value": "共${0}页"
+		},
 		// 计时信息
 		"timing": {
 			"both": "${0}ms/${1}ms",

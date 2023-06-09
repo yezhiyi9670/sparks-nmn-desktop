@@ -17,6 +17,7 @@ import { StatusDirty } from './status/dirty-state'
 import { useExportTemplate } from '..'
 import Color from 'color'
 import ColorScheme from '../ColorScheme'
+import { StatusPages } from './status/pages'
 
 const useStyles = createUseStyles({
 	editor: {
@@ -109,6 +110,7 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 	const [ cursor, setCursor ] = useState<PreviewCursor | undefined>(undefined)
 	const [ renderTiming, setRenderTiming ] = useState(0)
 	const [ renderedSize, setRenderedSize ] = useState(0)
+	const [ renderedPages, setRenderedPages ] = useState(NaN)
 
 	function parseNMN(newValue: string) {
 		let startTime = +new Date()
@@ -181,6 +183,7 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 			cursor={cursorShown}
 			onReportSize={setRenderedSize}
 			onReportTiming={setRenderTiming}
+			onReportPages={setRenderedPages}
 		/>
 		return ret
 	}, [parseResult, handlePosition, languageArray, cursorShown])
@@ -234,6 +237,9 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 					isDirty={isDirty}
 					isPreviewDirty={isPreviewDirty}
 					onForceUpdate={handleForceUpdate}
+				/>
+				<StatusPages
+					pages={renderedPages}
 				/>
 				{prefs.getValue<string>('showProcessTime') == 'on' && (
 					<StatusProcessTime parseTime={parseResult.timing} renderTime={renderTiming} />
@@ -298,11 +304,12 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 			updateResult()
 		}
 		const fields = SparksNMN.render(parseResult.result.result, languageArray)
+		const pagedFields = SparksNMN.paginize(parseResult.result.result, fields, languageArray).result
 		let title = LNG('preview.new_title')
 		if(filename !== undefined) {
 			title = window.Path.parse(filename).name
 		}
-		const packedData = 'window.efData=' + JSON.stringify(fields.map((field) => ({
+		const packedData = 'window.efData=' + JSON.stringify(pagedFields.map((field) => ({
 			...field,
 			element: field.element.outerHTML
 		}))).replace(/</g, "\\x3c") + ';document.title=' + JSON.stringify(title).replace(/</g, "\\x3c")

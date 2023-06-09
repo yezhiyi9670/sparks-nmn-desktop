@@ -5,15 +5,7 @@ import { DomPaint } from "./backend/DomPaint";
 import { HeaderRenderer } from "./header/HeaderRenderer";
 import $ from 'jquery'
 import { ArticleRenderer } from "./article/ArticleRenderer";
-
-export type EquifieldSection = {
-	element: HTMLElement
-	height: number
-	noBreakAfter?: boolean
-	isMargin?: boolean
-	localeLabel?: string
-	label?: string
-}
+import { EquifieldSection } from "../equifield/equifield";
 
 export type RenderContext = ScoreContext & {
 	language: LanguageArray

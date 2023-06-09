@@ -1,12 +1,23 @@
 import $ from 'jquery'
 import React, { useEffect } from 'react'
 import { NMNResult, SparksNMN } from '..'
-import { Equifield } from '../equifield/equifield'
+import { Equifield, EquifieldSection } from '../equifield/equifield'
 import { LanguageArray } from '../i18n'
 import { lineRendererStats } from '../renderer/article/line/LineRenderer'
 import { positionDispatcherStats } from '../renderer/article/line/PositionDispatcher'
 import { domPaintStats } from '../renderer/backend/DomPaint'
 import { randomToken } from '../util/random'
+import { createUseStyles } from 'react-jss'
+
+const useStyles = createUseStyles({
+	previewEf: {
+		'@media print': {
+			'& .wcl-equifield-field[data-label=pageSeparator]': {
+				display: 'none'
+			}
+		}
+	}
+})
 
 type SparksNMNPreviewProps = {
 	result: NMNResult | undefined
@@ -20,9 +31,12 @@ type SparksNMNPreviewProps = {
 	onReportTiming?: (value: number) => void
 	onReportSize?: (value: number) => void
 	onReportError?: (_err: any | undefined) => void
+	onReportPages?: (value: number) => void
 }
 export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 	const { onPosition, result, language, logTimeStat } = props
+
+	const classes = useStyles()
 	
 	const divRef = React.createRef<HTMLDivElement>()
 
@@ -37,7 +51,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 
 	let hasRendered = false
 	let timing = 0
-	const renderResultFields = React.useMemo(() => {
+	const renderResult = React.useMemo(() => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		hasRendered = true
 		if(result) {
@@ -46,22 +60,26 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 			lineRendererStats.sectionsRenderTime = 0
 			positionDispatcherStats.computeTime = 0
 			let startTime = +new Date()
-			const fields = (() => {
+			const renderResult = (() => {
 				try {
-					const ret = SparksNMN.render(result.result, language, positionCallback)
-					if(props.onReportError) {
-						props.onReportError(undefined)
+					let fields1 = SparksNMN.render(result.result, language, positionCallback)
+					const paginized = SparksNMN.paginize(result.result, fields1, language)
+					const fields = paginized.result
+					return {
+						fields: fields,
+						error: undefined,
+						pages: paginized.pages
 					}
-					return ret
 				} catch(_err) {
 					console.error('Rendering error occured', _err)
-					if(props.onReportError) {
-						props.onReportError(_err)
+					return {
+						fields: [{
+							element: $('<span style="font-size: 2em">Failed to render preview due to error.</span>')[0],
+							height: 3
+						} as EquifieldSection],
+						error: _err,
+						pages: NaN
 					}
-					return [{
-						element: $('<span style="font-size: 2em">Failed to render preview due to error.</span>')[0],
-						height: 3
-					}]
 				}
 			})()
 			// console.log(fields)
@@ -70,7 +88,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 			timing = endTime - startTime
 			if(logTimeStat) {
 				console.log('===== Preview Render Stats =====')
-				console.log(fields.map(item => item.label))
+				console.log(renderResult.fields.map(item => item.label))
 				console.log('Render took ', endTime - startTime, 'milliseconds')
 				console.log('  Measure took ', domPaintStats.measureTime, 'milliseconds')
 				console.log('  Dom draw took ', domPaintStats.domDrawTime, 'milliseconds')
@@ -78,22 +96,32 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 				console.log('  Dispatching took ', positionDispatcherStats.computeTime, 'milliseconds')
 			}
 
-			return fields
+			return renderResult
 		} else {
-			return [{
-				element: $('<span style="font-size: 2em">Loading preview...</span>')[0],
-				height: 3
-			}]
+			return {
+				fields: [{
+					element: $('<span style="font-size: 2em">Loading preview...</span>')[0],
+					height: 3
+				}],
+				error: undefined,
+				pages: NaN
+			}
 		}
 	}, [result, language, logTimeStat, positionCallback])
 
 	useEffect(() => {
 		if(hasRendered) {
+			if(props.onReportError) {
+				props.onReportError(renderResult.error)
+			}
+			if(props.onReportPages) {
+				props.onReportPages(renderResult.pages)
+			}
 			if(props.onReportTiming) {
 				props.onReportTiming(timing)
 			}
 			if(props.onReportSize) {
-				const textData = JSON.stringify(renderResultFields.map((field) => {
+				const textData = JSON.stringify(renderResult.fields.map((field) => {
 					return {
 						...field,
 						element: field.element.outerHTML
@@ -114,7 +142,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 		}
 		let startTime = +new Date()
 		const ef = new Equifield(element)
-		ef.render(renderResultFields)
+		ef.render(renderResult.fields)
 		let endTime = +new Date()
 		if(logTimeStat) {
 			console.log('Actuation took', endTime - startTime, 'milliseconds')
@@ -124,7 +152,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 			ef.destroy()
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [renderResultFields, logTimeStat, tokenClass])
+	}, [renderResult, logTimeStat, tokenClass])
 
 	React.useEffect(() => {
 		if(!result) {
@@ -135,7 +163,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 			const id = SparksNMN.getHighlightedSection(result.sectionPositions, props.cursor.code, props.cursor.position)
 			$(`.${tokenClass} .SparksNMN-sechl-${id}`).css({visibility: 'visible'})
 		}
-	}, [result, renderResultFields, props.cursor, tokenClass])
+	}, [result, renderResult, props.cursor, tokenClass])
 
-	return <div ref={divRef}></div>
+	return <div className={classes.previewEf} ref={divRef}></div>
 }

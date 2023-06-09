@@ -104,6 +104,8 @@ export default {
 		'Ds': '副标题',
 		'Da': '作者',
 		'Df': '脚注',
+		'Dl': '页脚左侧文本',
+		'Dr': '页脚右侧文本',
 		'P': '音乐属性',
 		'Pi': '音乐属性（不显示）',
 		'Rp': '渲染属性',
@@ -126,6 +128,7 @@ export default {
 		'Ns': '替代小节'
 	},
 	'render_props': {
+		'page': '页面高度与宽度之比',
 		'n': '每行小节数',
 		'time_lining': '基于时值的小节宽度',
 		'debug': '显示错误警告',
@@ -144,6 +147,7 @@ export default {
 		'font_corner': '字体 - 角落标记',
 		'font_text': '字体 - 文本章节',
 		'font_footnote': '字体 - 脚注',
+		'font_descend': '字体 - 页脚',
 		'font_attr': '字体 - 属性文本',
 		'font_force': '字体 - 力度',
 		'font_chord': '字体 - 和弦',
@@ -193,7 +197,8 @@ export default {
 		'colon': '：',
 		'author_sep': ' ',
 		'omit': '(后略)',
-		'omit_n': '(省略${0}小节)'
+		'omit_n': '(省略${0}小节)',
+		'page': 'Page ${0} / Total ${1}'
 	},
 	'efLabels': {
 		'top': '文档标题',
@@ -204,6 +209,9 @@ export default {
 		'textArticle': '文本章节 ${0}',
 		'musicArticleTitle': '音乐章节标题 ${0}',
 		'musicLine': '曲谱 ${0} m${1}',
-		'musicLineMargin': '曲谱下边距'
+		'musicLineMargin': '曲谱下边距',
+		'pageBottomMargin': '印刷页面下边距',
+		'pageSeparator': '[仅限预览] 页面分割线',
+		'pageDescend': '页脚 第${0}页'
 	}
 }

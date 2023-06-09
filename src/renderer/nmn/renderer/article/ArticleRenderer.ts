@@ -1,3 +1,4 @@
+import { EquifieldSection } from '../../equifield/equifield'
 import { I18n } from '../../i18n'
 import { NMNResult } from '../../index'
 import { DestructedLine } from '../../parser/sparse2des/types'
@@ -5,7 +6,7 @@ import { DomPaint } from '../backend/DomPaint'
 import { FontMetric } from '../FontMetric'
 import { MusicPaint } from '../paint/MusicPaint'
 import { PaintTextToken } from '../paint/PaintTextToken'
-import { EquifieldSection, RenderContext } from '../renderer'
+import { RenderContext } from '../renderer'
 import { LineRenderer } from './line/LineRenderer'
 
 type NMNArticle = NMNResult['result']['articles'][0]

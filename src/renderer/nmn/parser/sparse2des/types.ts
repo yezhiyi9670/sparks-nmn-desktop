@@ -696,7 +696,7 @@ export type DestructedLine = {
 	lineNumber: number
 } & ({
 	type: 'title' // 标题、版本号等
-	head: 'Dt' | 'Dp' | 'Dv' | 'Ds'
+	head: 'Dt' | 'Dp' | 'Dv' | 'Ds' | 'Dl' | 'Dr'
 	text: string
 } | {
 	type: 'note' // 包含起始标签的作者、脚注
@@ -768,6 +768,18 @@ export type DestructedLine = {
 	chars: LyricChar[]
 })
 
+export type ScoreProps = {
+	title?: DestructedLine & {head: 'Dt'}
+	subtitle?: DestructedLine & {head: 'Ds'}
+	prescript?: DestructedLine & {head: 'Dp'}
+	version?: DestructedLine & {head: 'Dv'},
+	descendText: {
+		left?: DestructedLine & {head: 'Dl'},
+		right?: DestructedLine & {head: 'Dr'}
+	},
+	authors: (DestructedLine & {head: 'Da'})[]
+	footnotes: (DestructedLine & {head: 'Df'})[]
+}
 /**
  * 解构后的树
  */
@@ -776,14 +788,7 @@ export type DestructedScore = {
 	/**
 	 * 显示属性
 	 */
-	scoreProps: {
-		title?: DestructedLine & {head: 'Dt'}
-		subtitle?: DestructedLine & {head: 'Ds'}
-		prescript?: DestructedLine & {head: 'Dp'}
-		version?: DestructedLine & {head: 'Dv'}
-		authors: (DestructedLine & {head: 'Da'})[]
-		footnotes: (DestructedLine & {head: 'Df'})[]
-	}
+	scoreProps: ScoreProps
 	/**
 	 * 音乐属性
 	 */

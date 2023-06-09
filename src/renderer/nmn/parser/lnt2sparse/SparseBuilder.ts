@@ -10,7 +10,7 @@ export type SparseLine = {
 	 */
 	lineNumber: number
 } & ({
-	head: 'Dt' | 'Dp' | 'Dv' | 'Ds' | 'T' | 'S'
+	head: 'Dt' | 'Dp' | 'Dv' | 'Ds' | 'Dl' | 'Dr' | 'T' | 'S'
 	content: string
 } | {
 	head: 'Da' | 'Df'
@@ -87,7 +87,7 @@ export class SparseBuilder {
 	 * 处理行
 	 */
 	handleLine(line: CookedLine & {type: 'command'}, issues: LinedIssue[]): SparseLine {
-		if(['Dt', 'Dp', 'Dv', 'Ds', 'T', 'S'].indexOf(line.head) != -1) {
+		if(['Dt', 'Dp', 'Dv', 'Ds', 'Dl', 'Dr', 'T', 'S'].indexOf(line.head) != -1) {
 			return {
 				lineNumber: line.lineNumber,
 				head: line.head as 'T',

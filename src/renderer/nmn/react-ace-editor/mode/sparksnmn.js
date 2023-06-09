@@ -361,7 +361,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 		this.$rules = {
 			"start": [
 				...commonMode('start', true),
-				...lineStringMode(['Dt', 'Df', 'Dv', 'Dp', 'Ds', 'Da', 'P', 'Pi', 'Sp', 'Frp', 'Rp', 'Srp', 'T', 'S']),
+				...lineStringMode(['Dt', 'Df', 'Dv', 'Dp', 'Ds', 'Da', 'Dl', 'Dr', 'P', 'Pi', 'Sp', 'Frp', 'Rp', 'Srp', 'T', 'S']),
 				...lineNoneMode(['B']),
 				...lineGeneral(['J']),
 				...lineNotes(['N', 'Na', 'Ns', 'F', 'C', 'A', 'La']),

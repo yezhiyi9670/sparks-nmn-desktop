@@ -3,8 +3,10 @@ import jquery from 'jquery'
 export type EquifieldSection = {
 	element: HTMLElement
 	height: number
-	noBreakAfter?: boolean
+	breakAfter?: 'always' | 'avoid'
+	isMargin?: boolean
 	label?: string
+	localeLabel?: string
 }
 
 export class Equifield {
@@ -40,7 +42,11 @@ export class Equifield {
 
 	render(sections: EquifieldSection[]) {
 		const $element = jquery(this.element)
-		$element.children().remove()
+		$element.children().each(function(index) {
+			if(!jquery(this).hasClass('wcl-equifield-preserve')) {
+				jquery(this).remove()
+			}
+		})
 		
 		let totalHeight = 0
 		sections.forEach((section, index) => {
@@ -54,8 +60,10 @@ export class Equifield {
 			if(section.label) {
 				$field.attr('data-label', section.label)
 			}
-			if(section.noBreakAfter) {
+			if(section.breakAfter == 'avoid') {
 				$field.css('page-break-after', 'avoid')
+			} else if(section.breakAfter == 'always') {
+				$field.css('page-break-after', 'always')
 			}
 			$element.append(
 				$field

@@ -1,6 +1,6 @@
 import { Frac, Fraction } from "../../util/frac"
 import { md5 } from "../../util/md5"
-import { DestructedArticle, DestructedFCA, DestructedLine, DestructedLyricLine, DestructedPart, DestructedScore, JumperAttr, LrcAttr, LyricChar, MusicDecorationRange, PartAttr } from "../sparse2des/types"
+import { DestructedArticle, DestructedFCA, DestructedLine, DestructedLyricLine, DestructedPart, DestructedScore, JumperAttr, LrcAttr, LyricChar, MusicDecorationRange, PartAttr, ScoreProps } from "../sparse2des/types"
 
 /*
 列统计需要的工作：
@@ -13,14 +13,7 @@ import { DestructedArticle, DestructedFCA, DestructedLine, DestructedLyricLine, 
 
 export type ColumnScore<ArticleType> = {
 	lineNumber: number
-	scoreProps: {
-		title?: DestructedLine & {head: 'Dt'}
-		subtitle?: DestructedLine & {head: 'Ds'}
-		prescript?: DestructedLine & {head: 'Dp'}
-		version?: DestructedLine & {head: 'Dv'}
-		authors: (DestructedLine & {head: 'Da'})[]
-		footnotes: (DestructedLine & {head: 'Df'})[]
-	}
+	scoreProps: ScoreProps
 	musicalProps?: DestructedLine & {head: 'P'}
 	renderProps?: DestructedLine & {head: 'Rp'}
 	articles: ArticleType[]

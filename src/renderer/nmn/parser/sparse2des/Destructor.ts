@@ -51,6 +51,10 @@ export class Destructor {
 				subtitle: this.destruct(score.uniqueLines['Ds'], issues, newContext) as any,
 				prescript: this.destruct(score.uniqueLines['Dp'], issues, newContext) as any,
 				version: this.destruct(score.uniqueLines['Dv'], issues, newContext) as any,
+				descendText: {
+					left: this.destruct(score.uniqueLines['Dl'], issues, newContext) as any,
+					right: this.destruct(score.uniqueLines['Dr'], issues, newContext) as any
+				},
 				authors: score.lines.filter((line) => line.head == 'Da').map((line) => {
 					return this.destruct(line, issues, newContext) as any
 				}),
@@ -168,7 +172,7 @@ export class Destructor {
 		if(line === undefined) {
 			return undefined
 		}
-		if(['Dt', 'Dp', 'Dv', 'Ds', 'S'].indexOf(line.head) != -1) {
+		if(['Dt', 'Dp', 'Dv', 'Ds', 'Dl', 'Dr', 'S'].indexOf(line.head) != -1) {
 			return this.destructCopyTitle(line as any, issues)
 		}
 		if(['T'].indexOf(line.head) != -1) {

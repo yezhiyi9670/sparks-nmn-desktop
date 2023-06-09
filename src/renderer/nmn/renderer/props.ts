@@ -3,6 +3,10 @@
  */
 export interface RenderProps {
 	/**
+	 * 页面高度与宽度之比
+	 */
+	page?: number
+	/**
 	 * 每行小节数
 	 */
 	n?: number
@@ -74,6 +78,10 @@ export interface RenderProps {
 	 * 字体-脚注
 	 */
 	font_footnote?: string
+	/**
+	 * 字体-页脚
+	 */
+	font_descend?: string
 	/**
 	 * 字体-文本标记
 	 */
@@ -149,6 +157,7 @@ export interface RenderProps {
  * 默认渲染属性
  */
 export const renderPropsDefault: RenderProps = {
+	page: 0,
 	n: 4,
 	time_lining: false,
 	debug: true,
@@ -167,6 +176,7 @@ export const renderPropsDefault: RenderProps = {
 	font_corner: 'CommonLight/400',
 	font_text: 'CommonSerif/400',
 	font_footnote: 'CommonSerif/400',
+	font_descend: 'CommonLight/400',
 	font_attr: 'CommonSerif/400',
 	font_force: 'CommonBlack/400',
 	font_chord: 'CommonSerif/600',
@@ -197,6 +207,25 @@ export const renderPropsDefault: RenderProps = {
  * 验证并转换属性
  */
 export function renderPropConvert(key: string, val: string) {
+	if(key == 'page') {
+		let r = +val
+		if(val.indexOf('/') != -1) { // 输入长宽自动计算
+			let splitVal = val.split('/')
+			if(splitVal.length == 2) {
+				r = (+splitVal[0]) / +splitVal[1]
+			}
+		}
+		if(['A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6'].includes(val.toUpperCase())) {
+			r = 1.4142
+		}
+		if(['B3', 'B4', 'B5'].includes(val.toUpperCase())) {
+			r = 1.4157
+		}
+		if(r >= 0 && r <= 65535) {
+			return r
+		}
+		return { error: 'value' }
+	}
 	if(key == 'n') {
 		let r = +val
 		if(Math.floor(r) == r && r >= 1 && r <= 65535) {

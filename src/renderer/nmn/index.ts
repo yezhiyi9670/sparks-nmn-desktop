@@ -3,9 +3,11 @@ import { LinedIssue, Parser, SectionPositions } from "./parser/parser"
 import { getLanguageValue } from './util/template'
 import { I18n, LanguageArray } from './i18n'
 import { commandDefs } from "./parser/commands"
-import { EquifieldSection, Renderer, RenderPositionCallback } from "./renderer/renderer"
+import { Renderer, RenderPositionCallback } from "./renderer/renderer"
 import { FontLoader } from "./renderer/FontLoader"
 import { FontLoaderProxy } from "./renderer/FontLoaderProxy"
+import { EquifieldSection } from "./equifield/equifield"
+import { Paginizer } from "./renderer/pagnizer"
 
 /**
  * 渲染错误
@@ -42,13 +44,23 @@ class SparksNMNClass {
 	 * 
 	 * 声部小节的高亮背景可以认为（在同一份渲染结果中）有唯一的 ID，形如 `SparksNMN-sechl SparksNMN-sechl-uuidofmusicsection`。通过操作其 `display` 属性实现显示和隐藏。
 	 * 
-	 * @return `{element: HTMLElement, height: number, noBreakAfter?: boolean}[]` element 为 DOM 元素，height 为以 em 为单位的高度。单个元素不应当在打印时截断，除非太长
+	 * @return `{element: HTMLElement, height: number, breakAfter?: string}[]` element 为 DOM 元素，height 为以 em 为单位的高度。单个元素不应当在打印时截断，除非太长
 	 */
 	render(result: NMNResult['result'], lng: LanguageArray, positionCallback?: RenderPositionCallback): EquifieldSection[] {
 		if(!window || !('document' in window)) {
 			throw new NoRendererError('Sparks NMN renderer cannot work without a DOM window.')
 		}
 		return Renderer.render(result, lng, positionCallback)
+	}
+
+	/**
+	 * 对渲染结果进行分页调整，需要同时传入解析结果和渲染结果。
+	 */
+	paginize(result: NMNResult['result'], fields: EquifieldSection[], lng: LanguageArray): {
+		result: EquifieldSection[]
+		pages: number
+	} {
+		return Paginizer.paginize(result, fields, lng)
 	}
 
 	/**

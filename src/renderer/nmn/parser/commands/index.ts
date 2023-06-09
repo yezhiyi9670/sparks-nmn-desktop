@@ -139,8 +139,28 @@ export const commandDefs: CommandDef[] = [
 		head: 'Df',
 		headFull: 'DocFootnote',
 		contentType: 'text',
-		hasProps: 'optional',
+		hasProps: 'none',
 		propsType: 'text',
+		levels: [LineLevels.document]
+	},
+	// Dl 页脚左侧文本
+	{
+		head: 'Dl',
+		headFull: 'DocLeft',
+		contentType: 'text',
+		hasProps: 'none',
+		propsType: 'none',
+		unique: 'Dl',
+		levels: [LineLevels.document]
+	},
+	// Dr 页脚右侧文本
+	{
+		head: 'Dr',
+		headFull: 'DocRight',
+		contentType: 'text',
+		hasProps: 'none',
+		propsType: 'none',
+		unique: 'Dr',
 		levels: [LineLevels.document]
 	},
 	// P 全文音乐属性
