@@ -21,11 +21,13 @@ class PaginizerClass {
 
 		const leftText = result.scoreProps.descendText.left?.text ?? ''
 		const rightText = result.scoreProps.descendText.right?.text ?? I18n.renderToken(lng, 'page')
+		const hasDescend = !!(leftText || rightText)
 
 		const uniformWidth = 1
 		const uniformHeight = renderProps.page!
 		const innerRatio = (uniformHeight - uniformWidth * 0.08 * 2) / (uniformWidth * 0.98 * (100 / 120))
-		const maxHeightEm = innerRatio * 100 - descendTextField * scale * 0.5 // 0.5 是有意为之的调整参数
+		const descendExtraMargin = (+hasDescend) * descendTextField * scale * 0.3  // 0.3 是有意为之的调整参数
+		const maxHeightEm = innerRatio * 100 - (+hasDescend) * descendTextField * scale * (0.5) - descendExtraMargin
 
 		function isConsideredEmpty(efLabel?: string) {
 			if(efLabel === undefined) {
@@ -108,7 +110,7 @@ class PaginizerClass {
 			for(let field of pageFields[page]) {
 				let height = field.height
 				if(!isLastPage && isConsideredEmpty(field.label)) {  // 最后一页不使用空白分布，不然...
-					height += lackHeight / (emptyCount + 0.5)  // 最后一项是调节参数
+					height += lackHeight / (emptyCount + (+hasDescend) * 0.5)  // 最后一项是调节参数
 				}
 				newFields.push({
 					...field,
@@ -121,28 +123,30 @@ class PaginizerClass {
 			// 创建页面底部边距
 			newFields.push({
 				element: new DomPaint().getElement(),
-				height: maxHeightEm - doneHeight,
-				breakAfter: 'avoid',
+				height: maxHeightEm - doneHeight + descendExtraMargin,
+				breakAfter: hasDescend ? 'avoid' : 'always',
 				...I18n.efLabel(lng, 'pageBottomMargin')
 			})
 			// 创建页脚
-			const descendPaint = new DomPaint()
-			descendPaint.drawTextFast(
-				0, descendTextField / 2,
-				getLanguageValue(leftText, pageNumber.toString(), pages.toString()), descendMetric, scale,
-				'left', 'middle'
-			)
-			descendPaint.drawTextFast(
-				100, descendTextField / 2,
-				getLanguageValue(rightText, pageNumber.toString(), pages.toString()), descendMetric, scale,
-				'right', 'middle'
-			)
-			newFields.push({
-				element: descendPaint.getElement(),
-				height: descendTextField * scale,
-				breakAfter: 'always',
-				...I18n.efLabel(lng, 'pageDescend', pageNumber.toString())
-			})
+			if(hasDescend) {
+				const descendPaint = new DomPaint()
+				descendPaint.drawTextFast(
+					0, descendTextField / 2,
+					getLanguageValue(leftText, pageNumber.toString(), pages.toString()), descendMetric, scale,
+					'left', 'middle'
+				)
+				descendPaint.drawTextFast(
+					100, descendTextField / 2,
+					getLanguageValue(rightText, pageNumber.toString(), pages.toString()), descendMetric, scale,
+					'right', 'middle'
+				)
+				newFields.push({
+					element: descendPaint.getElement(),
+					height: descendTextField * scale,
+					breakAfter: 'always',
+					...I18n.efLabel(lng, 'pageDescend', pageNumber.toString())
+				})
+			}
 			// 创建页面分割线
 			const separatorPaint = new DomPaint()
 			separatorPaint.drawLine(-5, separatorField / 2, 105, separatorField / 2, separatorWidth, 0, scale, {opacity: 0.125})
