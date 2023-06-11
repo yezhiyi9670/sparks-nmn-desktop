@@ -75,7 +75,8 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 					return {
 						fields: [{
 							element: $('<span style="font-size: 2em">Failed to render preview due to error.</span>')[0],
-							height: 3
+							height: 3,
+							label: 'loading'
 						} as EquifieldSection],
 						error: _err,
 						pages: NaN

@@ -11,6 +11,7 @@ import { randomToken } from '../util/random'
 type Props = {
 	result: NMNResult | undefined
 	language: LanguageArray
+	doPagination?: boolean
 	efRange?: [string, string]
 	onPosition?: (row: number, col: number) => void
 	cursor?: {
@@ -36,7 +37,7 @@ export function SparksNMNDisplay(props: Props) {
 
 	let hasRendered = false
 	let timing = 0
-	const renderResultFields = React.useMemo(() => {
+	const renderResult = React.useMemo(() => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		hasRendered = true
 		if(result) {
@@ -45,39 +46,52 @@ export function SparksNMNDisplay(props: Props) {
 			lineRendererStats.sectionsRenderTime = 0
 			positionDispatcherStats.computeTime = 0
 			let startTime = +new Date()
-			let fields = (() => {
+			const renderResult = (() => {
 				try {
-					const ret = SparksNMN.render(result.result, language, positionCallback)
-					if(props.onReportError) {
-						props.onReportError(undefined)
+					let fields1 = SparksNMN.render(result.result, language, positionCallback)
+					if(props.doPagination) {
+						fields1 = SparksNMN.paginize(result.result, fields1, language).result
 					}
-					return ret
+					return {
+						fields: fields1,
+						error: undefined,
+					}
 				} catch(_err) {
 					console.error('Rendering error occured', _err)
-					if(props.onReportError) {
-						props.onReportError(_err)
+					return {
+						fields: [{
+							element: $('<span style="font-size: 2em">Failed to render preview due to error.</span>')[0],
+							height: 3
+						} as EquifieldSection],
+						error: _err,
 					}
-					return [{
-						element: $('<span style="font-size: 2em">Failed to render preview due to error.</span>')[0],
-						height: 3
-					}]
 				}
 			})()
+			// console.log(fields)
+			let endTime = +new Date()
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+			timing = endTime - startTime
 
-			if(props.transformFields) {
-				fields = props.transformFields(fields)
-			}
-
-			return fields
+			return renderResult
 		} else {
-			return [{
-				element: $('<span style="font-size: 2em">Loading preview...</span>')[0],
-				height: 3
-			}]
+			return {
+				fields: [{
+					element: $('<span style="font-size: 2em">Loading preview...</span>')[0],
+					height: 3,
+					label: 'loading'
+				}],
+				error: undefined,
+				pages: NaN
+			}
 		}
 	}, [result, language, positionCallback])
 
+	const renderResultFields = renderResult.fields
 	React.useEffect(() => {
+		if(props.onReportError) {
+			props.onReportError(renderResult.error)
+		}
+
 		const element = divRef.current
 		if(!element) {
 			return
@@ -86,6 +100,7 @@ export function SparksNMNDisplay(props: Props) {
 			$(element).addClass(tokenClass)
 		}
 		let startTime = +new Date()
+
 		const ef = new Equifield(element)
 		ef.field = 120
 		ef.padding = 10
