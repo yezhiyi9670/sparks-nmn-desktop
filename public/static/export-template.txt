@@ -165,7 +165,7 @@ function(e){var t,n,r,i,o,a,s,u,l,c,f,p,d,h,g,v,m,y,x,b="sizzle"+1*new Date,w=e.
 		window.fontLoadData = [{"name":"CommonLight","url":"noto_sans_sc_light/noto_sans_sc_light.woff2","weight":"normal"},{"name":"CommonLight","url":"noto_sans_sc_light/noto_sans_sc_light-transformed-bold.woff2","weight":"bold"},{"name":"CommonSerif","url":"uming_cn_dotfix/uming_cn_dotfix.woff2","weight":"normal"},{"name":"CommonSerif","url":"uming_cn_dotfix/uming_cn_dotfix-transformed-bold.woff2","weight":"bold"},{"name":"CommonBlack","url":"wqy_microhei/wqy_microhei.woff2","weight":"normal"},{"name":"SparksNMN-EOPNumber","url":"eop_number/eop_number.ttf","weight":"normal"},{"name":"SparksNMN-mscore-20","url":"mscore-20/mscore-20.ttf","weight":"normal"},{"name":"SparksNMN-Bravura","url":"bravura/bravura.woff","weight":"normal"}]
 	</script>
 	<script>
-		window.fontCdnRoot = 'https://cdn.jsdelivr.net/gh/yezhiyi9670/sparks-nmn-dev@latest/src/nmn/font'
+		window.fontCdnRoot = 'https://fastly.jsdelivr.net/gh/yezhiyi9670/sparks-nmn-dev@latest/src/nmn/font'
 		const fontDataProcessed = window.fontLoadData.map(item => {
 			const url = item.url
 			const urlList = []
