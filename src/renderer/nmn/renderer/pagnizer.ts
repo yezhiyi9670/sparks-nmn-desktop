@@ -14,9 +14,9 @@ class PaginizerClass {
 		const renderProps = addRenderProp(scoreContextDefault, result.renderProps?.props).render
 		const scale = renderProps.scale!
 
-		const separatorField = 8
+		const separatorField = 12
 		const separatorWidth = 0.5
-		const descendMetric = new FontMetric(renderProps.font_descend!, 2.0)
+		const descendMetric = new FontMetric(renderProps.font_descend!, 1.9)
 		const descendTextField = 1.5 * descendMetric.fontSize * descendMetric.fontScale
 
 		const leftText = result.scoreProps.descendText.left?.text ?? ''
@@ -25,9 +25,9 @@ class PaginizerClass {
 
 		const uniformWidth = 1
 		const uniformHeight = renderProps.page!
-		const innerRatio = (uniformHeight - uniformWidth * 0.08 * 2) / (uniformWidth * 0.98 * (100 / 120))
+		const innerRatio = (uniformHeight - uniformWidth * 0.085 * 2) / (uniformWidth * 1 * (100 / 124))
 		const descendExtraMargin = (+hasDescend) * descendTextField * scale * 0.3  // 0.3 是有意为之的调整参数
-		const maxHeightEm = innerRatio * 100 - (+hasDescend) * descendTextField * scale * (0.5) - descendExtraMargin
+		const maxHeightEm = innerRatio * 100 - (+hasDescend) * descendTextField * scale * (1) - descendExtraMargin
 
 		function isConsideredEmpty(efLabel?: string) {
 			if(efLabel === undefined) {

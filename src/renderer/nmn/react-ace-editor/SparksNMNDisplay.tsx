@@ -1,13 +1,12 @@
 import $ from 'jquery'
 import React, { useEffect } from 'react'
 import { NMNResult, SparksNMN } from '..'
-import { Equifield } from '../equifield/equifield'
+import { Equifield, EquifieldSection } from '../equifield/equifield'
 import { LanguageArray } from '../i18n'
 import { lineRendererStats } from '../renderer/article/line/LineRenderer'
 import { positionDispatcherStats } from '../renderer/article/line/PositionDispatcher'
 import { domPaintStats } from '../renderer/backend/DomPaint'
 import { randomToken } from '../util/random'
-import { EquifieldSection } from '../renderer/renderer'
 
 type Props = {
 	result: NMNResult | undefined
@@ -88,6 +87,8 @@ export function SparksNMNDisplay(props: Props) {
 		}
 		let startTime = +new Date()
 		const ef = new Equifield(element)
+		ef.field = 120
+		ef.padding = 10
 
 		const labels = renderResultFields.map(field => field.label)
 		let startIndex = 0

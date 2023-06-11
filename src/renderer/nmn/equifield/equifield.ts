@@ -11,8 +11,8 @@ export type EquifieldSection = {
 
 export class Equifield {
 	element: HTMLDivElement
-	field: number = 120
-	padding: number = 10
+	field: number = 124
+	padding: number = 12
 	listener: () => void
 
 	constructor(element: HTMLDivElement) {
