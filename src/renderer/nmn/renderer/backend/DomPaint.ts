@@ -76,11 +76,18 @@ export class DomPaint {
 	clickCallbacks: {[_: string]: () => void} = {}
 	clickableOrder: number = 0
 
+	truncateDecimal(item: number, digits: number) {
+		const str = item.toFixed(digits)
+		if(str.length < ("" + item).length) {
+			return str
+		}
+		return "" + item
+	}
 	limitPrecisionShape(item: number) {
-		return item.toFixed(3)// .replace(/\.(\d*?)(0+)$/, '.$1').replace(/\.$/, '')
+		return this.truncateDecimal(item, 3)
 	}
 	limitPrecisionEm(item: number) {
-		return item.toFixed(5)// .replace(/\.(\d*?)(0+)$/, '.$1').replace(/\.$/, '')
+		return this.truncateDecimal(item, 5)
 	}
 
 	getElement() {
@@ -107,7 +114,7 @@ export class DomPaint {
 	/**
 	 * 多边形模拟四分之一圆弧形状
 	 */
-	polygonQuarterCircle(innerRatio: number, outerRatio: number = 1, ease: (position: number) => number) {
+	polygonQuarterCircle(innerRatio: number, outerRatio: number = 1, ease: (position: number) => number): [number, number][] {
 		let points: [number, number][] = []
 		let sides = 24
 		let clampEase = (position: number) => {
@@ -128,9 +135,83 @@ export class DomPaint {
 			points.push([Math.cos(angle) * (mid - div * widthRatio), Math.sin(angle) * (mid - div * widthRatio)])
 		}
 		return points.map((point) => {
-			return `${this.limitPrecisionShape(50 + point[0] * 50)}% ${this.limitPrecisionShape(50 + point[1] * 50)}%`
-		}).join(',')
+			return [0.5 * point[0] + 0.5, 0.5 * point[1] + 0.5]
+		})
 	}
+	/**
+	 * 全尺寸正方形
+	 */
+	polygonFullSquare(): [number, number][] {
+		const points = [
+			[0, 0], [1, 0], [1, 1], [0, 1]
+		]
+		return points.map((point) => {
+			return [point[0], point[1]]
+		})
+	}
+	/**
+	 * 根据碰撞箱取整规则微调（保证图元碰撞箱在整数坐标上，其他细节通过外形路径调整）
+	 */
+	processPolygon(centerX: number, centerY: number, width: number, height: number, points: [number, number][], rotateDeg: number = 0) {
+		// 统一度量后旋转
+		const uniMetric = Math.max(width, height)
+		const rotatedPoints: [number, number][] = points.map(point => {
+			const c = Math.cos(Math.PI / 180 * rotateDeg)
+			const s = Math.sin(Math.PI / 180 * rotateDeg)
+			const x = (point[0] - 0.5) * (width / uniMetric)
+			const y = (point[1] - 0.5) * (height / uniMetric)
+			return [ 0.5 + x * c - y * s, 0.5 + x * s + y * c ]
+		})
+
+		// 重新计算高度与宽度
+		let maxWidthRatio = Math.min(width / height, height / width)
+		let maxHeightRatio = maxWidthRatio
+		rotatedPoints.forEach(point => {
+			maxWidthRatio = Math.max(maxWidthRatio, 2 * Math.abs(point[0] - 0.5))
+			maxHeightRatio = Math.max(maxHeightRatio, 2 * Math.abs(point[1] - 0.5))
+		})
+		rotatedPoints.forEach(point => {
+			point[0] = (point[0] - 0.5) / maxWidthRatio + 0.5
+			point[1] = (point[1] - 0.5) / maxHeightRatio + 0.5
+		})
+		width = uniMetric * maxWidthRatio
+		height = uniMetric * maxHeightRatio
+
+		// 分配整数碰撞箱
+		const minX = centerX - width / 2; let minXf = Math.floor(minX)
+		const maxX = centerX + width / 2; let maxXf = Math.ceil(maxX)
+		const minY = centerY - height / 2; let minYf = Math.floor(minY)
+		const maxY = centerY + height / 2; let maxYf = Math.ceil(maxY)
+		// 保证中心点在整数坐标上
+		if((maxXf - minXf) % 2 == 1) {
+			maxXf += 1
+		}
+		if((maxYf - minYf) % 2 == 1) {
+			maxYf += 1
+		}
+		// 计算图形偏移
+		const bbWidth = maxXf - minXf
+		const bbHeight = maxYf - minYf
+		const shiftX = minX - minXf
+		const shiftY = minY - minYf
+		const scaleX = width / bbWidth
+		const scaleY = height / bbHeight
+		const newPoints: [number, number][] = rotatedPoints.map((point) => {
+			return [
+				shiftX / bbWidth + scaleX * point[0],
+				shiftY / bbHeight + scaleY * point[1]
+			]
+		})
+		// 打包数据
+		return {
+			centerX: (minXf + maxXf) / 2,
+			centerY: (minYf + maxYf) / 2,
+			width: bbWidth,
+			height: bbHeight,
+			points: newPoints,
+		}
+	}
+
 	/**
 	 * 测量文本框的宽度和高度（以 em 为单位）
 	 * @param text 文本内容
@@ -292,6 +373,57 @@ export class DomPaint {
 		this.drawTextFast(x, y, text, font, scale, align, alignY, extraStyles, clickHandler)
 		return this.measureText(text, font, scale, extraStyles)
 	}
+
+	/**
+	 * 绘制多边形图元
+	 * @param centerX 中心点 X
+	 * @param centerY 中心点 Y
+	 * @param width 宽度
+	 * @param height 高度
+	 * @param number 角度
+	 * @param points 图形点
+	 */
+	drawPolygonUnit(centerX: number, centerY: number, width: number, height: number, rotate: number, points:[number, number][], extraStyles: ExtraStyles = {}, extraClasses: string[] = []) {
+		if(width <= 0 || height <= 0) {
+			return
+		}
+		
+		const figureUpScale = getScaler()[1]
+		
+		const bbMetrics = this.processPolygon(
+			centerX, centerY,
+			width, height,
+			points,
+			rotate
+		)
+
+		domPaintStats.domDrawTime -= +new Date()
+		const textSpanText = `<div style="${translateStyles(
+			{
+				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(Math.max(bbMetrics.width, bbMetrics.height) * figureUpScale)}em`,
+				position: 'absolute',
+				clipPath: `polygon(${bbMetrics.points.map(point => {
+					return `${this.limitPrecisionShape(point[0] * 100)}% ${this.limitPrecisionShape(point[1] * 100)}%`
+				}).join(',')})`,
+				width: `${this.limitPrecisionEm(bbMetrics.width * figureUpScale)}em`,
+				height: `${this.limitPrecisionEm(bbMetrics.height * figureUpScale)}em`,
+				transformOrigin: 'left top',
+				transform: `
+					scale(${this.limitPrecisionEm(1 / figureUpScale)})
+					translateX(${this.limitPrecisionEm(
+						bbMetrics.centerX * figureUpScale
+					)}em)
+					translateY(${this.limitPrecisionEm(
+						bbMetrics.centerY * figureUpScale
+					)}em)
+					translateX(-50%) translateY(-50%)
+				`,
+				...extraStyles
+			}
+		)}" class="${extraClasses.join(' ')}"></div>`
+		this.htmlContent += textSpanText
+		domPaintStats.domDrawTime += +new Date()
+	}
 	/**
 	 * 绘制直线
 	 * @param x1 第一点到页面左基线的距离
@@ -303,8 +435,6 @@ export class DomPaint {
 	 * @param extraStyles 应用在 <div> 元素上的额外样式
 	 */
 	drawLine(x1: number, y1: number, x2: number, y2: number, width: number, padding: number = 0, scale: number = 1, extraStyles: ExtraStyles = {}, extraClasses: string[] = []) {
-		const figureUpScale = getScaler()[1]
-		
 		y1 *= scale
 		y2 *= scale
 		padding *= scale
@@ -315,27 +445,21 @@ export class DomPaint {
 		let centerX = (x1 + x2) / 2
 		let centerY = (y1 + y2) / 2
 		let angle = Math.atan2(dy, dx) * 180 / Math.PI
-		domPaintStats.domDrawTime -= +new Date()
-		const textSpanText = `<div style="${translateStyles(
-			{
-				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(width * figureUpScale)}em`,
-				position: 'absolute',
-				width: `${this.limitPrecisionEm((lineLength + 2 * padding) * figureUpScale)}em`,
-				height: `${width * figureUpScale}em`,
-				left: 0,
-				top: 0,
-				transform: `translateX(${this.limitPrecisionEm(centerX)}em) translateY(${this.limitPrecisionEm(centerY)}em) translateX(-50%) translateY(-50%) rotate(${this.limitPrecisionEm(angle)}deg) scale(${this.limitPrecisionEm(1/figureUpScale)})`,
-				...extraStyles
-			}
-		)}" class="${extraClasses.join(' ')}"></div>`
-		this.htmlContent += textSpanText
-		domPaintStats.domDrawTime += +new Date()
+
+		this.drawPolygonUnit(
+			centerX, centerY,
+			lineLength + 2 * padding,
+			width,
+			angle,
+			this.polygonFullSquare(),
+			extraStyles,
+			extraClasses
+		)
 	}
 	/**
 	 * 绘制圆弧线
 	 */
-	drawQuarterCircle(x: number, y: number, r: number, halfX: 'left' | 'right', halfY: 'top' | 'bottom', width: number, ease: (position: number) => number, scale: number = 1, extraStyles: ExtraStyles = {}) {
-		const figureUpScale = getScaler()[1]
+	drawQuarterCircle(x: number, y: number, r: number, halfX: 'left' | 'right', halfY: 'top' | 'bottom', width: number, ease: (position: number) => number, scale: number = 1, extraStyles: ExtraStyles = {}, extraClasses: string[] = []) {
 		y *= scale
 		r *= scale
 		width *= scale
@@ -357,22 +481,16 @@ export class DomPaint {
 				rotate = 0
 			}
 		}
-		domPaintStats.domDrawTime -= +new Date()
-		const textSpanText = `<div style="${translateStyles(
-			{
-				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(r * figureUpScale)}em`,
-				clipPath: `polygon(${this.polygonQuarterCircle(ratio * outerRatio, outerRatio, ease)})`,
-				position: 'absolute',
-				width: `${this.limitPrecisionEm(r * 2 * figureUpScale)}em`,
-				height: `${this.limitPrecisionEm(r * 2 * figureUpScale)}em`,
-				left: 0,
-				top: 0,
-				transform: `translateX(${this.limitPrecisionEm(x)}em) translateY(${this.limitPrecisionEm(y)}em) translateX(-${50}%) translateY(-${50}%) scale(${this.limitPrecisionEm(1 / figureUpScale)}) rotate(${this.limitPrecisionEm(rotate)}deg)`,
-				...extraStyles
-			}
-		)}"></div>`
-		this.htmlContent += textSpanText
-		domPaintStats.domDrawTime += +new Date()
+
+		this.drawPolygonUnit(
+			x, y,
+			r * 2,
+			r * 2,
+			rotate,
+			this.polygonQuarterCircle(ratio* outerRatio, outerRatio, ease),
+			extraStyles,
+			extraClasses
+		)
 	}
 	/**
 	 * 绘制空心矩形

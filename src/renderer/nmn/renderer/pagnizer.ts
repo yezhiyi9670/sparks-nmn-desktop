@@ -13,6 +13,7 @@ class PaginizerClass {
 	} {
 		const renderProps = addRenderProp(scoreContextDefault, result.renderProps?.props).render
 		const scale = renderProps.scale!
+		const doubleSided = renderProps.double_sided!
 
 		const separatorField = 12
 		const separatorWidth = 0.5
@@ -129,15 +130,18 @@ class PaginizerClass {
 			})
 			// 创建页脚
 			if(hasDescend) {
+				const inverseLeftRight = doubleSided && (page % 2 == 1)  // 这表示偶数页码
 				const descendPaint = new DomPaint()
 				descendPaint.drawTextFast(
 					0, descendTextField / 2,
-					getLanguageValue(leftText, pageNumber.toString(), pages.toString()), descendMetric, scale,
+					getLanguageValue(inverseLeftRight ? rightText : leftText, pageNumber.toString(), pages.toString()),
+					descendMetric, scale,
 					'left', 'middle'
 				)
 				descendPaint.drawTextFast(
 					100, descendTextField / 2,
-					getLanguageValue(rightText, pageNumber.toString(), pages.toString()), descendMetric, scale,
+					getLanguageValue(inverseLeftRight ? leftText : rightText, pageNumber.toString(), pages.toString()),
+					descendMetric, scale,
 					'right', 'middle'
 				)
 				newFields.push({

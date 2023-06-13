@@ -198,7 +198,8 @@ export default {
 		'author_sep': ' ',
 		'omit': '(后略)',
 		'omit_n': '(省略${0}小节)',
-		'page': 'Page ${0} / Total ${1}'
+		'page': 'Page ${0} / Total ${1}',
+		'double_sided': '分页时假设双面打印',
 	},
 	'efLabels': {
 		'top': '文档标题',

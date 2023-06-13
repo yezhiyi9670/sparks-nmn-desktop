@@ -129,21 +129,22 @@ export class SectionsRenderer {
 				height = rangeWidth / heightRestrictions / scale
 			}
 
-			baseY += height * Math.sin(Math.PI / 2 * 0.15)  // 保证小的连音线与大的有一致观感。已加大连音线间距避免此处发生事故。
+			baseY += height * Math.sin(Math.PI / 2 * 0.2)  // 保证小的连音线与大的有一致观感。已加大连音线间距避免此处发生事故。
 
 			const topY = baseY - height
 
 			const startAnchorX = ((+linkStart) * height * scale) + startX
 			const endAnchorX = - ((+linkEnd)   * height * scale) + endX
 
-			const connectEase = (x: number) => (Math.max(0, x - 0.15) / 0.65) ** 0.6
+			const connectEase = (x: number) => (Math.max(0, x - 0.2) / 0.65) ** 0.6
 			if(linkStart) {
 				root.drawQuarterCircle(startAnchorX, baseY, height, 'left', 'top', 0.25, x => connectEase(x), scale)
 			}
 			if(linkEnd) {
 				root.drawQuarterCircle(endAnchorX, baseY, height, 'right', 'top', 0.25, x => connectEase(1 - x), scale)
 			}
-			root.drawLine(startAnchorX, topY, endAnchorX, topY, 0.25, 0.001, scale)
+			const anchorPadding = Math.min((endAnchorX - startAnchorX) * 0.1, 0.1)  // 有的渲染器精度不太行，我不说是谁
+			root.drawLine(startAnchorX, topY, endAnchorX, topY, 0.25, anchorPadding, scale)
 		}
 		const noteMeasure = msp.measureNoteChar(context, isSmall, scale)
 		
@@ -214,9 +215,9 @@ export class SectionsRenderer {
 					return this.columns.startPosition(sectionIndex)
 				}
 			})
-			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + (+!!maxTopOctave) * 0.05)
-			const baseHeight = noteMeasure[1] * 0.58
-			const heightSpacing = noteMeasure[1] * 0.24
+			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + 0.01 + (+!!maxTopOctave) * 0.04)
+			const baseHeight = noteMeasure[1] * 0.65
+			const heightSpacing = noteMeasure[1] * 0.30
 			let baseY = topY - baseHeight
 			if(decor.level == 1 && !isSmall) {
 				baseY -= heightSpacing
@@ -263,7 +264,7 @@ export class SectionsRenderer {
 				return [startCount, endCount]
 			}
 			let overlapStat = [ statOverlap(decor.startPos), statOverlap(decor.endPos) ]
-			let overlapOffset = 0.4 * scale
+			let overlapOffset = 0.5 * scale
 			if(linkStart && (overlapStat[0][0] > 1 || overlapStat[0][1] > 1)) {
 				if(overlapStat[0][0] > 1 && decor.char == '*') {
 					startX -= 0

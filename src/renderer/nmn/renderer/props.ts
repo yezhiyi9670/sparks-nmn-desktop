@@ -7,6 +7,10 @@ export interface RenderProps {
 	 */
 	page?: number
 	/**
+	 * 假设双面打印
+	 */
+	double_sided?: boolean
+	/**
 	 * 每行小节数
 	 */
 	n?: number
@@ -158,6 +162,7 @@ export interface RenderProps {
  */
 export const renderPropsDefault: RenderProps = {
 	page: 0,
+	double_sided: false,
 	n: 4,
 	time_lining: false,
 	debug: true,
@@ -233,7 +238,7 @@ export function renderPropConvert(key: string, val: string) {
 		}
 		return { error: 'value' }
 	}
-	if(key == 'time_lining' || key == 'debug' || key == 'grayout' || key == 'explicitmarkers' || key == 'left_separator') {
+	if(['time_lining', 'debug', 'grayout', 'explicitmarkers', 'left_separator', 'double_sided'].includes(key)) {
 		if(val == 'true') {
 			return true
 		}
