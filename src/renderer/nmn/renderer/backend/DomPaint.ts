@@ -19,9 +19,9 @@ const getScaler = () => {
 		window.navigator.userAgent.indexOf('Firefox') != -1 ? 'firefox' :
 		'normal'
 	return {
-		edge: [ 2, 2 ],
-		normal: [ 2, 2 ],
-		firefox: [ 2, 2 ]
+		edge: [ 2, 1 ],
+		normal: [ 2, 1 ],
+		firefox: [ 2, 1 ]
 	}[browserType]
 }
 

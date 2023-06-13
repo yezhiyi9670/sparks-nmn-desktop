@@ -143,7 +143,8 @@ export class SectionsRenderer {
 			if(linkEnd) {
 				root.drawQuarterCircle(endAnchorX, baseY, height, 'right', 'top', 0.25, x => connectEase(1 - x), scale)
 			}
-			const anchorPadding = Math.min((endAnchorX - startAnchorX) * 0.1, 0.1)  // 有的渲染器精度不太行，我不说是谁
+			// const anchorPadding = Math.min((endAnchorX - startAnchorX) * 0.1, 0.1)  // 有的渲染器精度不太行，我不说是谁
+			const anchorPadding = 1e-4
 			root.drawLine(startAnchorX, topY, endAnchorX, topY, 0.25, anchorPadding, scale)
 		}
 		const noteMeasure = msp.measureNoteChar(context, isSmall, scale)
