@@ -128,6 +128,9 @@ export class SectionsRenderer {
 			if(rangeWidth < heightRestrictions * maxHeight * scale) {
 				height = rangeWidth / heightRestrictions / scale
 			}
+
+			baseY += height * Math.sin(Math.PI / 2 * 0.15)  // 保证小的连音线与大的有一致观感。已加大连音线间距避免此处发生事故。
+
 			const topY = baseY - height
 
 			const startAnchorX = ((+linkStart) * height * scale) + startX
@@ -211,9 +214,9 @@ export class SectionsRenderer {
 					return this.columns.startPosition(sectionIndex)
 				}
 			})
-			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave - 0.1)
+			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + (+!!maxTopOctave) * 0.05)
 			const baseHeight = noteMeasure[1] * 0.58
-			const heightSpacing = noteMeasure[1] * 0.2
+			const heightSpacing = noteMeasure[1] * 0.24
 			let baseY = topY - baseHeight
 			if(decor.level == 1 && !isSmall) {
 				baseY -= heightSpacing
