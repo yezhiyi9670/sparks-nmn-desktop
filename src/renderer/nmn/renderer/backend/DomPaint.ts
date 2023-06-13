@@ -19,9 +19,9 @@ const getScaler = () => {
 		window.navigator.userAgent.indexOf('Firefox') != -1 ? 'firefox' :
 		'normal'
 	return {
-		edge: [ 2, 4 ],
-		normal: [ 2, 4 ],
-		firefox: [ 2, 1 ]
+		edge: [ 2, 2 ],
+		normal: [ 2, 2 ],
+		firefox: [ 2, 2 ]
 	}[browserType]
 }
 
@@ -178,17 +178,10 @@ export class DomPaint {
 		height = uniMetric * maxHeightRatio
 
 		// 分配整数碰撞箱
-		const minX = centerX - width / 2; let minXf = Math.floor(minX)
-		const maxX = centerX + width / 2; let maxXf = Math.ceil(maxX)
-		const minY = centerY - height / 2; let minYf = Math.floor(minY)
-		const maxY = centerY + height / 2; let maxYf = Math.ceil(maxY)
-		// 保证中心点在整数坐标上
-		if((maxXf - minXf) % 2 == 1) {
-			maxXf += 1
-		}
-		if((maxYf - minYf) % 2 == 1) {
-			maxYf += 1
-		}
+		const minX = centerX - width / 2; let minXf = Math.floor(minX) - 1
+		const maxX = centerX + width / 2; let maxXf = Math.ceil(maxX) + 1
+		const minY = centerY - height / 2; let minYf = Math.floor(minY) - 1
+		const maxY = centerY + height / 2; let maxYf = Math.ceil(maxY) + 1
 		// 计算图形偏移
 		const bbWidth = maxXf - minXf
 		const bbHeight = maxYf - minYf
