@@ -19,9 +19,9 @@ const getScaler = () => {
 		window.navigator.userAgent.indexOf('Firefox') != -1 ? 'firefox' :
 		'normal'
 	return {
-		edge: [ 5, 4 ],
-		normal: [ 5, 4 ],
-		firefox: [ 2, 2 ]
+		edge: [ 2, 4 ],
+		normal: [ 2, 4 ],
+		firefox: [ 2, 1 ]
 	}[browserType]
 }
 
@@ -107,16 +107,25 @@ export class DomPaint {
 	/**
 	 * 多边形模拟四分之一圆弧形状
 	 */
-	polygonQuarterCircle(innerRatio: number, outerRatio: number = 1) {
+	polygonQuarterCircle(innerRatio: number, outerRatio: number = 1, ease: (position: number) => number) {
 		let points: [number, number][] = []
-		let sides = 12
+		let sides = 24
+		let clampEase = (position: number) => {
+			return Math.min(1, Math.max(0, ease(position)))
+		}
 		for(let i = 0; i <= sides; i++) {
+			let position = i / sides
+			let widthRatio = clampEase(position)
 			let angle = Math.PI / 2 / sides * i
-			points.push([Math.cos(angle) * outerRatio, Math.sin(angle) * outerRatio])
+			let mid = (innerRatio + outerRatio) / 2, div = (outerRatio - innerRatio) / 2
+			points.push([Math.cos(angle) * (mid + div * widthRatio), Math.sin(angle) * (mid + div * widthRatio)])
 		}
 		for(let i = sides; i >= 0; i--) {
+			let position = i / sides
+			let widthRatio = clampEase(position)
 			let angle = Math.PI / 2 / sides * i
-			points.push([Math.cos(angle) * innerRatio, Math.sin(angle) * innerRatio])
+			let mid = (innerRatio + outerRatio) / 2, div = (outerRatio - innerRatio) / 2
+			points.push([Math.cos(angle) * (mid - div * widthRatio), Math.sin(angle) * (mid - div * widthRatio)])
 		}
 		return points.map((point) => {
 			return `${this.limitPrecisionShape(50 + point[0] * 50)}% ${this.limitPrecisionShape(50 + point[1] * 50)}%`
@@ -325,9 +334,8 @@ export class DomPaint {
 	/**
 	 * 绘制圆弧线
 	 */
-	drawQuarterCircle(x: number, y: number, r: number, halfX: 'left' | 'right', halfY: 'top' | 'bottom', width: number, scale: number = 1, extraStyles: ExtraStyles = {}) {
+	drawQuarterCircle(x: number, y: number, r: number, halfX: 'left' | 'right', halfY: 'top' | 'bottom', width: number, ease: (position: number) => number, scale: number = 1, extraStyles: ExtraStyles = {}) {
 		const figureUpScale = getScaler()[1]
-		
 		y *= scale
 		r *= scale
 		width *= scale
@@ -353,7 +361,7 @@ export class DomPaint {
 		const textSpanText = `<div style="${translateStyles(
 			{
 				boxShadow: `inset 0 0 0 ${this.limitPrecisionEm(r * figureUpScale)}em`,
-				clipPath: `polygon(${this.polygonQuarterCircle(ratio * outerRatio, outerRatio)})`,
+				clipPath: `polygon(${this.polygonQuarterCircle(ratio * outerRatio, outerRatio, ease)})`,
 				position: 'absolute',
 				width: `${this.limitPrecisionEm(r * 2 * figureUpScale)}em`,
 				height: `${this.limitPrecisionEm(r * 2 * figureUpScale)}em`,

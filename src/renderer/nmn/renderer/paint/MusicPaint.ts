@@ -754,7 +754,7 @@ export class MusicPaint {
 				const handleX = rightCur
 				const radius = noteMeasure[1] / 2 * 0.9
 				const handleY = y + (attr.direction == 'up' ? -1 : 1) * radius
-				this.root.drawQuarterCircle(handleX, handleY, radius, 'right', attr.direction == 'up' ? 'bottom' : 'top', 0.15, scale)
+				this.root.drawQuarterCircle(handleX, handleY, radius, 'right', attr.direction == 'up' ? 'bottom' : 'top', 0.15, () => 1, scale)
 				const arrowMetric = new FontMetric('SparksNMN-Bravura/400', noteMetric.fontSize * 1)
 				const arrowText = attr.direction == 'up' ? "\uEE57" : "\uEE56"
 				this.root.drawTextFast(handleX + radius * scale - noteMeasure[0] * 0.06, handleY + noteMeasure[1] * 0.15, arrowText, arrowMetric, scale, 'center', 'middle')
@@ -769,7 +769,7 @@ export class MusicPaint {
 				const handleX = attr.slot == 'postfix' ? rightCur : leftCur
 				const radius = noteMeasure[1] / 2 * 0.6
 				const handleY = y - radius * 1.15
-				this.root.drawQuarterCircle(handleX, handleY, radius, attr.slot == 'postfix' ? 'right' : 'left', 'bottom', 0.15, scale)
+				this.root.drawQuarterCircle(handleX, handleY, radius, attr.slot == 'postfix' ? 'right' : 'left', 'bottom', 0.15, () => 1, scale)
 				const topX = handleX + (attr.slot == 'postfix' ? 1 : -1) * scale * radius
 				const totalWidth = noteMeasure[0] * addNotesScale * attr.notes.notes.length
 				this.root.drawLine(topX - totalWidth / 2, handleY, topX + totalWidth / 2, handleY, 0.15, 0, scale)

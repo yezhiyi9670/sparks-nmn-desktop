@@ -133,13 +133,14 @@ export class SectionsRenderer {
 			const startAnchorX = ((+linkStart) * height * scale) + startX
 			const endAnchorX = - ((+linkEnd)   * height * scale) + endX
 
+			const connectEase = (x: number) => (Math.max(0, x - 0.15) / 0.65) ** 0.6
 			if(linkStart) {
-				root.drawQuarterCircle(startAnchorX, baseY, height, 'left', 'top', 0.2, scale)
+				root.drawQuarterCircle(startAnchorX, baseY, height, 'left', 'top', 0.25, x => connectEase(x), scale)
 			}
 			if(linkEnd) {
-				root.drawQuarterCircle(endAnchorX, baseY, height, 'right', 'top', 0.2, scale)
+				root.drawQuarterCircle(endAnchorX, baseY, height, 'right', 'top', 0.25, x => connectEase(1 - x), scale)
 			}
-			root.drawLine(startAnchorX, topY, endAnchorX, topY, 0.2, 0.001, scale)
+			root.drawLine(startAnchorX, topY, endAnchorX, topY, 0.25, 0.001, scale)
 		}
 		const noteMeasure = msp.measureNoteChar(context, isSmall, scale)
 		
@@ -182,7 +183,7 @@ export class SectionsRenderer {
 			})
 		}
 		// 绘制连音线
-		const drawConnector = (decor: MusicDecorationRange) => {
+		const drawConnector = (decor: MusicDecorationRange, decors: MusicDecorationRange[]) => {
 			let maxTopOctave = 0
 			;[ decor.startPos, decor.endPos ].forEach((pos) => {
 				const note = SectionStat.locateNote(pos, part.notes.sections)
@@ -210,9 +211,9 @@ export class SectionsRenderer {
 					return this.columns.startPosition(sectionIndex)
 				}
 			})
-			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + 0.1)
-			const baseHeight = noteMeasure[1] * 0.45
-			const heightSpacing = noteMeasure[1] * 0.15
+			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave - 0.1)
+			const baseHeight = noteMeasure[1] * 0.58
+			const heightSpacing = noteMeasure[1] * 0.2
 			let baseY = topY - baseHeight
 			if(decor.level == 1 && !isSmall) {
 				baseY -= heightSpacing
@@ -243,16 +244,48 @@ export class SectionsRenderer {
 				endX = this.columns.endPosition(this.columns.data.length - 1)
 			}
 
+			// 重叠连音线头端处理
+			function statOverlap(position: Fraction) {
+				let endCount = 0
+				let startCount = 0
+				part.decorations.forEach(decor => {
+					if(Frac.equals(decor.startPos, position)) {
+						startCount += 1
+					}
+					if(Frac.equals(decor.endPos, position)) {
+						endCount += 1
+					}
+				})
+				console.log([startCount, endCount])
+				return [startCount, endCount]
+			}
+			let overlapStat = [ statOverlap(decor.startPos), statOverlap(decor.endPos) ]
+			let overlapOffset = 0.4 * scale
+			if(linkStart && (overlapStat[0][0] > 1 || overlapStat[0][1] > 1)) {
+				if(overlapStat[0][0] > 1 && decor.char == '*') {
+					startX -= 0
+				} else {
+					startX += overlapOffset
+				}
+			}
+			if(linkEnd && (overlapStat[1][1] > 1 || overlapStat[1][0] > 1)) {
+				if(overlapStat[1][1] > 1 && decor.char == '*') {
+					endX += 0
+				} else {
+					endX -= overlapOffset
+				}
+			}
+
 			drawConnect(startX, linkStart, endX, linkEnd, topY, -(baseY - topY))
 		}
 		part.decorations.map((decor) => {
 			if(decor.char == '~') {
-				drawConnector(decor)
+				drawConnector(decor, part.decorations)
 			}
 		})
 		part.decorations.map((decor) => {
 			if(decor.char == '*') {
-				drawConnector(decor)
+				drawConnector(decor, part.decorations)
 			}
 		})
 
@@ -293,7 +326,7 @@ export class SectionsRenderer {
 						const startX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.startPos)) - noteMeasure[0] / 2
 						const endX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.endPos)) + noteMeasure[0] / 2
 						const redY = currY + noteMeasure[1] / 2 - noteMeasure[1] * 0.03 + (decor.level - 1) * reductionHeight
-						root.drawLine(startX, redY, endX, redY, 0.2, 0, scale)
+						root.drawLine(startX, redY, endX, redY, 0.15, 0, scale)
 					}
 				})
 				// 画三连音
@@ -324,15 +357,15 @@ export class SectionsRenderer {
 							const annoMeasure = annoToken.measureFast(root)
 							const midLX = midX - annoMeasure[0] / 2 - 0.5 * scale
 							const midRX = midX + annoMeasure[0] / 2 + 0.5 * scale
-							root.drawLine(startX, lowY, startX, highY, 0.2, 0.1, scale)
+							root.drawLine(startX, lowY, startX, highY, 0.15, 0.1, scale)
 							if(midLX > startX) {
-								root.drawLine(startX, highY, midLX, highY, 0.2, 0.1, scale)
+								root.drawLine(startX, highY, midLX, highY, 0.15, 0.1, scale)
 							}
 							annoToken.drawFast(root, midX, highY, 'center', 'middle')
 							if(endX > midRX) {
-								root.drawLine(midRX, highY, endX, highY, 0.2, 0.1, scale)
+								root.drawLine(midRX, highY, endX, highY, 0.15, 0.1, scale)
 							}
-							root.drawLine(endX, lowY, endX, highY, 0.2, 0.1, scale)
+							root.drawLine(endX, lowY, endX, highY, 0.15, 0.1, scale)
 						}
 					})
 				}
