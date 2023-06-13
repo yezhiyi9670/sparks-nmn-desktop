@@ -129,6 +129,7 @@ export default {
 	},
 	'render_props': {
 		'page': '页面高度与宽度之比',
+		'double_sided': '分页时假设双面打印',
 		'n': '每行小节数',
 		'time_lining': '基于时值的小节宽度',
 		'debug': '显示错误警告',
@@ -199,7 +200,6 @@ export default {
 		'omit': '(后略)',
 		'omit_n': '(省略${0}小节)',
 		'page': 'Page ${0} / Total ${1}',
-		'double_sided': '分页时假设双面打印',
 	},
 	'efLabels': {
 		'top': '文档标题',
