@@ -513,7 +513,7 @@ export type MusicNote<NoteChar> = {
 	/**
 	 * 后缀修饰符
 	 */
-	suffix: ('*' | '~' | '.')[]
+	suffix: ('^' | '~' | '.')[]
 	/**
 	 * 是否被延长连音线清除
 	 */
@@ -560,7 +560,7 @@ export type MusicDecorationRange = {
 	/**
 	 * 类型
 	 */
-	char: '_' | '~' | '*'
+	char: '_' | '~' | '^'
 } | {
 	/**
 	 * 类型：三连音

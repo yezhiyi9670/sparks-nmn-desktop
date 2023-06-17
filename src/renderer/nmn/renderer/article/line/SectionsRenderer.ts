@@ -267,14 +267,14 @@ export class SectionsRenderer {
 			let overlapStat = [ statOverlap(decor.startPos), statOverlap(decor.endPos) ]
 			let overlapOffset = 0.5 * scale
 			if(linkStart && (overlapStat[0][0] > 1 || overlapStat[0][1] > 1)) {
-				if(overlapStat[0][0] > 1 && decor.char == '*') {
+				if(overlapStat[0][0] > 1 && decor.char == '^') {
 					startX -= 0
 				} else {
 					startX += overlapOffset
 				}
 			}
 			if(linkEnd && (overlapStat[1][1] > 1 || overlapStat[1][0] > 1)) {
-				if(overlapStat[1][1] > 1 && decor.char == '*') {
+				if(overlapStat[1][1] > 1 && decor.char == '^') {
 					endX += 0
 				} else {
 					endX -= overlapOffset
@@ -289,7 +289,7 @@ export class SectionsRenderer {
 			}
 		})
 		part.decorations.map((decor) => {
-			if(decor.char == '*') {
+			if(decor.char == '^') {
 				drawConnector(decor, part.decorations)
 			}
 		})

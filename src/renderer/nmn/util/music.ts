@@ -8,12 +8,12 @@ export module MusicTheory {
 	 */
 	export function absName2Pitch(name: string) {
 		let delta = 0
-		while(name[0] == '#' || name[0] == 'b' || name[0] == '^' || name[0] == '%' || name[0] == '$') {
+		while(name[0] == '#' || name[0] == 'b' || name[0] == '$' || name[0] == '%' || name[0] == '=') {
 			delta += {
 				'#': 1,
 				'b': -1,
-				'$': 0,
-				'^': 0.5,
+				'=': 0,
+				'$': 0.5,
 				'%': -0.5
 			}[name[0]]
 			name = name.substring(1)

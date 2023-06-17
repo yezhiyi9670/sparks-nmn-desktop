@@ -124,7 +124,7 @@ export module SectionStat {
 			let isFirst = true
 			section.notes.forEach((note) => {
 				isFirst = false
-				if(note.suffix.indexOf('*') != -1) {
+				if(note.suffix.indexOf('^') != -1) {
 					if(undefined === pendingNote) {
 						pendingNote = note
 						lastSection = section
@@ -138,7 +138,7 @@ export module SectionStat {
 							startPos: lastPlace,
 							startSplit: leftSplit,
 							endPos: currPlace,
-							char: '*'
+							char: '^'
 						})
 						leftSplit = false
 					}
@@ -155,7 +155,7 @@ export module SectionStat {
 					startSplit: leftSplit,
 					endSplit: true,
 					endPos: currPlace,
-					char: '*'
+					char: '^'
 				})
 				leftSplit = false
 				pendingNote = undefined
