@@ -366,7 +366,8 @@ export module AttrMatcher {
 			leftSplitVoid: false,
 			rightSplit: false
 		}
-		const [ writtenQuarters ] = new NoteEater(tokenIn.tokens[0] ?? [], lineNumber, scoreContextDefault, -65536).parse<'music'>(
+		// level 从 1 开始计算，避免应用 TSs 节奏变化规则
+		const [ writtenQuarters ] = new NoteEater(tokenIn.tokens[0] ?? [], lineNumber, scoreContextDefault, 1).parse<'music'>(
 			section,
 			Frac.create(1),
 			Frac.create(0),

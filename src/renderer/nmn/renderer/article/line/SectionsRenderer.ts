@@ -261,7 +261,6 @@ export class SectionsRenderer {
 						endCount += 1
 					}
 				})
-				console.log([startCount, endCount])
 				return [startCount, endCount]
 			}
 			let overlapStat = [ statOverlap(decor.startPos), statOverlap(decor.endPos) ]

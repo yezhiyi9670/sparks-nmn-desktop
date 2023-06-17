@@ -781,11 +781,13 @@ export class MusicPaint {
 	 * 绘制装饰音符
 	 */
 	drawAddNotes(context: RenderContext, x: number, y: number, section: (MusicSection<NoteCharMusic> & {type: 'section'}), isSmall: boolean, scale: number = 1, extraStyles: ExtraStyles = {}) {
+		const octaveDotSpace = 0.25
+		
 		// ==== 统计 ====
 		let maxReductionLevel = 0
 		section.decoration.forEach((decor) => {
 			if(decor.char == '_') {
-				maxReductionLevel = Math.max(maxReductionLevel, decor.level)
+				maxReductionLevel = Math.max(maxReductionLevel, decor.level - 1) // 因为装饰音符的 level 从 1 开始
 			}
 		})
 		let maxOctaveDots = 0
@@ -798,7 +800,7 @@ export class MusicPaint {
 		noteMetric.fontSize *= addNotesScale
 		let noteMeasure = this.measureNoteChar(context, isSmall, scale)
 		noteMeasure = [ noteMeasure[0] * addNotesScale, noteMeasure[1] * addNotesScale ]
-		let baseHeight = y - addNotesScale * reductionLineSpace * maxReductionLevel - Math.max((maxOctaveDots * 0.22 - 0.1) * noteMeasure[1], 0)
+		let baseHeight = y - addNotesScale * reductionLineSpace * maxReductionLevel - Math.max((maxOctaveDots * octaveDotSpace - 0.1) * noteMeasure[1], 0)
 		let currY = baseHeight - noteMeasure[1] * 0.4
 		let currX = x - noteMeasure[0] / 2 * section.notes.length
 		let positions: {hash: string, index: number}[] = []
@@ -811,7 +813,7 @@ export class MusicPaint {
 		// ===== 画减时线 =====
 		section.decoration.forEach((decor) => {
 			if(decor.char == '_') {
-				const lineY = y - addNotesScale * reductionLineSpace * (maxReductionLevel - decor.level)
+				const lineY = y - addNotesScale * reductionLineSpace * (maxReductionLevel - decor.level + 1)
 				const startX = currX + noteMeasure[0] * (findWithKey(positions, 'hash', Frac.repr(decor.startPos))!.index)
 				const endX = currX + noteMeasure[0] * (findWithKey(positions, 'hash', Frac.repr(decor.endPos))!.index + 1)
 				this.root.drawLine(startX, lineY, endX, lineY, 0.15, 0, scale)
@@ -856,13 +858,13 @@ export class MusicPaint {
 				scale, extraStyles
 			)
 			while(octave > 0) {
-				dotToken.drawFast(this.root, currX, topCur + noteMeasure[1] * 0.3, 'center', 'bottom')
-				topCur -= noteMeasure[1] * 0.22
+				dotToken.drawFast(this.root, currX, topCur + noteMeasure[1] * 0.15, 'center', 'bottom')
+				topCur -= noteMeasure[1] * octaveDotSpace
 				octave -= 1
 			}
 			while(octave < 0) {
-				dotToken.drawFast(this.root, currX, bottomCur - noteMeasure[1] * 0.8, 'center', 'top')
-				bottomCur += noteMeasure[1] * 0.22
+				dotToken.drawFast(this.root, currX, bottomCur - noteMeasure[1] * 0.75, 'center', 'top')
+				bottomCur += noteMeasure[1] * octaveDotSpace
 				octave += 1
 			}
 			currX += noteMeasure[0]
