@@ -271,6 +271,9 @@ export class LineRenderer {
 					endX = this.columns.endPosition(line.sectionCount - 1)
 				}
 				if(jumper.openRange) {
+					if(!startIn && !endIn) {
+						return
+					}
 					if(!startIn) {
 						startX = Math.max(startX, endX - 30 * scale)
 					}
