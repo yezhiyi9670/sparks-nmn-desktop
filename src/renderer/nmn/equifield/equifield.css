@@ -9,7 +9,7 @@
 	page-break-inside: avoid;
 	page-break-after: auto;
 	overflow-x: visible;
-	border-bottom: 1px dashed #00000019;
+	/* border-bottom: 1px dashed #00000019; */
 }
 .wcl-equifield-content {
 	transform-origin: left top;
