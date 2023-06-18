@@ -180,7 +180,7 @@ export class MusicPaint {
 	drawBeforeAfterAttrs(context: RenderContext, x: number, y: number, attrs: SeparatorAttr[], section: MusicSection<unknown>, isFirstSection: boolean, pos: 'before' | 'after', fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, showTextLike: boolean = false) {
 		let sign = pos == 'before' ? 1 : -1
 		let currX = x
-		let attrY = y - 4.5
+		let attrY = y - 5.2
 		const margin = 0.7 * scale
 		currX += sign * 1 * scale
 		let hX = x + sign * 0.8 * scale
@@ -343,7 +343,6 @@ export class MusicPaint {
 			return measure
 		}
 		if(attr.type == 'label') {
-			y -= 0.33
 			const rectTopY = y - 1.3
 			const rectBottomY = y + 1.3
 			const rectCenterY = (rectTopY + rectBottomY) / 2

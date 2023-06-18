@@ -109,7 +109,7 @@ export class SectionsRenderer {
 			}
 			const ordinalX = this.columns.startPosition(0) - 0.5 * scale
 			const ordinalMetric = new FontMetric('CommonLight/400', 2.0)
-			root.drawText(ordinalX, currY - fieldHeight * 0.65, ordinalText, ordinalMetric, scale, 'left', 'bottom', {
+			root.drawText(ordinalX, currY - 3.75, ordinalText, ordinalMetric, scale, 'left', 'bottom', {
 				fontStyle: ordinalMode == 'plain' ? 'italic' : 'normal'
 			})
 		}
@@ -216,13 +216,22 @@ export class SectionsRenderer {
 					return this.columns.startPosition(sectionIndex)
 				}
 			})
-			let topY = currY - noteMeasure[1] / 2 - noteMeasure[1] * (0.22 * maxTopOctave + 0.01 + (+!!maxTopOctave) * 0.04)
-			const baseHeight = noteMeasure[1] * 0.65
+
+			const octaveHeightOffset = noteMeasure[1] * (0.22 * maxTopOctave + 0.01 + (+!!maxTopOctave) * 0.04)
+			let topY = currY - noteMeasure[1] / 2 - octaveHeightOffset
+			let baseHeightMax = noteMeasure[1] * 0.65
+			let baseHeightMin = noteMeasure[1] * 0.65
 			const heightSpacing = noteMeasure[1] * 0.30
-			let baseY = topY - baseHeight
+			const separatedSpacing = noteMeasure[1] * 0.25
 			if(decor.level == 1 && !isSmall) {
-				baseY -= heightSpacing
+				baseHeightMax += separatedSpacing
+			} else {
+				baseHeightMin = baseHeightMax
 			}
+			const baseHeight = Math.max(baseHeightMin, baseHeightMax - octaveHeightOffset)
+			
+			let baseY = topY - baseHeight
+			
 			checkNoteList((note, hasLeft, hasRight) => {
 				if(hasLeft) {
 					baseY = Math.min(baseY, note.leftTop - heightSpacing)
