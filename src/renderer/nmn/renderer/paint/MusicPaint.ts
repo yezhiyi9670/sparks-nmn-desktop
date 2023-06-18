@@ -158,7 +158,7 @@ export class MusicPaint {
 			sep.next.attrs.forEach((attr) => {
 				if(attr.type == 'repeat') {
 					const measure = this.drawSeparatorAttrText(context, x, topPosY, attr, 1, scale, extraStyles, true)
-					this.drawSeparatorAttrText(context, x - measure[0] / 2, topPosY, attr, 1, scale, extraStyles, false)
+					this.drawSeparatorAttrText(context, x - measure[0] / 2, topPosY - 0.92, attr, 1, scale, extraStyles, false)
 				}
 				if(attr.type == 'text' || attr.type == 'scriptedText') {
 					const rectTopY = topPosY - 3
@@ -240,7 +240,7 @@ export class MusicPaint {
 			if(lastAttr && !(lastAttr.type == 'iter' && attr.type == 'iter')) {
 				currX += 0.5 * scale
 			}
-			currX += this.drawIterOrString(context, currX, y, attr, context.render.font_attr!, 1.79 * fontScale, scale)[0]
+			currX += this.drawIterOrString(context, currX, y, attr, context.render.font_attr!, 2.0 * fontScale, scale)[0]
 			lastAttr = attr
 		})
 	}
@@ -261,7 +261,7 @@ export class MusicPaint {
 	 * 绘制单个类文本小节线属性
 	 */
 	drawSeparatorAttrText(context: RenderContext, x: number, y: number, attr: SeparatorAttrBase, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false, labelType: 'normal' | 'large' | 'bold' = 'normal'): number[] {
-		const fontMetricA = new FontMetric(context.render.font_attr!, 2.16 * fontScale)
+		const fontMetricA = new FontMetric(context.render.font_attr!, 2.06 * fontScale)
 		const fontSize = fontMetricA.fontSize * fontMetricA.fontScale
 		const fontMetricB = new FontMetric('CommonSerif/400', fontSize)
 		const fontMetricIter = new FontMetric('CommonSerif/400', fontSize)

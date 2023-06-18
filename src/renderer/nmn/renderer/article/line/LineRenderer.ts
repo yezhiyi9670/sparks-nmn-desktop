@@ -101,12 +101,35 @@ export class LineRenderer {
 		let shouldLabel = context.render.explicitmarkers! || (connectSigs(line.partSignatures) != connectSigs(lastLine?.partSignatures))
 		const msp = new MusicPaint(root)
 
-		// ===== 渲染FCA =====
-		currY += this.renderLineFCA(currY, part, false, root, context)
 		// ===== 渲染跳房子 =====
 		const jumperRet = this.renderJumpers(currY, part, line, isFirst, root, context)
 		currY += jumperRet[0]
 		const hasJumperOverlap = jumperRet[1]
+		// ===== 渲染FCA =====
+		currY += this.renderLineFCA(currY, part, false, root, context)
+		// ===== 音乐行状态统计 =====
+		const noteMeasure = msp.measureNoteChar(context, false, scale)
+		const fieldHeight = 1.0 * noteMeasure[1]
+		function getTopMargin(section: MusicSection<unknown>) {
+			const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
+			return topAttr && topAttr.type == 'top' ? topAttr.margin : 0
+		}
+		let hasAnnAttrOverlap = false
+		let upsetMax = 0
+		const firstAnnotation = SectionStat.fcaPrimary(part)
+		for(let i = 0; i < line.sectionCount; i++) {
+			const section = part.notes.sections[i]
+			if(firstAnnotation) {
+				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorAttrs(section)) {
+					hasAnnAttrOverlap = true
+				}
+			}
+			upsetMax = Math.max(upsetMax, getTopMargin(section))
+		}
+		currY += upsetMax
+		if(hasAnnAttrOverlap) {
+			currY += fieldHeight
+		}
 		// ===== 渲染音乐行 =====
 		currY += this.renderPartNotes(currY, part, line.startOrdinal, root, context, hasJumperOverlap, isFirst)
 		const lastYs = this.musicLineYs[this.musicLineYs.length - 1]
@@ -166,6 +189,130 @@ export class LineRenderer {
 		}
 
 		return currY - startY
+	}
+	/**
+	 * 渲染跳房子符号，并统计是否出现标记与属性、跳房子与属性的重叠
+	 * 
+	 * 返回第二个参数表明跳房子的文本标记是否可能与小节序号重叠
+	 * 
+	 * 【意大利面警告！修改后请测试所有情况。请勿移除对此函数的调用，因为意大利面里面还有其他布局处理操作】
+	 */
+	renderJumpers(startY: number, part: NMNPart, line: NMNLine, isFirst: boolean, root: DomPaint, context: RenderContext): [number, boolean] {
+		const scale = context.render.scale!
+		const msp = new MusicPaint(root)
+		const firstPart = line.parts[0]!
+		let currY = startY
+
+		const noteMeasure = msp.measureNoteChar(context, false, scale)
+		const fieldHeight = 1.0 * noteMeasure[1]
+
+		const shift = -1.3  // 跳房子记号位置偏移（nmd为什么会有这个）
+
+		let hasJumperAttrOverlap = false
+		let hasFirstStart = false
+		
+		// 统计跳房子存在性与重叠情况
+		const firstAnnotation = SectionStat.fcaPrimary(part)
+		let successCount = 0
+		if(isFirst && line.jumpers.length > 0) {
+			line.jumpers.forEach((jumper) => {
+				let startIn = false
+				let endIn = false
+				if(line.startSection <= jumper.startSection && jumper.startSection < line.startSection + line.sectionCount) {
+					startIn = true
+				}
+				if(line.startSection < jumper.endSection && jumper.endSection <= line.startSection + line.sectionCount) {
+					endIn = true
+				}
+				if(jumper.openRange) {
+					if(!startIn && !endIn) {
+						return
+					}
+				}
+				successCount += 1
+				if(startIn) {
+					const sectionIndex = jumper.startSection - line.startSection
+					const section = firstPart.notes.sections[sectionIndex]
+					if(SectionStat.hasSeparatorAttrs(section, true)) {
+						hasJumperAttrOverlap = true
+					}
+				}
+				if(startIn && jumper.startSection - line.startSection == 0) {
+					hasFirstStart = true
+				}
+			})
+		}
+
+		let hasOwnField = false
+
+		// 绘制跳房子
+		currY += fieldHeight
+		if(isFirst && line.jumpers.length > 0) {
+			const topY = currY - 1.32 + shift
+			const bottomY = currY + 1.05 + shift
+			const centerY = (topY + bottomY) / 2
+			line.jumpers.forEach((jumper) => {
+				let startX = 0
+				let endX = 0
+				let startIn = false
+				let endIn = false
+				if(line.startSection <= jumper.startSection && jumper.startSection < line.startSection + line.sectionCount) {
+					startIn = true
+					startX = this.columns.startPosition(jumper.startSection - line.startSection) + 0.5 * scale
+				}
+				if(line.startSection < jumper.endSection && jumper.endSection <= line.startSection + line.sectionCount) {
+					endIn = true
+					endX = this.columns.endPosition(jumper.endSection - 1 - line.startSection) - 0.5 * scale
+				}
+				if(!startIn) {
+					startX = this.columns.startPosition(0)
+				}
+				if(!endIn) {
+					endX = this.columns.endPosition(line.sectionCount - 1)
+				}
+				if(jumper.openRange) {
+					if(!startIn) {
+						startX = Math.max(startX, endX - 30 * scale)
+					}
+					if(!endIn) {
+						endX = Math.min(endX, startX + 60 * scale)
+					}
+				}
+				root.drawLine(startX, topY, endX, topY, 0.14, 0.07, scale)
+				if(startIn) {
+					root.drawLine(startX, bottomY, startX, topY, 0.14, 0.07, scale)
+				}
+				if(endIn) {
+					root.drawLine(endX, bottomY, endX, topY, 0.14, 0.07, scale)
+				}
+				if(startIn) {
+					msp.drawJumperAttrs(context, startX + 0.3 * scale, centerY, jumper.attrs, 1, scale)
+				}
+			})
+		}
+		currY -= fieldHeight
+		if(successCount > 0) {
+			if(!firstAnnotation) {
+				currY += fieldHeight
+				hasOwnField = true
+				if(hasJumperAttrOverlap) {
+					currY += fieldHeight
+				}
+			}
+		}
+		// 标记符号-属性重叠（且未触发 overlapField），标记符号-跳房子重叠，以及不存在标记符号时，跳房子需要自己的排版空间
+		if(hasOwnField && !firstAnnotation) {
+			currY -= this.annotationInset  // 与标记行的减高行为匹配
+		}
+
+		let annotationsCount = 0
+		for(let ann of part.fcaItems) {
+			if(!SectionStat.allEmpty(ann.sections, 0, line.sectionCount)) {
+				annotationsCount += 1
+			}
+		}
+
+		return [currY - startY, hasFirstStart && !hasJumperAttrOverlap && (annotationsCount <= 1)]
 	}
 
 	/**
@@ -522,155 +669,6 @@ export class LineRenderer {
 		}
 		currY = Math.max(currY, startY)
 		return currY - startY
-	}
-
-	/**
-	 * 渲染跳房子符号，并统计是否出现标记与属性、跳房子与属性的重叠
-	 * 
-	 * 返回第二个参数表明跳房子的文本标记是否可能与小节序号重叠
-	 * 
-	 * 【意大利面警告！修改后请测试所有情况。请勿移除对此函数的调用，因为意大利面里面还有其他布局处理操作】
-	 */
-	renderJumpers(startY: number, part: NMNPart, line: NMNLine, isFirst: boolean, root: DomPaint, context: RenderContext): [number, boolean] {
-		const scale = context.render.scale!
-		const msp = new MusicPaint(root)
-		const firstPart = line.parts[0]!
-		let currY = startY
-
-		const noteMeasure = msp.measureNoteChar(context, false, scale)
-		const fieldHeight = 1.0 * noteMeasure[1]
-
-		const overlapField = 2.2
-		const shift = 0  // 跳房子记号位置偏移（nmd为什么会有这个）
-
-		let hasJumperAttrOverlap = false
-		let hasAnnAttrOverlap = false
-		let hasAnnJumperOverlap = false
-		
-		let hasFirstStart = false
-		let upsetMax = 0
-
-		function getTopMargin(section: MusicSection<unknown>) {
-			const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
-			return topAttr && topAttr.type == 'top' ? topAttr.margin : 0
-		}
-
-		// 统计跳房子存在性与重叠情况
-		const firstAnnotation = SectionStat.fcaPrimary(part)
-		let successCount = 0
-		if(isFirst && line.jumpers.length > 0) {
-			line.jumpers.forEach((jumper) => {
-				let startIn = false
-				let endIn = false
-				if(line.startSection <= jumper.startSection && jumper.startSection < line.startSection + line.sectionCount) {
-					startIn = true
-				}
-				if(line.startSection < jumper.endSection && jumper.endSection <= line.startSection + line.sectionCount) {
-					endIn = true
-				}
-				if(jumper.openRange) {
-					if(!startIn && !endIn) {
-						return
-					}
-				}
-				successCount += 1
-				if(startIn) {
-					const sectionIndex = jumper.startSection - line.startSection
-					const section = firstPart.notes.sections[sectionIndex]
-					if(SectionStat.hasSeparatorAttrs(section, true)) {
-						hasJumperAttrOverlap = true
-					}
-					if(firstAnnotation) {
-						if(!SectionStat.allEmpty(firstAnnotation, sectionIndex, 1)) {
-							hasAnnJumperOverlap = true
-						}
-					}
-				}
-				if(startIn && jumper.startSection - line.startSection == 0) {
-					hasFirstStart = true
-				}
-			})
-		}
-		// 统计标记符号-属性重叠情况
-		for(let i = 0; i < line.sectionCount; i++) {
-			const section = part.notes.sections[i]
-			if(firstAnnotation) {
-				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorAttrs(section)) {
-					hasAnnAttrOverlap = true
-				}
-			}
-			upsetMax = Math.max(upsetMax, getTopMargin(section))
-		}
-		// 标记符号-属性重叠（且未触发 overlapField），标记符号-跳房子重叠，以及不存在标记符号时，跳房子需要自己的排版空间
-		let hasOwnField = false
-		if(successCount > 0) {
-			if((hasAnnAttrOverlap && !hasJumperAttrOverlap) || (hasAnnJumperOverlap) || (!firstAnnotation)) {
-				currY += fieldHeight
-				hasOwnField = true
-			}
-		}
-		if(hasOwnField && !firstAnnotation) {
-			currY -= this.annotationInset  // 与标记行的减高行为匹配
-		}
-
-		// 绘制跳房子
-		if(isFirst && line.jumpers.length > 0) {
-			const topY = currY - 1.17 + shift
-			const bottomY = currY + 0.90 + shift
-			const centerY = (topY + bottomY) / 2
-			line.jumpers.forEach((jumper) => {
-				let startX = 0
-				let endX = 0
-				let startIn = false
-				let endIn = false
-				if(line.startSection <= jumper.startSection && jumper.startSection < line.startSection + line.sectionCount) {
-					startIn = true
-					startX = this.columns.startPosition(jumper.startSection - line.startSection) + 0.5 * scale
-				}
-				if(line.startSection < jumper.endSection && jumper.endSection <= line.startSection + line.sectionCount) {
-					endIn = true
-					endX = this.columns.endPosition(jumper.endSection - 1 - line.startSection) - 0.5 * scale
-				}
-				if(!startIn) {
-					startX = this.columns.startPosition(0)
-				}
-				if(!endIn) {
-					endX = this.columns.endPosition(line.sectionCount - 1)
-				}
-				if(jumper.openRange) {
-					if(!startIn) {
-						startX = Math.max(startX, endX - 30 * scale)
-					}
-					if(!endIn) {
-						endX = Math.min(endX, startX + 60 * scale)
-					}
-				}
-				root.drawLine(startX, topY, endX, topY, 0.14, 0.07, scale)
-				if(startIn) {
-					root.drawLine(startX, bottomY, startX, topY, 0.14, 0.07, scale)
-				}
-				if(endIn) {
-					root.drawLine(endX, bottomY, endX, topY, 0.14, 0.07, scale)
-				}
-				if(startIn) {
-					msp.drawJumperAttrs(context, startX + 0.3 * scale, centerY, jumper.attrs, 1, scale)
-				}
-			})
-		}
-
-		// 如有重叠情况，增加下边距，给小节线属性留出空间
-		if(hasJumperAttrOverlap) {
-			// 跳房子与属性重叠
-			currY += overlapField
-		} else {
-			// 标记符号与属性重叠，并且没有跳房子
-			if(hasAnnAttrOverlap && successCount == 0) {
-				currY += overlapField
-			}
-		}
-		currY += upsetMax
-
-		return [currY - startY, hasFirstStart && !hasJumperAttrOverlap && !hasAnnAttrOverlap]
 	}
 
 	/**
