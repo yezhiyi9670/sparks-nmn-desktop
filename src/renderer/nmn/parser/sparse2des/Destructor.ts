@@ -199,12 +199,6 @@ export class Destructor {
 		if(['Ns'].indexOf(line.head) != -1) {
 			return this.destructNotesSubstitute(line as any, issues, context, [])
 		}
-		if(['F'].indexOf(line.head) != -1) {
-			return this.destructForce(line as any, issues, context, [[], 0], 0, 0)
-		}
-		if(['C'].indexOf(line.head) != -1) {
-			return this.destructChord(line as any, issues, context, [[], 0], 0, 0)
-		}
 		if(['A', 'La'].indexOf(line.head) != -1) {
 			return this.destructAnnotation(line as any, issues, context, [[], 0], 0, 0)
 		}
@@ -423,37 +417,11 @@ export class Destructor {
 			sections: this.destructOverrideSections<'music'>(tokens.slice(splitIndex + 1), line.lineNumber, issues, context, [musicalPropsOverride, substituteIndex], 'music')
 		}
 	}
-	destructFCA(lines: (SparseLine & {head: 'F' | 'C' | 'A'})[], issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number]): DestructedLine[] {
+	destructFCA(lines: (SparseLine & {head: 'A'})[], issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number]): DestructedLine[] {
 		let aIndex = 0, cIndex = 0, fIndex = 0
-		return lines.filter((line) => ['F', 'C', 'A'].includes(line.head)).map((line, index) => {
-			if(line.head == 'F') {
-				return this.destructForce(line as any, issues, context, musicalPropsOverride, index, fIndex++) as DestructedLine & {head: 'F'}
-			}
-			if(line.head == 'C') {
-				return this.destructChord(line as any, issues, context, musicalPropsOverride, index, cIndex++) as DestructedLine & {head: 'C'}
-			}
+		return lines.filter((line) => line.head == 'A').map((line, index) => {
 			return this.destructAnnotation(line as any, issues, context, musicalPropsOverride, index, aIndex++) as DestructedLine & {head: 'A'}
 		})
-	}
-	destructForce(line: SparseLine & {head: 'F'}, issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number], index: number, originIndex: number): DestructedLine {
-		return {
-			lineNumber: line.lineNumber,
-			type: 'annotationsForce',
-			head: line.head,
-			index: index,
-			originIndex: originIndex,
-			sections: this.destructSections<'force'>(line.content.tokens[0], line.lineNumber, issues, context, 'force')
-		}
-	}
-	destructChord(line: SparseLine & {head: 'C'}, issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number], index: number, originIndex: number): DestructedLine {
-		return {
-			lineNumber: line.lineNumber,
-			type: 'annotationsChord',
-			head: line.head,
-			index: index,
-			originIndex: originIndex,
-			sections: this.destructOverrideSections<'chord'>(line.content.tokens[0], line.lineNumber, issues, context, musicalPropsOverride, 'chord')
-		}
 	}
 	destructAnnotation(line: SparseLine & {head: 'A' | 'La'}, issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number], index: number, originIndex: number): DestructedLine {
 		let specifiedIndex = originIndex
@@ -468,13 +436,22 @@ export class Destructor {
 				specifiedIndex = originIndex
 			}
 		}
-		return {
-			lineNumber: line.lineNumber,
-			type: 'annotationsText',
-			head: line.head,
-			index: index,
-			originIndex: specifiedIndex,
-			sections: this.destructOverrideSections<'text'>(line.content.tokens[0], line.lineNumber, issues, context, musicalPropsOverride, 'text')
+		if(line.head == 'A') {
+			return {
+				lineNumber: line.lineNumber,
+				type: 'annotations',
+				head: line.head,
+				index: index,
+				originIndex: specifiedIndex,
+				sections: this.destructOverrideSections<'annotation'>(line.content.tokens[0], line.lineNumber, issues, context, musicalPropsOverride, 'annotation')
+			}
+		} else {
+			return {
+				lineNumber: line.lineNumber,
+				type: 'lyricsAnnotation',
+				head: line.head,
+				sections: this.destructOverrideSections<'text'>(line.content.tokens[0], line.lineNumber, issues, context, musicalPropsOverride, 'text')
+			}
 		}
 	}
 	destructLyrics(line: SparseLine & {head: 'L' | 'Lc' | 'Lw'}, issues: LinedIssue[], context: ScoreContext): DestructedLine {

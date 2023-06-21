@@ -331,24 +331,6 @@ export const commandDefs: CommandDef[] = [
 		propsType: 'multiple',
 		levels: [LineLevels.lyricLine]
 	},
-	// F 力度
-	{
-		head: 'F',
-		headFull: 'Force',
-		contentType: 'tokenized',
-		hasProps: 'none',
-		propsType: 'none',
-		levels: [LineLevels.part, LineLevels.lyricLine]
-	},
-	// C 和弦
-	{
-		head: 'C',
-		headFull: 'Chord',
-		contentType: 'tokenized',
-		hasProps: 'none',
-		propsType: 'none',
-		levels: [LineLevels.part, LineLevels.lyricLine]
-	},
 	// A 标记记号
 	{
 		head: 'A',

@@ -408,6 +408,7 @@ export function sectionSeparatorInset(sep: SectionSeparators, isFirstSection: bo
  */
 export type NoteCharMusic = {
 	type: 'music'
+	sampler: 'music'
 	char: string
 	octave: number
 	delta: number
@@ -424,6 +425,7 @@ export const noteCharChecker: {[_: string]: number} = {
  */
 export type NoteCharForce = {
 	type: 'force'
+	sampler: 'annotations'
 	offset: number
 	isText: boolean
 	char: string
@@ -459,6 +461,7 @@ export const noteCharForceWeight = {
  */
 export type NoteCharChord = {
 	type: 'chord'
+	sampler: 'annotations'
 	offset: number
 	delta: number
 	root: string
@@ -474,17 +477,20 @@ export type NoteCharChord = {
  */
 export type NoteCharText = {
 	type: 'text'
+	sampler: 'annotations' | 'text'
 	offset: number
 	text: string
 } | {
 	type: 'text'
 	void: true
 }
-export type NoteCharAny =
-	NoteCharMusic |
+export type NoteCharAnnotation =
 	NoteCharForce |
 	NoteCharChord |
 	NoteCharText
+export type NoteCharAny =
+	NoteCharMusic |
+	NoteCharAnnotation
 
 /**
  * 广义音符
@@ -740,25 +746,13 @@ export type DestructedLine = {
 	decorations: MusicDecorationRange[]
 	sections: MusicSection<NoteCharMusic>[]
 } | {
-	type: 'annotationsForce'
-	head: 'F'
-	index: number
-	originIndex: number
-	sections: MusicSection<NoteCharForce>[]
-} | {
-	type: 'annotationsChord'
-	head: 'C'
-	index: number
-	originIndex: number
-	sections: MusicSection<NoteCharChord>[]
-} | {
-	type: 'annotationsText'
+	type: 'annotations'
 	head: 'A'
 	index: number
 	originIndex: number
-	sections: MusicSection<NoteCharText>[]
+	sections: MusicSection<NoteCharAnnotation>[]
 } | {
-	type: 'annotationsText'
+	type: 'lyricsAnnotation'
 	head: 'La'
 	sections: MusicSection<NoteCharText>[]
 } | {
@@ -852,7 +846,7 @@ export type DestructedFCA = {
 	/**
 	 * 标记符号
 	 */
-	fcaItems: (DestructedLine & {head: 'F' | 'C' | 'A'})[]
+	fcaItems: (DestructedLine & {head: 'A'})[]
 }
 export type DestructedPart = {
 	lineNumber: number

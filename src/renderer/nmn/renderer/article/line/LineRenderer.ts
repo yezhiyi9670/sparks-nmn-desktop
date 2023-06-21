@@ -3,7 +3,7 @@ import { EquifieldSection } from "../../../equifield/equifield"
 import { I18n } from "../../../i18n"
 import { SectionStat } from "../../../parser/des2cols/section/SectionStat"
 import { connectSigs, Linked2LyricChar } from "../../../parser/des2cols/types"
-import { DestructedFCA, LrcAttr, MusicNote, MusicSection, NoteCharChord, NoteCharForce, NoteCharText } from "../../../parser/sparse2des/types"
+import { DestructedFCA, LrcAttr, MusicNote, MusicSection, NoteCharAnnotation, NoteCharChord, NoteCharForce, NoteCharText } from "../../../parser/sparse2des/types"
 import { findWithKey } from "../../../util/array"
 import { Frac, Fraction } from "../../../util/frac"
 import { DomPaint } from "../../backend/DomPaint"
@@ -643,27 +643,14 @@ export class LineRenderer {
 				continue
 			}
 			currY += FCALineField / 2
-			if(ann.head == 'A') {
-				handleSections<NoteCharText>(ann.sections, createNoteHandler((note, fracPos, pos) => {
-					msp.drawFCANote(context, pos, 0, currY, ann.originIndex, note.char, isSmall, scale)
-				}))
-			} else if(ann.head == 'F') {
-				handleSections<NoteCharForce>(ann.sections, createNoteHandler((note, fracPos, pos) => {
-					if(note.voided) {
-						return
-					}
-					const endFracPos = Frac.add(fracPos, note.length)
-					let endPos = this.columns.fracEndPosition(endFracPos, true)
-					msp.drawFCANote(context, pos, endPos, currY, -1, note.char, isSmall, scale)
-				}))
-			} else if(ann.head == 'C') {
-				handleSections<NoteCharChord>(ann.sections, createNoteHandler((note, fracPos, pos) => {
-					if(note.voided) {
-						return
-					}
-					msp.drawFCANote(context, pos, 0, currY, -1, note.char, isSmall, scale)
-				}))
-			}
+			handleSections<NoteCharAnnotation>(ann.sections, createNoteHandler((note, fracPos, pos) => {
+				if(note.voided) {
+					return
+				}
+				const endFracPos = Frac.add(fracPos, note.length)
+				let endPos = this.columns.fracEndPosition(endFracPos, true)
+				msp.drawFCANote(context, pos, endPos, currY, ann.originIndex, note.char, isSmall, scale)
+			}))
 			currY += FCALineField / 2
 		}
 

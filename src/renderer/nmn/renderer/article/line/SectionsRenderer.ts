@@ -29,6 +29,7 @@ type ConnectorStatNote = MusicNote<NoteCharMusic> & {
 
 export class SectionsRenderer {
 	columns: PositionDispatcher
+	connectorAngle = 0.2
 
 	constructor(columns: PositionDispatcher) {
 		this.columns = columns
@@ -116,6 +117,8 @@ export class SectionsRenderer {
 
 		// ===== 连接线 =====
 		const drawConnect = (startX: number, linkStart: boolean, endX: number, linkEnd: boolean, baseY: number, maxHeight: number) => {
+			const connectorHeightRatio = 1 - Math.sin(Math.PI / 2 * this.connectorAngle)
+
 			let heightRestrictions = 0
 			if(linkStart) {
 				heightRestrictions += 1
@@ -124,19 +127,19 @@ export class SectionsRenderer {
 				heightRestrictions += 1
 			}
 			let rangeWidth = endX - startX
-			let height = maxHeight
-			if(rangeWidth < heightRestrictions * maxHeight * scale) {
+			let height = maxHeight / connectorHeightRatio  // 换算为宽度单位
+			if(rangeWidth < heightRestrictions * height * scale) {
 				height = rangeWidth / heightRestrictions / scale
 			}
 
-			baseY += height * Math.sin(Math.PI / 2 * 0.2)  // 保证小的连音线与大的有一致观感。已加大连音线间距避免此处发生事故。
+			baseY += height * Math.sin(Math.PI / 2 * this.connectorAngle)  // 保证小的连音线与大的有一致观感。已加大连音线间距避免此处发生事故。
 
 			const topY = baseY - height
 
 			const startAnchorX = ((+linkStart) * height * scale) + startX
 			const endAnchorX = - ((+linkEnd)   * height * scale) + endX
 
-			const connectEase = (x: number) => (Math.max(0, x - 0.2) / 0.65) ** 0.6
+			const connectEase = (x: number) => (Math.max(0, x - this.connectorAngle) / 0.65) ** 0.6
 			if(linkStart) {
 				root.drawQuarterCircle(startAnchorX, baseY, height, 'left', 'top', 0.25, x => connectEase(x), scale)
 			}
@@ -189,6 +192,8 @@ export class SectionsRenderer {
 		}
 		// 绘制连音线
 		const drawConnector = (decor: MusicDecorationRange, decors: MusicDecorationRange[]) => {
+			const connectorHeightRatio = 1 - Math.sin(Math.PI / 2 * this.connectorAngle)
+
 			let maxTopOctave = 0
 			;[ decor.startPos, decor.endPos ].forEach((pos) => {
 				const note = SectionStat.locateNote(pos, part.notes.sections)
@@ -219,10 +224,11 @@ export class SectionsRenderer {
 
 			const octaveHeightOffset = noteMeasure[1] * (0.22 * maxTopOctave + 0.01 + (+!!maxTopOctave) * 0.04)
 			let topY = currY - noteMeasure[1] / 2 - octaveHeightOffset
-			let baseHeightMax = noteMeasure[1] * 0.65
-			let baseHeightMin = noteMeasure[1] * 0.65
-			const heightSpacing = noteMeasure[1] * 0.30
-			const separatedSpacing = noteMeasure[1] * 0.25
+
+			let baseHeightMax = noteMeasure[1] * 0.65 * connectorHeightRatio // 换算为真实高度
+			let baseHeightMin = noteMeasure[1] * 0.65 * connectorHeightRatio
+			const heightSpacing = noteMeasure[1] * 0.30 * connectorHeightRatio
+			const separatedSpacing = noteMeasure[1] * 0.25 * connectorHeightRatio
 			if(decor.level == 1 && !isSmall) {
 				baseHeightMax += separatedSpacing
 			} else {
@@ -357,7 +363,7 @@ export class SectionsRenderer {
 							// const lowY = currY - noteMeasure[1] / 2 - 0.5
 							let highY = currY - noteMeasure[1] / 2 - 2
 							const heightSpacing = noteMeasure[1] * (tripletText == '3' ? 0.25 : 0.4)
-							checkNoteList((note) => {
+							checkNoteList((note) => { // 检查连音线高度
 								highY = Math.min(highY, note.leftTop - heightSpacing)
 								highY = Math.min(highY, note.rightTop - heightSpacing)
 							}, Frac.add(section.startPos, decor.startPos), Frac.add(section.startPos, decor.endPos), true, true)

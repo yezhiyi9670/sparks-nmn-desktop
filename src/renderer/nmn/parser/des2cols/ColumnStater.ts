@@ -162,33 +162,13 @@ export class ColumnStater {
 			})[0]
 			if(curr === undefined) {
 				expandArray(frontier.fcaItems, frontier.fcaItems.length + 1, curr = (() => {
-					if(ann.head == 'F') {
-						return {
-							lineNumber: -1,
-							type: 'annotationsForce',
-							head: 'F',
-							index: ann.index,
-							originIndex: ann.originIndex,
-							sections: []
-						}
-					} else if(ann.head == 'C') {
-						return {
-							lineNumber: -1,
-							type: 'annotationsChord',
-							head: 'C',
-							index: ann.index,
-							originIndex: ann.originIndex,
-							sections: []
-						}
-					} else {
-						return {
-							lineNumber: -1,
-							type: 'annotationsText',
-							head: 'A',
-							index: ann.index,
-							originIndex: ann.originIndex,
-							sections: []
-						}
+					return {
+						lineNumber: -1,
+						type: 'annotations',
+						head: 'A',
+						index: ann.index,
+						originIndex: ann.originIndex,
+						sections: []
 					}
 				})())
 			}
@@ -276,7 +256,7 @@ export class ColumnStater {
 							notesSubstitute: [],
 							lyricAnnotations: {
 								lineNumber: -1,
-								type: 'annotationsText',
+								type: 'lyricsAnnotation',
 								head: 'La',
 								sections: []
 							},

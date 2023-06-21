@@ -364,7 +364,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 				...lineStringMode(['Dt', 'Df', 'Dv', 'Dp', 'Ds', 'Da', 'Dl', 'Dr', 'P', 'Pi', 'Sp', 'Frp', 'Rp', 'Srp', 'T', 'S']),
 				...lineNoneMode(['B']),
 				...lineGeneral(['J']),
-				...lineNotes(['N', 'Na', 'Ns', 'F', 'C', 'A', 'La']),
+				...lineNotes(['N', 'Na', 'Ns', 'A', 'La']),
 				...lineAutoLyrics(['Lc', 'Lw']),
 				...lineLyrics(['L']),
 				{

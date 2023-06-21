@@ -69,11 +69,10 @@ export default {
 		'unknown_note_attr': '无法将 `${0}` 解析为音符属性',
 		'note_char_music_unknown': '`${0}` 不是正确的音符字符',
 		
-		'note_char_text': '文本标记中的音符应当是字符串',
 		'note_char_force_unknown1': '未知的力度标记词 ${0}',
 		'note_char_force_unknown2': '未知的力度标记符号 ${0}',
-		'note_char_force': '力度标记中的音符应当是字符串、单词或符号',
-		'note_char_chord': '和弦标记中的音符应当是字符串',
+		'note_char_annotation_unknown': '无法将 `${0}` 解析为标记符号',
+		'note_char_lyric_annotation_unknown': '无法将 `${0}` 解析为歌词标记符号',
 
 		'unknown_section_separator': '未知的小节线符号 ${0}',
 		'empty_section': '存在空白的小节。如果你确实想这么做，请写入一个 `empty`，否则可能导致未预期的结果。',

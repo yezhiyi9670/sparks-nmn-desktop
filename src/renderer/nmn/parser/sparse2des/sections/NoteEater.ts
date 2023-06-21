@@ -2,20 +2,20 @@ import { inCheck, pushIfNonNull } from "../../../util/array";
 import { Frac, Fraction } from "../../../util/frac";
 import { splitBy, withinCharRange } from "../../../util/string";
 import { addIssue, LinedIssue } from "../../parser";
+import { CodeToken } from "../../tokenizer/tokenizer";
 import { BracketToken, BracketTokenList, TokenFilter, Tokens } from "../../tokenizer/tokens";
 import { AttrMatcher } from "../AttrMatcher";
 import { ScoreContext } from "../context";
-import { attrInsertCharCheck, MusicDecoration, MusicNote, MusicSection, NoteAttr, NoteCharAny, noteCharChecker, NoteCharChord, noteCharForceWeight } from "../types";
+import { attrInsertCharCheck, MusicDecoration, MusicNote, MusicSection, NoteAttr, NoteCharAny, noteCharChecker, NoteCharChord, NoteCharForce, noteCharForceWeight, NoteCharText } from "../types";
 
 type SampledSectionBase<TypeSampler> = {
 	type: 'section'
-	notes: MusicNote<(NoteCharAny & {type: TypeSampler})>[]
+	notes: MusicNote<(NoteCharAny & {sampler: TypeSampler})>[]
 	decoration: MusicDecoration[]
 	leftSplit: boolean
 	leftSplitVoid: boolean
 	rightSplit: boolean
 }
-type SampledNoteChar<TypeSampler> = NoteCharAny & {type: TypeSampler}
 
 export class NoteEater {
 	/**
@@ -148,7 +148,7 @@ export class NoteEater {
 			custom: false                  // 是否自定义
 		}
 		
-		var extendingNote: (MusicNote<NoteCharAny & {type: TypeSampler}>) | undefined = undefined as any;
+		var extendingNote: (MusicNote<NoteCharAny & {sampler: TypeSampler}>) | undefined = undefined as any;
 		(() => {
 			let leftSplitFlag = true
 			while(true) {
@@ -555,8 +555,10 @@ export class NoteEater {
 	 *
 	 * @return Object 读取的音符字符对象, 或 undefined 未读取到有效内容（仍然会移动指针以便继续向后读取）
 	 */
-	eatNoteChar<TypeSampler>(issues: LinedIssue[], typeSampler: TypeSampler): NoteCharAny & {type: TypeSampler} | undefined {
+	eatNoteChar<TypeSampler>(issues: LinedIssue[], typeSampler: TypeSampler): NoteCharAny & {sampler: TypeSampler} | undefined {
 		if(typeSampler == 'music') {
+			// ======== 音乐音符部分 ========
+
 			// 读字符
 			this.alignChars()
 			// 读取升降记号前缀（#^$%b）
@@ -609,19 +611,22 @@ export class NoteEater {
 					this.passchar()
 				} else {
 					return {
-						type: typeSampler as any,
+						type: 'music',
+						sampler: 'music' as any,
 						char: char,
 						octave: octave,
 						delta: delta,
 					}
 				}
 			}
+		} else if(typeSampler == 'annotation' || typeSampler == 'text') {
+			// ======== 标记音符部分 ========
 
-		} else {
 			if(this.getchar() == '0') {
 				this.passchar()
 				return {
-					type: typeSampler as any,
+					type: 'text',
+					sampler: typeSampler,
 					void: true
 				}
 			}
@@ -631,6 +636,7 @@ export class NoteEater {
 			if(token1 === undefined || 'bracket' in token1) {
 				return undefined
 			}
+			// 读取坐标偏移
 			let offset = 0
 			while(token1.type == 'symbol' && token1.content == '+') {
 				offset += 1
@@ -639,74 +645,32 @@ export class NoteEater {
 					return undefined
 				}
 			}
-			if(typeSampler == 'text') {
+			
+			// 此处 token1 已经读取并 pass
+			
+			const matchTextNote = (token1: CodeToken) : NoteCharText | undefined => {
 				// 读取一个 stringLiteral
 				if(token1.type != 'stringLiteral') {
-					addIssue(issues,
-						this.lineNumber, token1.range[0], 'error', 'note_char_text',
-						'Text note should be a string literal'
-					)
 					return undefined
 				}
 				return {
-					type: typeSampler as any,
+					type: 'text',
+					sampler: typeSampler as any,
 					offset: offset,
 					text: token1.content
 				}
-			} else if(typeSampler == 'force') {
-				if(token1.type == 'word') {
-					if(inCheck(token1.content, noteCharForceWeight)) {
-						return {
-							type: typeSampler as any,
-							offset: offset,
-							isText: false,
-							char: token1.content
-						}
-					} else {
-						addIssue(issues,
-							this.lineNumber, token1.range[0], 'error', 'note_char_force_unknown1',
-							'Cannot interpret word ${0} as force annotation',
-							token1.content
-						)
-					}
-				} else if(token1.type == 'symbol') {
-					if(inCheck(token1.content, {'<': 1, '>': -1})) {
-						return {
-							type: typeSampler as any,
-							offset: offset,
-							isText: false,
-							char: token1.content
-						}
-					} else {
-						addIssue(issues,
-							this.lineNumber, token1.range[0], 'error', 'note_char_force_unknown2',
-							'Cannot interpret symbol ${0} as force annotation',
-							token1.content
-						)
-					}
-				} else if(token1.type == 'stringLiteral') {
-					return {
-						type: typeSampler as any,
-						offset: offset,
-						isText: true,
-						char: token1.content
-					}
-				} {
-					addIssue(issues,
-						this.lineNumber, token1.range[0], 'error', 'note_char_force',
-						'Force note should be a symbol, word, or string literal'
-					)
-				}
-			} else if(typeSampler == 'chord') {
-				// 读取一个 stringLiteral
-				if(token1.type != 'stringLiteral') {
-					addIssue(issues,
-						this.lineNumber, token1.range[0], 'error', 'note_char_chord',
-						'Chord note should be a string literal'
-					)
+			}
+			const matchChordNote = (token1: CodeToken): NoteCharChord | undefined => {
+				if(token1.type != 'word' || token1.content != 'c') {
 					return undefined
 				}
-				let [ pref, base ] = splitBy(token1.content, '/')
+
+				const token2 = this.peek()
+				// 读取一个 stringLiteral
+				if(!token2 || 'bracket' in token2 || token2.type != 'stringLiteral') {
+					return undefined
+				}
+				let [ pref, base ] = splitBy(token2.content, '/')
 				let prefSplitPos = 1
 				let accidentalDeltas: {[_: string]: number} = {'#': 1, 'b': -1, '=': 0, '$': 0.5, '%': -0.5}
 				while(prefSplitPos < pref.length && (
@@ -730,8 +694,10 @@ export class NoteEater {
 					base = base.substring(1)
 				}
 
+				this.pass() // 跳过 token2
 				const ret: NoteCharChord = {
-					type: typeSampler as any,
+					type: 'chord',
+					sampler: typeSampler as any,
 					offset: offset,
 					delta: delta,
 					root: prefRoot,
@@ -741,6 +707,88 @@ export class NoteEater {
 				}
 				return ret as any
 			}
+			const matchForceNote = (token1: CodeToken): NoteCharForce | undefined => {
+				if(token1.type == 'word') {
+					if(inCheck(token1.content, noteCharForceWeight)) {
+						return {
+							type: 'force',
+							sampler: typeSampler as any,
+							offset: offset,
+							isText: false,
+							char: token1.content
+						}
+					} else {
+						if(token1.content == 'r') {
+							const token2 = this.peek()
+							if(token2 === undefined || 'bracket' in token2) {
+								return undefined
+							}
+							if(token2.type == 'stringLiteral') {
+								this.pass()
+								return {
+									type: 'force',
+									sampler: typeSampler as any,
+									offset: offset,
+									isText: true,
+									char: token2.content
+								}
+							}
+						} else {
+							addIssue(issues,
+								this.lineNumber, token1.range[0], 'error', 'note_char_force_unknown1',
+								'Cannot interpret word ${0} as force annotation',
+								token1.content
+							)
+						}
+					}
+				} else if(token1.type == 'symbol') {
+					if(inCheck(token1.content, {'<': 1, '>': -1})) {
+						return {
+							type: 'force',
+							sampler: typeSampler as any,
+							offset: offset,
+							isText: false,
+							char: token1.content
+						}
+					} else {
+						addIssue(issues,
+							this.lineNumber, token1.range[0], 'error', 'note_char_force_unknown2',
+							'Cannot interpret symbol ${0} as force annotation',
+							token1.content
+						)
+					}
+				}
+			}
+			let textResult = matchTextNote(token1)
+			if(textResult) {
+				return { ...textResult, sampler: typeSampler as any }
+			}
+			if(typeSampler != 'text') {
+				let chordResult = matchChordNote(token1)
+				if(chordResult) {
+					return { ...chordResult, sampler: typeSampler as any }
+				}
+				let forceResult = matchForceNote(token1)
+				if(forceResult) {
+					return { ...forceResult, sampler: typeSampler as any }
+				}
+			}
+			if(typeSampler != 'text') {
+				addIssue(issues,
+					this.lineNumber, token1.range[0], 'error', 'note_char_annotation_unknown',
+					'Cannot interpret ${0} as an annotation',
+					Tokens.stringify([token1])
+				)
+			} else {
+				addIssue(issues,
+					this.lineNumber, token1.range[0], 'error', 'note_char_lyrics_annotations_unknown',
+					'Cannot interpret ${0} as an lyrics annotation',
+					Tokens.stringify([token1])
+				)
+			}
+			return undefined
+		} else {
+			throw new Error('Unknown note type sampler ' + typeSampler)
 		}
 	}
 }

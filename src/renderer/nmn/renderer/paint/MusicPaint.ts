@@ -158,7 +158,7 @@ export class MusicPaint {
 			sep.next.attrs.forEach((attr) => {
 				if(attr.type == 'repeat') {
 					const measure = this.drawSeparatorAttrText(context, x, topPosY, attr, 1, scale, extraStyles, true)
-					this.drawSeparatorAttrText(context, x - measure[0] / 2, topPosY - 0.92, attr, 1, scale, extraStyles, false)
+					this.drawSeparatorAttrText(context, x - measure[0] / 2, topPosY - 1.30, attr, 1, scale, extraStyles, false)
 				}
 				if(attr.type == 'text' || attr.type == 'scriptedText') {
 					const rectTopY = topPosY - 3
@@ -265,9 +265,10 @@ export class MusicPaint {
 		const fontSize = fontMetricA.fontSize * fontMetricA.fontScale
 		const fontMetricB = new FontMetric('CommonSerif/400', fontSize)
 		const fontMetricIter = new FontMetric('CommonSerif/400', fontSize)
+		const fontMetricItalic = new FontMetric('RomanItalic/400', fontSize)
 		const fontMetricC = new FontMetric('SparksNMN-Bravura/400', fontSize * 1.5)
 		const fontMetricLx = new FontMetric(context.render.font_checkpoint!, 2.3 * fontScale)
-		const fontMetricLxr = new FontMetric(context.render.font_attr!, 2.06 * fontScale)
+		const fontMetricLxr = new FontMetric(context.render.font_checkpoint!, 2.06 * fontScale)
 		fontMetricLxr.fontWeight = 700
 		const extraStylesItalic = {
 			...extraStyles,
@@ -283,8 +284,8 @@ export class MusicPaint {
 				text = 'reset'
 			}
 			const token = new PaintTextToken(
-				text, fontMetricIter,
-				scale, extraStylesItalic
+				text, attr.type == 'reset' ? fontMetricItalic : fontMetricItalic,
+				scale
 			)
 			const measure = token.measureFast(this.root)
 			if(!dryRun) {
@@ -304,7 +305,13 @@ export class MusicPaint {
 			)
 			const measure = token.measureFast(this.root)
 			if(!dryRun) {
-				token.drawFast(this.root, x, y + (attr.char != 'Fine.' ? fontSize * 0.34: 0), 'left', 'middle')
+				token.drawFast(this.root, x, y + (fontSize * {
+					'Fine.': 0,
+					'D.C.': 0.36,
+					'D.S.': 0.36,
+					'@': 0.5,
+					'$': 0.5,
+				}[attr.char]), 'left', 'middle')
 			}
 			return measure
 		}
@@ -324,7 +331,7 @@ export class MusicPaint {
 				text, {large: fontMetricLx, normal: fontMetricA, bold: fontMetricLxr}[labelType],
 				scale, extraStyles
 			)
-			const fontMetricAs = labelType == 'large' ? new FontMetric(context.render.font_checkpoint!, 2.3 * 0.75 * fontScale) : new FontMetric(context.render.font_attr!, 2.16 * 0.75 * fontScale)
+			const fontMetricAs = labelType != 'normal' ? new FontMetric(context.render.font_checkpoint!, 2.3 * 0.70 * fontScale) : new FontMetric(context.render.font_attr!, 2.16 * 0.70 * fontScale)
 			const token2 = new PaintTextToken(
 				subs, fontMetricAs,
 				scale, extraStyles
@@ -338,14 +345,14 @@ export class MusicPaint {
 			if(!dryRun) {
 				token1.drawFast(this.root, currX, y, 'left', 'middle')
 				currX += measure1[0]
-				token2.drawFast(this.root, currX, y - 0.2 * measure1[1], 'left', 'top')
+				token2.drawFast(this.root, currX, y - 0.25 * measure1[1], 'left', 'top')
 			}
 			return measure
 		}
 		if(attr.type == 'label') {
-			const rectTopY = y - 1.3
-			const rectBottomY = y + 1.3
-			const rectCenterY = (rectTopY + rectBottomY) / 2
+			const rectTopY = y - 1.4 * fontMetricLxr.fontScale
+			const rectBottomY = y + 1.4 * fontMetricLxr.fontScale
+			const rectCenterY = y
 			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, 'bold')
 			const rectWidth = Math.max(measure[0] + 0.5 * scale * 2, (rectBottomY - rectTopY) * scale)
 			x += rectWidth / 2
@@ -395,8 +402,10 @@ export class MusicPaint {
 				scale
 			)
 			if(!dryRun) tokenLeft.drawFast(this.root, currLeft, y, 'right', 'middle')
-			tokenLeft.text = getLrcSymbolEquivalent(tokenLeft.text)
-			currLeft -= tokenLeft.measureFast(this.root)[0]
+			// tokenLeft.text = getLrcSymbolEquivalent(tokenLeft.text)
+			currLeft -= tokenLeft.measureFast(this.root)[0] / (  // 不再使用半角符号，而是使用半宽度
+				getLrcSymbolEquivalent(tokenLeft.text) != tokenLeft.text ? 2 : 1
+			)
 		}
 
 		if(note.rolePrefix) {
@@ -416,8 +425,10 @@ export class MusicPaint {
 				scale
 			)
 			if(!dryRun) tokenRight.drawFast(this.root, currRight, y, 'left', 'middle')
-			tokenRight.text = getLrcSymbolEquivalent(tokenRight.text)
-			currRight += tokenRight.measureFast(this.root)[0]
+			// tokenRight.text = getLrcSymbolEquivalent(tokenRight.text)
+			currRight += tokenRight.measureFast(this.root)[0] / (
+				getLrcSymbolEquivalent(tokenRight.text) != tokenRight.text ? 2 : 1
+			)
 		}
 
 		return [currLeft, currRight]
@@ -520,18 +531,15 @@ export class MusicPaint {
 	drawIterOrString(context: RenderContext, x: number, y: number, attr: JumperAttr, fontDesc: string, initialFontSize: number = 2, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false) {
 		const fontMetricA = new FontMetric(fontDesc, initialFontSize)
 		const fontSize = fontMetricA.fontSize * fontMetricA.fontScale
-		const fontMetricB = new FontMetric('CommonSerif/700', 1 * fontSize)
-		const fontMetricIter = new FontMetric('CommonSerif/700', 1 * fontSize)
+
+		const fontMetricItalic = new FontMetric('RomanItalic/400', 1 * fontSize)
 		const fontMetricC = new FontMetric('SparksNMN-Bravura/400', 1.5 * fontSize)
-		const extraStylesItalic = {
-			...extraStyles,
-			fontStyle: 'italic'
-		}
+
 		if(attr.type == 'iter') {
 			let text = attr.iter.toString() + '.'
 			const token = new PaintTextToken(
-				text, fontMetricIter,
-				scale, extraStylesItalic
+				text, fontMetricItalic,
+				scale
 			)
 			const measure = token.measureFast(this.root)
 			if(!dryRun) {
