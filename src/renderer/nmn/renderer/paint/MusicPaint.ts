@@ -350,8 +350,8 @@ export class MusicPaint {
 			return measure
 		}
 		if(attr.type == 'label') {
-			const rectTopY = y - 1.4 * fontMetricLxr.fontScale
-			const rectBottomY = y + 1.4 * fontMetricLxr.fontScale
+			const rectTopY = y - 1.5 * fontMetricLxr.fontScale
+			const rectBottomY = y + 1.27 * fontMetricLxr.fontScale
 			const rectCenterY = y
 			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, 'bold')
 			const rectWidth = Math.max(measure[0] + 0.5 * scale * 2, (rectBottomY - rectTopY) * scale)
@@ -461,7 +461,7 @@ export class MusicPaint {
 			}
 		})()
 		startX -= noteMeasure[0] / 2
-		endX += noteMeasure[0] / 2
+		endX -= noteMeasure[0] / 2
 		startX += 0.5 * note.offset
 		if(note.type == 'force') {
 			const forceTextMetric = new FontMetric('SparksNMN-mscore-20/400', noteMeasure[1] * forceScale)
@@ -469,8 +469,8 @@ export class MusicPaint {
 				this.root.drawTextFast(startX, y, note.char, annotationMetric, scale, 'left', 'middle', extraStyles)
 			} else {
 				if(note.char == '<' || note.char == '>') {
-					const topY = y - noteMeasure[1] * 0.28
-					const bottomY = y + noteMeasure[1] * 0.28
+					const topY = y - noteMeasure[1] * 0.25
+					const bottomY = y + noteMeasure[1] * 0.25
 					const centerY = y
 					const lessX = note.char == '<' ? startX : endX
 					const moreX = note.char == '<' ? endX : startX

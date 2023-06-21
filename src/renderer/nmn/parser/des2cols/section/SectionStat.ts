@@ -181,12 +181,18 @@ export module SectionStat {
 			}
 			section.notes.forEach((note) => {
 				if(note.type == 'extend') {
+					// 无效的延时线尝试延长上一个音符（）
+					// TODO[]: 替代此机制
+					if(note.voided && pendingNote) {
+						pendingNote.length = Frac.add(pendingNote.length, note.length)
+					}
 					return
 				}
 				if(connectState) {
 					note.voided = true
 					if(pendingNote) {
-						pendingNote!.length = Frac.add(pendingNote!.length, note.length)
+						// 延长上一个音符
+						pendingNote.length = Frac.add(pendingNote!.length, note.length)
 					}
 					const currPlace = Frac.add(section.startPos, note.startPos)
 					decorations.push({
@@ -210,6 +216,10 @@ export module SectionStat {
 						const currPlace = Frac.add(section.startPos, note.startPos)
 						lastSection = section
 						lastPlace = currPlace
+					} else {
+						// 对应无效延时线的机制
+						connectState = false
+						pendingNote = note
 					}
 				}
 			})

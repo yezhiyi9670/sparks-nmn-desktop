@@ -648,7 +648,7 @@ export class LineRenderer {
 					return
 				}
 				const endFracPos = Frac.add(fracPos, note.length)
-				let endPos = this.columns.fracEndPosition(endFracPos, true)
+				let endPos = this.columns.fracEndPosition(endFracPos, false)
 				msp.drawFCANote(context, pos, endPos, currY, ann.originIndex, note.char, isSmall, scale)
 			}))
 			currY += FCALineField / 2
