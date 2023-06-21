@@ -221,40 +221,6 @@ export class SectionsRenderer {
 					return this.columns.startPosition(sectionIndex)
 				}
 			})
-
-			const octaveHeightOffset = noteMeasure[1] * (0.22 * maxTopOctave + 0.01 + (+!!maxTopOctave) * 0.04)
-			let topY = currY - noteMeasure[1] / 2 - octaveHeightOffset
-
-			let baseHeightMax = noteMeasure[1] * 0.65 * connectorHeightRatio // 换算为真实高度
-			let baseHeightMin = noteMeasure[1] * 0.65 * connectorHeightRatio
-			const heightSpacing = noteMeasure[1] * 0.30 * connectorHeightRatio
-			const separatedSpacing = noteMeasure[1] * 0.25 * connectorHeightRatio
-			if(decor.level == 1 && !isSmall) {
-				baseHeightMax += separatedSpacing
-			} else {
-				baseHeightMin = baseHeightMax
-			}
-			const baseHeight = Math.max(baseHeightMin, baseHeightMax - octaveHeightOffset)
-			
-			let baseY = topY - baseHeight
-			
-			checkNoteList((note, hasLeft, hasRight) => {
-				if(hasLeft) {
-					baseY = Math.min(baseY, note.leftTop - heightSpacing)
-				}
-				if(hasRight) {
-					baseY = Math.min(baseY, note.rightTop - heightSpacing)
-				}
-			}, decor.startPos, decor.endPos, linkStart, linkEnd)
-			checkNoteList((note, hasLeft, hasRight) => {
-				if(hasLeft) {
-					note.leftTop = Math.min(note.leftTop, baseY)
-				}
-				if(hasRight) {
-					note.rightTop = Math.min(note.rightTop, baseY)
-				}
-			}, decor.startPos, decor.endPos, linkStart, linkEnd)
-
 			if(startX != startX) {
 				linkStart = false
 				startX = this.columns.startPosition(0)
@@ -294,6 +260,42 @@ export class SectionsRenderer {
 					endX -= overlapOffset
 				}
 			}
+
+			const octaveHeightOffset = noteMeasure[1] * (0.22 * maxTopOctave + 0.01 + (+!!maxTopOctave) * 0.04)
+			let topY = currY - noteMeasure[1] / 2 - octaveHeightOffset
+
+			let baseHeightMax = noteMeasure[1] * 0.65 * connectorHeightRatio // 换算为真实高度
+			let baseHeightMin = noteMeasure[1] * 0.65 * connectorHeightRatio
+			const heightSpacing = noteMeasure[1] * 0.30 * connectorHeightRatio
+			const separatedSpacing = noteMeasure[1] * 0.25 * connectorHeightRatio
+			if(decor.level == 1 && !isSmall) {
+				baseHeightMax += separatedSpacing
+			} else {
+				baseHeightMin = baseHeightMax
+			}
+			const baseHeight = Math.min(
+				Math.max(baseHeightMin, baseHeightMax - octaveHeightOffset),
+				connectorHeightRatio * (endX - startX) / ((+linkStart) + (+linkEnd))
+			)
+			
+			let baseY = topY - baseHeight
+			
+			checkNoteList((note, hasLeft, hasRight) => {
+				if(hasLeft) {
+					baseY = Math.min(baseY, note.leftTop - heightSpacing)
+				}
+				if(hasRight) {
+					baseY = Math.min(baseY, note.rightTop - heightSpacing)
+				}
+			}, decor.startPos, decor.endPos, linkStart, linkEnd)
+			checkNoteList((note, hasLeft, hasRight) => {
+				if(hasLeft) {
+					note.leftTop = Math.min(note.leftTop, baseY)
+				}
+				if(hasRight) {
+					note.rightTop = Math.min(note.rightTop, baseY)
+				}
+			}, decor.startPos, decor.endPos, linkStart, linkEnd)
 
 			drawConnect(startX, linkStart, endX, linkEnd, topY, -(baseY - topY))
 		}
