@@ -200,9 +200,9 @@ export const renderPropsDefault: RenderProps = {
 	font_checkpoint: 'Roman,CommonSerif/700',
 	margin_after_props: 2,
 	margin_after_article: 1.5,
-	margin_after_header: 0.0, // diff 1
-	margin_after_header_text: 1.5,
-	margin_before_line: 0.8, // diff 1.7
+	margin_after_header: 0.8, // diff 1
+	margin_after_header_text: 0.7,
+	margin_before_line: 1.2, // diff 1.7
 	margin_after_line: 0.1, // diff 1.1
 	margin_between_parts: 2.5,
 	margin_after_part_notes: 2,
