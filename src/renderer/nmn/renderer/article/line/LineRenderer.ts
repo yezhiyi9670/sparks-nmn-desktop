@@ -101,10 +101,16 @@ export class LineRenderer {
 		let shouldLabel = context.render.explicitmarkers! || (connectSigs(line.partSignatures) != connectSigs(lastLine?.partSignatures))
 		const msp = new MusicPaint(root)
 
+		// ===== 减小声部间的距离
+		if(!isFirst && !part.noMargin[0]) {
+			currY += context.render.margin_between_parts! - 2.5
+			currY = Math.max(currY, 0)
+		}
 		// ===== 渲染跳房子 =====
 		const jumperRet = this.renderJumpers(currY, part, line, isFirst, root, context)
 		currY += jumperRet[0]
 		const hasJumperOverlap = jumperRet[1]
+		const jumperSuccesses = jumperRet[2]
 		// ===== 渲染FCA =====
 		currY += this.renderLineFCA(currY, part, false, root, context)
 		// ===== 音乐行状态统计 =====
@@ -115,20 +121,29 @@ export class LineRenderer {
 			return topAttr && topAttr.type == 'top' ? topAttr.margin : 0
 		}
 		let hasAnnAttrOverlap = false
+		let hasAttr = false
 		let upsetMax = 0
 		const firstAnnotation = SectionStat.fcaPrimary(part)
 		for(let i = 0; i < line.sectionCount; i++) {
 			const section = part.notes.sections[i]
 			if(firstAnnotation) {
-				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorAttrs(section)) {
+				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorSideAttrs(section)) {
 					hasAnnAttrOverlap = true
 				}
+			}
+			if(SectionStat.hasSeparatorSideAttrs(section, false, true) || SectionStat.hasSeparatorTopAttrs(section)) {
+				hasAttr = true
 			}
 			upsetMax = Math.max(upsetMax, getTopMargin(section))
 		}
 		currY += upsetMax
 		if(hasAnnAttrOverlap) {
 			currY += fieldHeight
+		}
+		// 没有别的任何东西，这里补充高度信息
+		if(hasAttr && jumperSuccesses == 0 && !firstAnnotation) {
+			currY += fieldHeight
+			currY -= this.annotationInset
 		}
 		// ===== 渲染音乐行 =====
 		currY += this.renderPartNotes(currY, part, line.startOrdinal, root, context, hasJumperOverlap, isFirst)
@@ -197,7 +212,7 @@ export class LineRenderer {
 	 * 
 	 * 【意大利面警告！修改后请测试所有情况。请勿移除对此函数的调用，因为意大利面里面还有其他布局处理操作】
 	 */
-	renderJumpers(startY: number, part: NMNPart, line: NMNLine, isFirst: boolean, root: DomPaint, context: RenderContext): [number, boolean] {
+	renderJumpers(startY: number, part: NMNPart, line: NMNLine, isFirst: boolean, root: DomPaint, context: RenderContext): [number, boolean, number] {
 		const scale = context.render.scale!
 		const msp = new MusicPaint(root)
 		const firstPart = line.parts[0]!
@@ -233,7 +248,7 @@ export class LineRenderer {
 				if(startIn) {
 					const sectionIndex = jumper.startSection - line.startSection
 					const section = firstPart.notes.sections[sectionIndex]
-					if(SectionStat.hasSeparatorAttrs(section, true)) {
+					if(SectionStat.hasSeparatorSideAttrs(section, true)) {
 						hasJumperAttrOverlap = true
 					}
 				}
@@ -315,7 +330,7 @@ export class LineRenderer {
 			}
 		}
 
-		return [currY - startY, hasFirstStart && !hasJumperAttrOverlap && (annotationsCount <= 1)]
+		return [currY - startY, hasFirstStart && !hasJumperAttrOverlap && (annotationsCount <= 1), successCount]
 	}
 
 	/**
@@ -670,7 +685,7 @@ export class LineRenderer {
 		const isAccompany = part.notes.head == 'Na'
 
 		if(!part.noMargin[0]) {
-			currY += isFirst ? 2.5 : context.render.margin_between_parts!
+			currY += 2.5
 		}
 		
 		const fieldHeight = isAccompany ? 4.4 : 5.5

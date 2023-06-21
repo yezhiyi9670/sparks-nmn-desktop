@@ -480,16 +480,26 @@ export module SectionStat {
 	/**
 	 * 小节是否包含前置/后置小节线属性
 	 */
-	export function hasSeparatorAttrs(section: MusicSection<unknown>, beforeOnly: boolean = false) {
+	export function hasSeparatorSideAttrs(section: MusicSection<unknown>, beforeOnly: boolean = false, ignoreOpenRange: boolean = false) {
 		function checkSeparatorAttrs(attrs: SeparatorAttr[]) {
-			if(attrs.filter(attr => attr.type == 'openRange').length != 0) {
+			if(!ignoreOpenRange && attrs.filter(attr => attr.type == 'openRange').length != 0) {
 				return false
 			}
 			return attrs.filter((attr) => {
-				return attr.type != 'weight' && attr.type != 'padding' && attr.type != 'beats' && attr.type != 'top'
+				return attr.type != 'weight' && attr.type != 'padding' && attr.type != 'beats' && attr.type != 'top' && attr.type != 'openRange'
 			}).length != 0
 		}
 		return checkSeparatorAttrs(section.separator.before.attrs) || (!beforeOnly && checkSeparatorAttrs(section.separator.after.attrs))
+	}
+	/**
+	 * 小节线是否包含能渲染的上方属性
+	 */
+	export function hasSeparatorTopAttrs(section: MusicSection<unknown>) {
+		for(let attr of section.separator.next.attrs) {
+			if(['text', 'scriptedText', 'repeat'].includes(attr.type)) {
+				return true
+			}
+		}
 	}
 
 	/**

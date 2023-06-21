@@ -202,7 +202,7 @@ export const renderPropsDefault: RenderProps = {
 	margin_after_article: 1.5,
 	margin_after_header: 0.0, // diff 1
 	margin_after_header_text: 1.5,
-	margin_before_line: 1.7, // diff 1.7
+	margin_before_line: 0.8, // diff 1.7
 	margin_after_line: 0.1, // diff 1.1
 	margin_between_parts: 2.5,
 	margin_after_part_notes: 2,

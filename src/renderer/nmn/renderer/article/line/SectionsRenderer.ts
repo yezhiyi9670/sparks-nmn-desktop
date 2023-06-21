@@ -110,7 +110,7 @@ export class SectionsRenderer {
 			}
 			const ordinalX = this.columns.startPosition(0) - 0.5 * scale
 			const ordinalMetric = new FontMetric('CommonLight/400', 2.0)
-			root.drawText(ordinalX, currY - 3.75, ordinalText, ordinalMetric, scale, 'left', 'bottom', {
+			root.drawText(ordinalX, currY - 3.5, ordinalText, ordinalMetric, scale, 'left', 'bottom', {
 				fontStyle: ordinalMode == 'plain' ? 'italic' : 'normal'
 			})
 		}
