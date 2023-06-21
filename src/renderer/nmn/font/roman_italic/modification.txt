@@ -1,1 +1,3 @@
-Modified unit per em to 960 and shift up by 40.
+Modified unit per em to 960.
+Change vertical boundaries 859 -145.
+Move {|}()[] up by 40.

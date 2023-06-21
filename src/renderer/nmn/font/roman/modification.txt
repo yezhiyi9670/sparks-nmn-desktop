@@ -1,3 +1,4 @@
-Modified unit per em to 960 and shift up by 40.
-Change ascendent and descendent border to 951, -299.
+Modified unit per em to 960.
+Change vertical boundaries 859 -145.
+Move {|}()[] up by 40.
 The transformed bold variant is the original one, and the regular variant is processed with thin(10, 2)

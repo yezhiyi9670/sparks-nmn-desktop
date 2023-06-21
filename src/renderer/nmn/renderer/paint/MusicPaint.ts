@@ -169,7 +169,7 @@ export class MusicPaint {
 					const rectLeftX = x - rectWidth / 2
 					const rectRightX = x + rectWidth / 2
 					this.root.drawRectOutline(rectLeftX, rectTopY, rectRightX, rectBottomY, 0.15, scale, extraStyles)
-					this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY + 0.13, attr, 1, scale, extraStyles, false, 'large')
+					this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr, 1, scale, extraStyles, false, 'large')
 				}
 			})
 		}
@@ -350,8 +350,8 @@ export class MusicPaint {
 			return measure
 		}
 		if(attr.type == 'label') {
-			const rectTopY = y - 1.5 * fontMetricLxr.fontScale
-			const rectBottomY = y + 1.27 * fontMetricLxr.fontScale
+			const rectTopY = y - 1.4 * fontMetricLxr.fontScale
+			const rectBottomY = y + 1.4 * fontMetricLxr.fontScale
 			const rectCenterY = y
 			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, 'bold')
 			const rectWidth = Math.max(measure[0] + 0.5 * scale * 2, (rectBottomY - rectTopY) * scale)
