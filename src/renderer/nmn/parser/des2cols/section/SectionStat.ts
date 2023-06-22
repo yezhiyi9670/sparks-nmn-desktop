@@ -492,6 +492,22 @@ export module SectionStat {
 		return checkSeparatorAttrs(section.separator.before.attrs) || (!beforeOnly && checkSeparatorAttrs(section.separator.after.attrs))
 	}
 	/**
+	 * 小节是否包含 openRange(*) 作为前/后属性
+	 */
+	export function openRangeMarked(section: MusicSection<unknown>) {
+		function checkSeparatorAttrs(attrs: SeparatorAttr[]) {
+			if(attrs.filter(attr => attr.type == 'openRange').length != 0) {
+				return true
+			}
+			return false
+		}
+
+		return (
+			checkSeparatorAttrs(section.separator.before.attrs) ||
+			checkSeparatorAttrs(section.separator.after.attrs)
+		)
+	}
+	/**
 	 * 小节线是否包含能渲染的上方属性
 	 */
 	export function hasSeparatorTopAttrs(section: MusicSection<unknown>) {

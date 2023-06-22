@@ -225,6 +225,7 @@ export class LineRenderer {
 
 		let hasJumperAttrOverlap = false
 		let hasFirstStart = false
+		let hasJumperAnnOverlap = false
 		
 		// 统计跳房子存在性与重叠情况
 		const firstAnnotation = SectionStat.fcaPrimary(part)
@@ -254,6 +255,23 @@ export class LineRenderer {
 				}
 				if(startIn && jumper.startSection - line.startSection == 0) {
 					hasFirstStart = true
+				}
+
+				let hasOpenRange = false
+				if(firstAnnotation) {
+					for(let i = jumper.startSection; i < jumper.endSection; i++) {
+						const section = firstAnnotation[i]
+						if(SectionStat.openRangeMarked(section)) {
+							hasOpenRange = true
+						}
+					}
+				}
+				if(
+					firstAnnotation &&
+					!SectionStat.allEmpty(firstAnnotation, jumper.startSection, jumper.endSection - jumper.startSection) &&
+					!hasOpenRange
+				) {
+					hasJumperAnnOverlap = true
 				}
 			})
 		}
@@ -310,15 +328,16 @@ export class LineRenderer {
 		}
 		currY -= fieldHeight
 		if(successCount > 0) {
-			if(!firstAnnotation) {
+			if(!firstAnnotation || hasJumperAnnOverlap) {
 				currY += fieldHeight
 				hasOwnField = true
-				if(hasJumperAttrOverlap) {
+				if(hasJumperAttrOverlap && !firstAnnotation) {
 					currY += fieldHeight
 				}
 			}
 		}
-		// 标记符号-属性重叠（且未触发 overlapField），标记符号-跳房子重叠，以及不存在标记符号时，跳房子需要自己的排版空间
+
+		// 区间减高
 		if(hasOwnField && !firstAnnotation) {
 			currY -= this.annotationInset  // 与标记行的减高行为匹配
 		}

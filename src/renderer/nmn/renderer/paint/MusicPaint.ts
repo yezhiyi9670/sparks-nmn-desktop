@@ -469,15 +469,18 @@ export class MusicPaint {
 				this.root.drawTextFast(startX, y, note.char, annotationMetric, scale, 'left', 'middle', extraStyles)
 			} else {
 				if(note.char == '<' || note.char == '>') {
-					const topY = y - noteMeasure[1] * 0.25
-					const bottomY = y + noteMeasure[1] * 0.25
+					y += 0.20 // 偏移量是调节参数
+					const openingSize = 0.22 + 0.06 * Math.sqrt((endX - startX) / (100 * scale))
+					const topY = y - noteMeasure[1] * openingSize
+					const bottomY = y + noteMeasure[1] * openingSize
 					const centerY = y
 					const lessX = note.char == '<' ? startX : endX
 					const moreX = note.char == '<' ? endX : startX
 					this.root.drawLine(lessX, centerY, moreX, topY, 0.15, 0.15 / 2, scale, extraStyles)
 					this.root.drawLine(lessX, centerY, moreX, bottomY, 0.15, 0.15 / 2, scale, extraStyles)
 				} else {
-					this.root.drawTextFast(startX, y, note.char, forceTextMetric, scale, 'left', 'middle', extraStyles)
+					// 偏移量是调节参数
+					this.root.drawTextFast(startX, y + noteMeasure[1] * forceScale * 0.20, note.char, forceTextMetric, scale, 'left', 'middle', extraStyles)
 				}
 			}
 		} else if(note.type == 'chord') {
