@@ -228,7 +228,7 @@ export class LineRenderer {
 		let hasJumperAnnOverlap = false
 		
 		// 统计跳房子存在性与重叠情况
-		const firstAnnotation = SectionStat.fcaPrimary(part)
+		const lastAnnotation = SectionStat.fcaLast(part)
 		let successCount = 0
 		if(isFirst && line.jumpers.length > 0) {
 			line.jumpers.forEach((jumper) => {
@@ -258,17 +258,23 @@ export class LineRenderer {
 				}
 
 				let hasOpenRange = false
-				if(firstAnnotation) {
-					for(let i = jumper.startSection; i < jumper.endSection; i++) {
-						const section = firstAnnotation[i]
+				let startSectionIn = Math.max(0, jumper.startSection - line.startSection)
+				let endSectionIn = Math.min(line.sectionCount, jumper.endSection - line.startSection)
+				if(lastAnnotation) {
+					for(let i = startSectionIn; i < endSectionIn; i++) {
+						const section = lastAnnotation[i]
 						if(SectionStat.openRangeMarked(section)) {
 							hasOpenRange = true
 						}
 					}
 				}
 				if(
-					firstAnnotation &&
-					!SectionStat.allEmpty(firstAnnotation, jumper.startSection, jumper.endSection - jumper.startSection) &&
+					lastAnnotation &&
+					!SectionStat.allEmpty(
+						lastAnnotation,
+						startSectionIn,
+						endSectionIn - startSectionIn
+					) &&
 					!hasOpenRange
 				) {
 					hasJumperAnnOverlap = true
@@ -328,17 +334,17 @@ export class LineRenderer {
 		}
 		currY -= fieldHeight
 		if(successCount > 0) {
-			if(!firstAnnotation || hasJumperAnnOverlap) {
+			if(!lastAnnotation || hasJumperAnnOverlap) {
 				currY += fieldHeight
 				hasOwnField = true
-				if(hasJumperAttrOverlap && !firstAnnotation) {
+				if(hasJumperAttrOverlap && !lastAnnotation) {
 					currY += fieldHeight
 				}
 			}
 		}
 
 		// 区间减高
-		if(hasOwnField && !firstAnnotation) {
+		if(hasOwnField && !lastAnnotation) {
 			currY -= this.annotationInset  // 与标记行的减高行为匹配
 		}
 

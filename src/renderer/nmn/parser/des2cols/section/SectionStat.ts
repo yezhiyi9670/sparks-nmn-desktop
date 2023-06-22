@@ -1,7 +1,7 @@
 import { iterateMap } from "../../../util/array";
 import { Frac, Fraction } from "../../../util/frac";
 import { ScoreContext, scoreContextDefault } from "../../sparse2des/context";
-import { DestructedFCA, LyricChar, MusicDecorationRange, MusicNote, MusicSection, NoteCharAny, SectionSeparatorChar, sectionSeparatorCharMap, SeparatorAttr } from "../../sparse2des/types";
+import { DestructedFCA, LyricChar, MusicDecorationRange, MusicNote, MusicSection, NoteCharAnnotation, NoteCharAny, SectionSeparatorChar, sectionSeparatorCharMap, SeparatorAttr } from "../../sparse2des/types";
 import { Jumper, LinedLyricLine, LinedPart, Linked2LyricLine, Linked2LyricSection } from "../types";
 
 export module SectionStat {
@@ -530,5 +530,19 @@ export module SectionStat {
 			}
 		}
 		return undefined
+	}
+	/**
+	 * 获取 FCA 中的最后标记行的小节
+	 */
+	export function fcaLast(section: DestructedFCA) {
+		let result: MusicSection<NoteCharAnnotation>[] | undefined = undefined
+		if(section.fcaItems.length > 0) {
+			for(let ann of section.fcaItems) {
+				if(!SectionStat.allEmpty(ann.sections, 0, ann.sections.length)) {
+					result = ann.sections
+				}
+			}
+		}
+		return result
 	}
 }
