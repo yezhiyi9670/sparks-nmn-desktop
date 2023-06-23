@@ -343,9 +343,9 @@ export default flattenI18nData({
 
 	// 链接
 	"link": {
-		"official": "https://sparksnmn.ak-ioi.com/",
+		"official": "https://nmn.sparks-lab.art/",
 		"github": 'https://github.com/yezhiyi9670/sparks-nmn-desktop',
-		"donate": 'https://sparksnmn.ak-ioi.com/donate/',
+		"donate": 'https://nmn.sparks-lab.art/donate/',
 		"github_core": 'https://github.com/yezhiyi9670/sparks-nmn'
 	},
 })
