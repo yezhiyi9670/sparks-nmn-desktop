@@ -781,7 +781,7 @@ export class NoteEater {
 				)
 			} else {
 				addIssue(issues,
-					this.lineNumber, token1.range[0], 'error', 'note_char_lyrics_annotations_unknown',
+					this.lineNumber, token1.range[0], 'error', 'note_char_lyric_annotation_unknown',
 					'Cannot interpret ${0} as an lyrics annotation',
 					Tokens.stringify([token1])
 				)
