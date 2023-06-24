@@ -54,7 +54,7 @@ export module FontLoader {
 			...font,
 			state: 'none' as ('none' | 'loading' | 'loaded')
 		}))
-		const maxLoadOnce = 5
+		const maxLoadOnce = 3
 		let loadings = 0
 		const startTasks = () => {
 			let loaded = 0
