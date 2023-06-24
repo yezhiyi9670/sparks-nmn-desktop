@@ -443,7 +443,7 @@ export class SectionsRenderer {
 					root.drawLine(startPaddedX, currY, endPaddedX, currY, barWidth, 0, scale) // 横杠
 					root.drawLine(startPaddedX, currY - sideLength, startPaddedX, currY + sideLength, 0.15, 0, scale) // 左边界线
 					root.drawLine(endPaddedX, currY - sideLength, endPaddedX, currY + sideLength, 0.15, 0, scale) // 右边界线
-					root.drawTextFast(midX, currY, section.count.toString(), omitNumberMetric, scale, 'center', 'bottom', {fontStyle: 'italic'})
+					root.drawTextFast(midX, currY, section.count.toString(), omitNumberMetric, scale, 'center', 'bottom')
 				}
 			}
 		})
