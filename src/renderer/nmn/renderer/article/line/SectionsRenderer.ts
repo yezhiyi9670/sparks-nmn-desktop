@@ -378,15 +378,15 @@ export class SectionsRenderer {
 							const annoMeasure = annoToken.measureFast(root)
 							const midLX = midX - annoMeasure[0] / 2 - 0.5 * scale
 							const midRX = midX + annoMeasure[0] / 2 + 0.5 * scale
-							root.drawLine(startX, lowY, startX, highY, 0.15, 0.1, scale)
+							root.drawLine(startX, lowY, startX, highY, 0.15, 0.1, scale) // 左边线
 							if(midLX > startX) {
-								root.drawLine(startX, highY, midLX, highY, 0.15, 0.1, scale)
+								root.drawLine(startX, highY, midLX, highY, 0.15, 0.1, scale) // 左横线
 							}
 							annoToken.drawFast(root, midX, highY, 'center', 'middle')
 							if(endX > midRX) {
-								root.drawLine(midRX, highY, endX, highY, 0.15, 0.1, scale)
+								root.drawLine(midRX, highY, endX, highY, 0.15, 0.1, scale) // 右横线
 							}
-							root.drawLine(endX, lowY, endX, highY, 0.15, 0.1, scale)
+							root.drawLine(endX, lowY, endX, highY, 0.15, 0.1, scale) // 右边线
 						}
 					})
 				}
@@ -430,12 +430,20 @@ export class SectionsRenderer {
 				const omitFontMetric = new FontMetric('CommonBlack/400', 2.16)
 				if(section.count != section.count) {
 					const startX = this.columns.paddedStartPosition(sectionIndex)
-					root.drawText(startX, currY, I18n.renderToken(context.language, 'omit'), omitFontMetric, scale, 'left', 'middle')
+					root.drawTextFast(startX, currY, I18n.renderToken(context.language, 'omit'), omitFontMetric, scale, 'left', 'middle')
 				} else {
-					const midX = (
-						this.columns.startPosition(sectionIndex) + this.columns.endPosition(sectionIndex)
-					) / 2
-					root.drawText(midX, currY, I18n.renderToken(context.language, 'omit_n', section.count.toString()), omitFontMetric, scale, 'center', 'middle')
+					const omitNumberMetric = new FontMetric('SparksNMN-mscore-20/400', 3.4)
+					const startX = this.columns.startPosition(sectionIndex)
+					const endX = this.columns.endPosition(sectionIndex)
+					const startPaddedX = this.columns.paddedStartPosition(sectionIndex)
+					const endPaddedX = this.columns.paddedEndPosition(sectionIndex)
+					const midX = (startX + endX) / 2
+					const barWidth = 0.8
+					const sideLength = 2 / 2
+					root.drawLine(startPaddedX, currY, endPaddedX, currY, barWidth, 0, scale) // 横杠
+					root.drawLine(startPaddedX, currY - sideLength, startPaddedX, currY + sideLength, 0.15, 0, scale) // 左边界线
+					root.drawLine(endPaddedX, currY - sideLength, endPaddedX, currY + sideLength, 0.15, 0, scale) // 右边界线
+					root.drawTextFast(midX, currY, section.count.toString(), omitNumberMetric, scale, 'center', 'bottom', {fontStyle: 'italic'})
 				}
 			}
 		})

@@ -187,16 +187,15 @@ export default {
 	},
 	'render': {
 		'transpose_prop': '移调${0}Key',
-		'shift_prop_a_1': '转1=',
+		'shift_prop_a_1': '1=',
 		'shift_prop_a_2': '',
-		'shift_prop_at_1': '转1=',
+		'shift_prop_at_1': '1=',
 		'shift_prop_at_2': '移',
 		'shift_prop_r': '${0}${1}',
 		'shift_prop_rt': '${0}${1}移',
 		'colon': '：',
 		'author_sep': ' ',
 		'omit': '(后略)',
-		'omit_n': '(省略${0}小节)',
 		'page': 'Page ${0} / Total ${1}',
 	},
 	'efLabels': {
