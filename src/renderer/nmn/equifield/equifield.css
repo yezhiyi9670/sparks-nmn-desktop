@@ -4,6 +4,7 @@
 	overflow-y: hidden;
 	line-height: 1.15;
 	/* background-color: #0004; */
+	font-size: 0;
 }
 .wcl-equifield-field {
 	page-break-inside: avoid;
