@@ -49,6 +49,9 @@ export function SparksNMNDisplay(props: Props) {
 			const renderResult = (() => {
 				try {
 					let fields1 = SparksNMN.render(result.result, language, positionCallback)
+					if(props.transformFields) {
+						fields1 = props.transformFields(fields1)
+					}
 					if(props.doPagination) {
 						fields1 = SparksNMN.paginize(result.result, fields1, language).result
 					}
@@ -67,7 +70,6 @@ export function SparksNMNDisplay(props: Props) {
 					}
 				}
 			})()
-			// console.log(fields)
 			let endTime = +new Date()
 			// eslint-disable-next-line react-hooks/exhaustive-deps
 			timing = endTime - startTime
@@ -84,7 +86,7 @@ export function SparksNMNDisplay(props: Props) {
 				pages: NaN
 			}
 		}
-	}, [result, language, positionCallback])
+	}, [result, language, positionCallback, props.transformFields])
 
 	const renderResultFields = renderResult.fields
 	React.useEffect(() => {
