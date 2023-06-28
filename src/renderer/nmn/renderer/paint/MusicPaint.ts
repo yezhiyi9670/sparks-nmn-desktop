@@ -1047,6 +1047,7 @@ export class MusicPaint {
 		let dotText = speed.symbol.indexOf('.') != -1 ? '\uE127' : ''
 		if(speed.text && speed.text[0] != '=') {
 			symbolText = ''
+			dotText = ''
 		}
 		const symbolToken = new PaintTextToken(
 			symbolText,
