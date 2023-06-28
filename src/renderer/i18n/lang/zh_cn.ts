@@ -44,7 +44,8 @@ export default flattenI18nData({
 		"save_before_export": "不能导出未保存过的文件。",
 		"exported": "已将预览导出到 ${0}",
 		"print_fail": "准备打印环境失败",
-		"print_launch_fail": "无法启动浏览器，请检查设置中的浏览器路径是否正确。"
+		"print_launch_fail": "无法启动浏览器，请检查设置中的浏览器路径是否正确。",
+		"new_version": "新版本 ${0} 现已可用，可前往官网下载。",
 	},
 
 	// 提示弹窗

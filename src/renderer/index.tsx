@@ -18,6 +18,9 @@ import { ToastProvider, useToast } from './dialog/toast/ToastProvider'
 import $ from 'jquery'
 import Color from 'color'
 import ColorScheme from './ColorScheme'
+import { compareVersions } from 'compare-versions'
+
+const checkUpdateUrl = 'https://nmn.sparks-lab.art/latest-version.json'
 
 document.title = 'Sparks NMN Desktop'
 
@@ -52,6 +55,26 @@ function AppIn() {
 	const editorApiRef = createRef<IntegratedEditorApi>()
 	const showToast = useToast()
 	const prefs = usePref()
+
+	// ===== 更新检查 =====
+	useOnceEffect(() => {
+		setTimeout(() => {
+			$.ajax({
+				dataType: 'json',
+				method: 'GET',
+				timeout: 15000,
+				url: checkUpdateUrl,
+				success: (testObj) => {
+					if(compareVersions(testObj.desktop_version, window.Versions.app) > 0) {
+						showToast(LNG('toast.new_version', testObj.desktop_version), 3500)
+					}
+				},
+				error: (err) => {
+					console.warn('Update chek failed', err)
+				}
+			})
+		}, 1000)
+	})
 
 	const fileFiltersOpen: Electron.FileFilter[] = [
 		{name: LNG('browse.format.spnmn'), extensions: ['spnmn', 'spnmn.txt']},
