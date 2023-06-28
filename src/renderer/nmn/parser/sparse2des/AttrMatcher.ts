@@ -402,16 +402,13 @@ export module AttrMatcher {
 	}
 
 	export function stringQpm(item: string, lineNumber: number, index: number, issues: LinedIssue[]): Qpm | undefined {
-		if(!(/^[q|s|h]pm=/.test(item))) {
+		if(!(/^[q|s|h]\.?pm=/.test(item))) {
 			return undefined
 		}
-		let symbol: 'qpm' | 'spm' | 'hpm' = 'qpm'
-		if(item[0] == 's') {
-			symbol = 'spm'
-		} else if(item[0] == 'h') {
-			symbol = 'hpm'
-		}
-		const descriptor = item.substring(4)
+		let symbol: 'qpm' | 'q.pm' | 'spm' | 's.pm' | 'hpm' | 'h.pm' = (
+			item.substring(0, item.indexOf('=')) as any
+		)
+		const descriptor = item.substring(item.indexOf('=') + 1)
 		let val = 0
 		let desc = ''
 		if(descriptor.indexOf('/') != -1) {

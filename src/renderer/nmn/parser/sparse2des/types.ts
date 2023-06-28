@@ -13,7 +13,7 @@ export type Beats = {
 
 export type Qpm = {
 	value: number
-	symbol: 'hpm' | 'qpm' | 'spm'
+	symbol: 'hpm' | 'h.pm' | 'qpm' | 'q.pm' | 'spm' | 's.pm'
 	text?: string
 }
 

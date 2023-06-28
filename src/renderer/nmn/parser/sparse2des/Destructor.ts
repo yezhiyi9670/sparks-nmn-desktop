@@ -291,7 +291,7 @@ export class Destructor {
 					return
 				}
 				// qpm
-				if(/^[q|s|h]pm=/.test(item)) {
+				if(/^[q|s|h]\.?pm=/.test(item)) {
 					let result = AttrMatcher.stringQpm(item, line.lineNumber, 0, issues)
 					if(result !== undefined) {
 						props.qpm = result

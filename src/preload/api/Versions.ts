@@ -1,4 +1,2 @@
-export default {
-	app: '1.13.14',
-	core: '1.13.14'
-}
+import VersionInfo from "../../../version-number.json"
+export default VersionInfo

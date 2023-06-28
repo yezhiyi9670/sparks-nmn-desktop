@@ -56,14 +56,15 @@ export class MusicPaint {
 	/**
 	 * 拍号音符
 	 */
-	symbolBeats(symbol: 'qpm' | 'hpm' | 'spm') {
-		if(symbol == 'qpm') {
+	symbolBeats(symbol: 'qpm' | 'q.pm' | 'hpm' | 'h.pm' | 'spm' | 's.pm') {
+		// 因为布局问题这里不包含点
+		if(symbol == 'qpm' || symbol == 'q.pm') {
 			return "\uE1D8"
 		}
-		if(symbol == 'hpm') {
+		if(symbol == 'hpm' || symbol == 'h.pm') {
 			return "\uE1D6"
 		}
-		if(symbol == 'spm') {
+		if(symbol == 'spm' || symbol == 's.pm') {
 			return "\uE1D9"
 		}
 		return ''
@@ -1043,7 +1044,8 @@ export class MusicPaint {
 		const textMeasure = textToken.measureFast(this.root)
 		
 		let symbolText = this.symbolBeats(speed.symbol)
-		if(speed.text) {
+		let dotText = speed.symbol.indexOf('.') != -1 ? '\uE127' : ''
+		if(speed.text && speed.text[0] != '=') {
 			symbolText = ''
 		}
 		const symbolToken = new PaintTextToken(
@@ -1051,10 +1053,16 @@ export class MusicPaint {
 			new FontMetric('SparksNMN-mscore-20', 3.2 * fontScale),
 			scale, extraStyles
 		)
+		const dotToken = new PaintTextToken(
+			dotText,
+			new FontMetric('SparksNMN-mscore-20', 3.2 * fontScale),
+			scale, extraStyles
+		)
 		const symbolMeasure = symbolToken.measure(this.root)
+		const dotMeasure = dotToken.measure(this.root)
 
 		const totalMeasure = [
-			textMeasure[0] + symbolMeasure[0],
+			textMeasure[0] + dotMeasure[0] + symbolMeasure[0],
 			textMeasure[1]
 		]
 
@@ -1066,11 +1074,16 @@ export class MusicPaint {
 		if(symbolText) {
 			symbolToken.drawFast(this.root, currX, y + symbolMeasure[1] * 0.08, 'left', 'middle')
 			currX += symbolMeasure[0]
-			if(speed.symbol != 'spm') {
-				currX -= symbolMeasure[0] * 0.35
-			} else {
-				currX -= symbolMeasure[0] * 0.08
+			currX -= symbolMeasure[0] * 0.32
+		}
+		if(dotText) {
+			dotToken.drawFast(this.root, currX, y + symbolMeasure[1] * 0.08, 'left', 'middle')
+			if(speed.symbol != 'spm' && speed.symbol != 's.pm') {
+				currX += dotMeasure[0] * 0.4
 			}
+		}
+		if(speed.symbol == 'spm' || speed.symbol == 's.pm') {
+			currX += symbolMeasure[0] * 0.35
 		}
 		textToken.drawFast(this.root, currX, y, 'left', 'middle')
 		currX += textMeasure[0]
