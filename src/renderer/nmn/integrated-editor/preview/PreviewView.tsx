@@ -93,7 +93,6 @@ export function PreviewView(props: {
 		<PreviewBlank />
 	), [])
 	const alignMode = prefs.previewAlign!
-	console.log(alignMode)
 	return (
 		<div className={classes.root} style={{
 			maxWidth: maxWidth,
@@ -120,8 +119,11 @@ function PreviewBlank(props: {}) {
 	const divRef = createRef<HTMLDivElement>()
 
 	useEffect(() => {
-		callRef(divRef, div => {
-			const ef = new Equifield(div)
+		let ef: Equifield | undefined = undefined
+		if(divRef.current) {
+			ef = new Equifield(divRef.current)
+		}
+		if(ef) {
 			ef.render([
 				{
 					element: $('<span></span>').css({
@@ -146,7 +148,10 @@ function PreviewBlank(props: {}) {
 					height: 4
 				},
 			])
-		})
+		}
+		return () => {
+			ef && ef.destroy()
+		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [language])
 

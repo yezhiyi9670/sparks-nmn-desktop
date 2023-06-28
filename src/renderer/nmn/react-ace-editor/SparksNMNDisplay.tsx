@@ -104,6 +104,7 @@ export function SparksNMNDisplay(props: Props) {
 		const ef = new Equifield(element)
 		ef.field = 120
 		ef.padding = 10
+		ef.resize()
 
 		const labels = renderResultFields.map(field => field.label)
 		let startIndex = 0

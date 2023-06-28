@@ -29,8 +29,9 @@ export class Equifield {
 
 	resize() {
 		const $element = jquery(this.element)
-		let width = $element[0].clientWidth
+		let width = this.element.offsetWidth
 		if(width > 0) {
+			$element.css('padding', `0 ${this.padding}em`)
 			$element.css('font-size', `${width / (this.field - 0 * this.padding)}px`)
 		}
 	}
