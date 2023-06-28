@@ -1,23 +1,19 @@
-import React, { createRef, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { createRef, useContext, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createUseStyles } from 'react-jss'
-import { randomToken } from '../../util/random'
-import { useI18n } from '../i18n/i18n'
-import { NMNI18n, SparksNMN } from '../nmn'
-import { SparksNMNEditor } from '../nmn/react-ace-editor/SparksNMNEditor'
+import { randomToken } from '../util/random'
+import { NMNI18n, SparksNMN } from '..'
+import { SparksNMNEditor } from '../react-ace-editor/SparksNMNEditor'
 import { StatusDisplayMode } from './status/display-mode'
 import AceEditor from 'react-ace'
-import { usePref } from '../prefs/PrefProvider'
-import { useImmer } from 'use-immer'
-import { createDethrottledApplier } from '../../util/event'
-import { callRef, useMethod } from '../../util/hook'
+import { createDethrottledApplier } from '../util/event'
+import { callRef, useMethod } from '../util/hook'
 import { StatusProcessTime } from './status/process-time'
 import { StatusFileSize } from './status/file-size'
 import { PreviewCursor, PreviewView } from './preview/PreviewView'
 import { StatusDirty } from './status/dirty-state'
-import { useExportTemplate } from '..'
-import Color from 'color'
-import ColorScheme from '../ColorScheme'
 import { StatusPages } from './status/pages'
+import { LanguageArray } from '../i18n'
+import { basenameName } from '../util/basename'
 
 const useStyles = createUseStyles({
 	editor: {
@@ -41,7 +37,6 @@ const useStyles = createUseStyles({
 	groupStatusBar: {
 		borderTop: '1px solid #0002',
 		height: '28px',
-		background: ColorScheme.voidary,
 		whiteSpace: 'nowrap',
 		display: 'flex',
 		flexDirection: 'row'
@@ -57,21 +52,124 @@ const useStyles = createUseStyles({
 	},
 	hidden: {
 		display: 'none'
+	},
+	'@media print': {
+		groupSeparator: {
+			display: 'none'
+		},
+		groupEdit: {
+			display: 'none'
+		},
+		groupStatusBar: {
+			display: 'none'
+		}
 	}
 })
 
 type DisplayMode = 'edit' | 'split' | 'preview'
 
-interface Props {}
+export interface IntegratedEditorColorScheme {
+	voidary?: string,
+	voidaryHover?: string,
+	voidarySelected?: string,
+	voidaryActive?: string,
+}
+const defaultColorScheme: IntegratedEditorColorScheme = {
+	voidary: '#F0EEF1',
+	voidaryActive: '#0002',
+	voidaryHover: '#0001',
+	voidarySelected: '#00000019'
+}
+
+export interface IntegratedEditorPrefs {
+	fontFamily?: string,
+	fontSize?: number,
+	autoSave?: 'off' | 'overwrite',
+	previewRefresh?: string,
+	showFileSize?: 'off' | 'source' | 'all',
+	fileSizeUnit?: 'b' | 'kunb' | 'kb' | 'kkunb' | 'mb' | 'mkunb'
+	showProcessTime?: 'off' | 'on'
+	previewMaxWidth?: number,
+	previewAlign?: 'left' | 'center',
+	displayMode?: 'split' | 'preview',
+	modifyTitle?: {
+		"default": string,
+		"new": string,
+		"newDirty": string,
+		"clean": string,
+		"dirty": string
+	},
+
+	importantWarning?: {text: string, height: number},
+	temporarySave?: boolean
+}
+const defaultEditorPrefs: IntegratedEditorPrefs = {
+	fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', 'Sarasa Mono SC'",
+	fontSize: 14.5,
+	autoSave: 'off',
+	previewRefresh: 'delay2000',
+	showFileSize: 'all',
+	fileSizeUnit: 'kb',
+	showProcessTime: 'on',
+	previewMaxWidth: 1000,
+	previewAlign: 'left',
+	displayMode: 'split',
+	modifyTitle: undefined,
+
+	importantWarning: undefined,
+	temporarySave: false
+}
+
+interface Context {
+	language: LanguageArray
+	prefs: IntegratedEditorPrefs
+	colorScheme: IntegratedEditorColorScheme
+}
+export const IntegratedEditorContext = React.createContext<Context>({
+	language: NMNI18n.languages.zh_cn,
+	prefs: defaultEditorPrefs,
+	colorScheme: defaultColorScheme
+})
+
+interface Props {
+	language: LanguageArray
+	editorPrefs?: IntegratedEditorPrefs
+	colorScheme?: IntegratedEditorColorScheme
+	onRequestSave?: () => void
+}
 
 // eslint-disable-next-line react/display-name
-export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((props, ref) => {
+export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((props: Props, ref) => {
+	const contextValue: Context = useMemo(() => ({
+		language: props.language,
+		prefs: {
+			...defaultEditorPrefs,
+			...props.editorPrefs,
+		},
+		colorScheme: {
+			...defaultColorScheme,
+			...props.colorScheme
+		}
+	}), [props.colorScheme, props.editorPrefs, props.language])
+
+	return (
+		<IntegratedEditorContext.Provider value={contextValue}>
+			<__IntegratedEditor ref={ref} onRequestSave={props.onRequestSave} />
+		</IntegratedEditorContext.Provider>
+	)
+})
+
+interface __Props {
+	onRequestSave?: () => void
+}
+
+// eslint-disable-next-line react/display-name
+export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>((props: __Props, ref) => {
+	const { language, prefs, colorScheme } = useContext(IntegratedEditorContext)
+
 	const name = useMemo(() => {
 		return randomToken(24)
 	}, [])
-	const LNG = useI18n()
-	const prefs = usePref()
-	const exportTemplate = useExportTemplate()
 	const languageArray = NMNI18n.languages.zh_cn
 	const classes = useStyles()
 	const editorRef = useRef<AceEditor>(null)
@@ -89,7 +187,7 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 	})
 
 	// ===== 预览刷新模式 =====
-	const updateChoice = prefs.getValue<string>('previewRefresh')
+	const updateChoice = prefs.previewRefresh!
 	let updateMode: 'instant' | 'dethrottle' | 'none' = 'none'
 	let updateDelay: number = 1000
 	if(updateChoice == 'realtime') {
@@ -200,7 +298,7 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 		}
 	}
 
-	const fileSizeMode = prefs.getValue<string>('showFileSize')
+	const fileSizeMode = prefs.showFileSize!
 	const ret = <div className={classes.editor}>
 		<div className={`${classes.groupPreview} ${displayMode == 'edit' ? classes.hidden : ''}`}>
 			{previewView}
@@ -210,7 +308,7 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 			<style>
 				{`
 					.${classes.groupEdit} .ace_editor, .ace_editor.ace_autocomplete {
-						font-family: ${prefs.getValue<string>('fontFamily').replace(/(;|\{|\})/g, '')}
+						font-family: ${prefs.fontFamily!}
 					}
 				`}
 			</style>
@@ -223,10 +321,10 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 				onCursorChange={handleCursorChange}
 				ref={editorRef}
 				issues={parseResult.result.issues}
-				fontSize={prefs.getValue<number>('fontSize')}
+				fontSize={prefs.fontSize!}
 			/>
 		</div>
-		<div className={classes.groupStatusBar}>
+		<div className={classes.groupStatusBar} style={{background: colorScheme.voidary}}>
 			<div className={classes.statusBarGroup}>
 				<StatusDisplayMode value={displayMode} onChange={setDisplayMode} />
 			</div>
@@ -237,11 +335,12 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 					isDirty={isDirty}
 					isPreviewDirty={isPreviewDirty}
 					onForceUpdate={handleForceUpdate}
+					onRequestSave={props.onRequestSave}
 				/>
 				<StatusPages
 					pages={renderedPages}
 				/>
-				{prefs.getValue<string>('showProcessTime') == 'on' && (
+				{prefs.showProcessTime! == 'on' && (
 					<StatusProcessTime parseTime={parseResult.timing} renderTime={renderTiming} />
 				)}
 				{fileSizeMode != 'off' && (
@@ -293,30 +392,30 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 	const handleOpen = useMethod((data: {path: string, content: string}) => {
 		setValue(data.content)
 		updateResult(data.content)
-		setDisplayMode(prefs.getValue<'split' | 'preview'>('displayMode'))
+		setDisplayMode(prefs.displayMode!)
 		setFilename(data.path)
 		setIsDirty(false)
 		setIsPreviewDirty(false)
 		resetSession()
 	})
-	const handleExport = useMethod(() => {
+	const handleExport = useMethod((template: string, localFontLocation: string) => {
 		if(isPreviewDirty) {
 			updateResult()
 		}
 		const fields = SparksNMN.render(parseResult.result.result, languageArray)
 		const pagedFields = SparksNMN.paginize(parseResult.result.result, fields, languageArray).result
-		let title = LNG('preview.new_title')
+		let title = NMNI18n.editorText(language, 'preview.new_title')
 		if(filename !== undefined) {
-			title = window.Path.parse(filename).name
+			title = basenameName(filename)
 		}
 		const packedData = 'window.efData=' + JSON.stringify(pagedFields.map((field) => ({
 			...field,
 			element: field.element.outerHTML
 		}))).replace(/</g, "\\x3c") + ';document.title=' + JSON.stringify(title).replace(/</g, "\\x3c")
-		const htmlData = exportTemplate
+		const htmlData = template
 			.replace('/*{script:content:data}*/', packedData)
 			.replace('/*{script:content:flags}*/', 'window.localFontLocation = ' + JSON.stringify(
-				'file:///' + window.FileSystem.getResourcePath().replace(/\\/g, '/') + '/dist/public/nmn/font'
+				localFontLocation
 			))
 		return htmlData
 	})
@@ -342,8 +441,8 @@ export const IntegratedEditor = React.forwardRef<IntegratedEditorApi, Props>((pr
 		triggerOpen: (data) => {
 			return handleOpen(data)
 		},
-		exportHtml: () => {
-			return handleExport()
+		exportHtml: (template: string, localFontLocation: string) => {
+			return handleExport(template, localFontLocation)
 		}
 	}))
 
@@ -358,5 +457,5 @@ export interface IntegratedEditorApi {
 	triggerSaved: (filename: string) => void
 	triggerNew: () => void
 	triggerOpen: (data: {path: string, content: string}) => void
-	exportHtml: () => string
+	exportHtml: (template: string, localFontLocation: string) => string
 }

@@ -1,19 +1,23 @@
 import { getCommandDef, lineLevelNames } from "../parser/commands"
 import { Issue } from "../parser/issue/issue"
+import { iterateMap } from "../util/array"
 import { getLanguageValue } from "../util/template"
 import languageArray_zh_cn from './zh_cn'
 
+type FlattenedI18nData = {[_: string]: string}
+
 export type LanguageArray = {
 	levelNameKeys: {[_: string]: number[]}
-	levelNames: {[_: string]: string}
-	issues: {[_: string]: string}
-	notices: {[_: string]: string}
-	commands: {[_: string]: string}
-	updown: {[_: string]: string}
-	metrics: {[_: string]: string}
-	render: {[_: string]: string}
-	render_props: {[_: string]: string}
-	efLabels: {[_: string]: string}
+	levelNames: FlattenedI18nData
+	issues: FlattenedI18nData
+	notices: FlattenedI18nData
+	commands: FlattenedI18nData
+	updown: FlattenedI18nData
+	metrics: FlattenedI18nData
+	render: FlattenedI18nData
+	render_props: FlattenedI18nData
+	efLabels: FlattenedI18nData
+	editor: FlattenedI18nData
 }
 
 class I18nClass {
@@ -81,6 +85,12 @@ class I18nClass {
 			label: [key, ...args].join('-'),
 			localeLabel: getLanguageValue(context.efLabels[key] ?? key, ...args)
 		}
+	}
+	/**
+	 * 编辑器文本
+	 */
+	editorText(context: LanguageArray, key: string, ...args: string[]) {
+		return getLanguageValue(context.editor[key], ...args)
 	}
 }
 

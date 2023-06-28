@@ -8,7 +8,12 @@ const entries: PrefRendererInfo = [
 				key: 'language',
 				defaultValue: ['string', 'zh_cn'],
 				type: 'language'
-			}
+			},
+			{
+				key: 'uiFontFamily',
+				defaultValue: ['string', "sans-serif, system-ui"],
+				type: 'string'
+			},
 		]
 	},
 	{
@@ -37,7 +42,7 @@ const entries: PrefRendererInfo = [
 				type: 'select',
 				choices: [
 					'realtime',
-					'delay200', 'delay500', 'delay1000',
+					'delay200', 'delay500', 'delay1000', 'delay2000',
 					'delay3000', 'delay5000', 'delay10000',
 					'none'
 				]
@@ -68,7 +73,7 @@ const entries: PrefRendererInfo = [
 			},
 			{
 				key: 'previewAlign',
-				defaultValue: ['string', 'center'],
+				defaultValue: ['string', 'left'],
 				type: 'select',
 				choices: ['center', 'left']
 			},

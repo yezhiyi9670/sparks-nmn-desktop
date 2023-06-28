@@ -25,58 +25,6 @@ export default flattenI18nData({
 		"about": "关于",
 	},
 
-	// 状态栏
-	"status": {
-		// 显示模式
-		"displaymode": {
-			"edit": "编辑",
-			"split": "拆分",
-			"preview": "预览",
-		},
-		// 保存状态
-		"dirty": {
-			"new": "新文档",
-			"clean": "已保存",
-			"dirty": "未保存",
-			"preview": {
-				"clean": "已刷新预览",
-				"dirty": "未刷新预览"
-			}
-		},
-		// 页面数
-		"pages": {
-			"nan": "粗排模式",
-			"value": "共${0}页"
-		},
-		// 计时信息
-		"timing": {
-			"both": "${0}ms/${1}ms",
-		},
-		// 文件大小
-		"size": {
-			"unit": {
-				"b": "B",
-				"kunb": "坤B",
-				"kb": "KB",
-				"kkunb": "K坤B",
-				"mb": "MB",
-				"mkunb": "M坤B"
-			}
-		}
-	},
-
-	// 预览
-	"preview": {
-		"new_title": "新文档",
-		"blank": {
-			"title": "空白文档",
-			"desc": {
-				"1": "此文档没有任何有效内容。",
-				"2": "要使文档有效，请向其中添加音乐属性行（以 P 或 Props 开头）。"
-			}
-		}
-	},
-
 	// 浏览目录
 	"browse": {
 		"open": "打开文件",
@@ -184,8 +132,12 @@ export default flattenI18nData({
 				"title": "语言",
 				"desc": "界面的显示语言。"
 			},
+			"uiFontFamily": {
+				"title": "界面字体系列",
+				"desc": "控制界面使用的字体系列。\n可以依次指定多个字体，用英文逗号隔开。若字体名称含空格应加上单引号。\n如果不小心把界面玩坏了，请删除或手动编辑安装目录下的 data/prefs/settings.json 来修复。",
+			},
 			"fontFamily": {
-				"title": "字体系列",
+				"title": "编辑器字体系列",
 				"desc": "编辑器使用的字体系列。\n可以依次指定多个字体，用英文逗号隔开。若字体名称含空格应加上单引号。\n英文字符应当始终使用等宽字体，否则编辑器可能不会正常工作。"
 			},
 			"fontSize": {
@@ -241,6 +193,7 @@ export default flattenI18nData({
 					"delay200": "停止编辑后 0.2s",
 					"delay500": "停止编辑后 0.5s",
 					"delay1000": "停止编辑后 1s",
+					"delay2000": "停止编辑后 2s",
 					"delay3000": "停止编辑后 3s",
 					"delay5000": "停止编辑后 5s",
 					"delay10000": "停止编辑后 10s",
@@ -265,7 +218,7 @@ export default flattenI18nData({
 			},
 			"paperSize": {
 				"title": "纸张大小",
-				"desc": "导出 PDF 时使用的纸张大小。\n打印的纸张大小不受此设置影响，请在打印对话框中选择。",
+				"desc": "在乐谱未指定纸张大小的情况下，导出 PDF 时使用的纸张大小。\n打印的纸张大小不受此设置影响，请在打印对话框中选择。",
 				"choice": {
 					"A4": "A4",
 					"B5": "B5",

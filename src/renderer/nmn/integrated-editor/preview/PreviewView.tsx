@@ -1,13 +1,12 @@
-import React, { createRef, useEffect, useMemo, useRef } from "react"
+import React, { createRef, useContext, useEffect, useMemo, useRef } from "react"
 import { createUseStyles } from "react-jss"
-import { callRef } from "../../../util/hook"
-import { useI18n } from "../../i18n/i18n"
-import { NMNLanguageArray, NMNResult } from "../../nmn"
-import { SparksNMNPreview } from "../../nmn/react-ace-editor/SparksNMNPreview"
-import { usePref } from "../../prefs/PrefProvider"
+import { callRef } from "../../util/hook"
+import { NMNI18n, NMNLanguageArray, NMNResult } from "../.."
+import { SparksNMNPreview } from "../../react-ace-editor/SparksNMNPreview"
 import $ from 'jquery'
-import { Equifield } from "../../nmn/equifield/equifield"
-import ColorScheme from "../../ColorScheme"
+import { Equifield } from "../../equifield/equifield"
+import { IntegratedEditorContext } from "../IntegratedEditor"
+import { useOnceEffect } from "../../util/event"
 
 const useStyles = createUseStyles({
 	root: {
@@ -17,11 +16,18 @@ const useStyles = createUseStyles({
 		boxSizing: 'border-box',
 		userSelect: 'text',
 		minHeight: '100%',
-		'& .SparksNMN-sechl': {
-			boxShadow: 'none !important',
-			backgroundColor: ColorScheme.selection,
-			opacity: '1 !important'
-		}
+	},
+	warningEf: {},
+	'@media print': {
+		warningEf: {
+			display: 'none'
+		},
+		root: {
+			border: 'none !important',
+			'& .SparksNMN-sechl': {
+				display: 'none'
+			}
+		},
 	}
 })
 
@@ -39,11 +45,13 @@ export function PreviewView(props: {
 	onReportSize?: (value: number) => void
 	onReportPages?: (value: number) => void
 }) {
-	const classes = useStyles()
-	const prefs = usePref()
+	const { language, prefs, colorScheme } = useContext(IntegratedEditorContext)
 
-	const prevMaxWidth = useRef(prefs.getValue<number>('previewMaxWidth'))
-	const maxWidth = prefs.getValue<number>('previewMaxWidth')
+	const classes = useStyles()
+	const warningDivRef = useRef<HTMLDivElement | null>(null)
+
+	const prevMaxWidth = useRef(prefs.previewMaxWidth!)
+	const maxWidth = prefs.previewMaxWidth!
 	const updateWidth = prevMaxWidth.current != maxWidth
 	prevMaxWidth.current = maxWidth
 	const hasContent = !props.result || props.result.result.musicalProps
@@ -58,17 +66,41 @@ export function PreviewView(props: {
 			props.onReportPages && props.onReportPages(NaN)
 		}
 	})
+	useOnceEffect(() => {
+		if(warningDivRef.current) {
+			const ef = new Equifield(warningDivRef.current)
+			const fontSize = 1.8
+			ef.render([{
+				element: $('<div></div>').text(prefs.importantWarning?.text ?? '').css({
+					whiteSpace: 'pre',
+					padding: `${1.8 / fontSize}em`,
+					fontSize: `${fontSize * 5}em`,
+					width: `${100 / fontSize}em`,
+					boxSizing: 'border-box',
+					background: '#fffbe6',
+					border: `${0.15 / fontSize}em solid #f4bd00`,
+					color: '#000D',
+					lineHeight: 1.35,
+					transformOrigin: 'left top',
+					transform: 'scale(0.2)'
+				})[0],
+				height: prefs.importantWarning?.height ?? 0,
+			}])
+		}
+	})
 
 	const blankPreview = useMemo(() => (
 		<PreviewBlank />
 	), [])
-	const alignMode = prefs.getValue<string>('previewAlign')
+	const alignMode = prefs.previewAlign!
+	console.log(alignMode)
 	return (
 		<div className={classes.root} style={{
 			maxWidth: maxWidth,
 			margin: (alignMode == 'center') ? '0 auto' : '',
 			borderRight: (alignMode == 'left') ? '1px solid #0002' : ''
 		}}>
+			{prefs.importantWarning && <div ref={warningDivRef} className={classes.warningEf}></div>}
 			{hasContent ? <SparksNMNPreview
 				result={props.result}
 				language={props.language}
@@ -82,8 +114,9 @@ export function PreviewView(props: {
 	)
 }
 
-function PreviewBlank() {
-	const LNG = useI18n()
+function PreviewBlank(props: {}) {
+	const { language, prefs, colorScheme } = useContext(IntegratedEditorContext)
+
 	const divRef = createRef<HTMLDivElement>()
 
 	useEffect(() => {
@@ -95,27 +128,27 @@ function PreviewBlank() {
 						fontSize: '3em',
 						fontWeight: 700,
 						color: '#999'
-					}).text(LNG('preview.blank.title'))[0],
+					}).text(NMNI18n.editorText(language, 'preview.blank.title'))[0],
 					height: 6
 				},
 				{
 					element: $('<span></span>').css({
 						fontSize: '2em',
 						color: '#999'
-					}).text(LNG('preview.blank.desc.1'))[0],
+					}).text(NMNI18n.editorText(language, 'preview.blank.desc.1'))[0],
 					height: 4
 				},
 				{
 					element: $('<span></span>').css({
 						fontSize: '2em',
 						color: '#999'
-					}).text(LNG('preview.blank.desc.2'))[0],
+					}).text(NMNI18n.editorText(language, 'preview.blank.desc.2'))[0],
 					height: 4
 				},
 			])
 		})
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [language])
 
 	return <div ref={divRef}></div>
 }

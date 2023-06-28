@@ -1,3 +1,5 @@
+import { flattenI18nData } from "./flatten-i18n-data";
+
 export default {
 	levelNameKeys: {
 		'empty_tree': [0],
@@ -211,5 +213,61 @@ export default {
 		'pageBottomMargin': '印刷页面下边距',
 		'pageSeparator': '[仅限预览] 页面分割线',
 		'pageDescend': '页脚 第${0}页'
-	}
+	},
+	'editor': flattenI18nData({
+		// 状态栏
+		"status": {
+			// 显示模式
+			"displaymode": {
+				"edit": "编辑",
+				"split": "拆分",
+				"preview": "预览",
+			},
+			// 保存状态
+			"dirty": {
+				"new": "新文档",
+				"clean": "已保存",
+				"dirty": "未保存",
+				"newTemporary": "新文档",
+				"cleanTemporary": "已暂存",
+				"dirtyTemporary": "未暂存",
+				"preview": {
+					"clean": "已刷新预览",
+					"dirty": "未刷新预览"
+				}
+			},
+			// 页面数
+			"pages": {
+				"nan": "粗排模式",
+				"value": "共${0}页"
+			},
+			// 计时信息
+			"timing": {
+				"both": "${0}ms/${1}ms",
+			},
+			// 文件大小
+			"size": {
+				"unit": {
+					"b": "B",
+					"kunb": "坤B",
+					"kb": "KB",
+					"kkunb": "K坤B",
+					"mb": "MB",
+					"mkunb": "M坤B"
+				}
+			}
+		},
+
+		// 预览
+		"preview": {
+			"new_title": "新文档",
+			"blank": {
+				"title": "空白文档",
+				"desc": {
+					"1": "此文档没有任何有效内容。",
+					"2": "要使文档有效，请向其中添加音乐属性行（以 P 或 Props 开头）。"
+				}
+			}
+		},
+	})
 }

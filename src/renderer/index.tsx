@@ -5,14 +5,14 @@ import { AppBar } from './appbar/appbar'
 import { AboutDialog } from './dialog/about'
 import { HintDialog } from './dialog/hint/HintDialog'
 import { SettingsDialog } from './dialog/settings/settings'
-import { IntegratedEditor, IntegratedEditorApi } from './editor/editor'
+import { IntegratedEditor, IntegratedEditorApi } from './nmn/integrated-editor/IntegratedEditor'
 import ErrorBoundary from './ErrorBoundary'
 import { I18nProvider, useI18n } from './i18n/i18n'
 import { PrefProvider, usePref } from './prefs/PrefProvider'
 import hintDialogEntries from './dialog/hint/entries'
 import { HintController, HintControllerApi } from './dialog/hint/hint'
 import { useOnceEffect } from '../util/event'
-import { SparksNMN } from './nmn'
+import { NMNI18n, SparksNMN } from './nmn'
 import { callRef, useMethod } from '../util/hook'
 import { ToastProvider, useToast } from './dialog/toast/ToastProvider'
 import $ from 'jquery'
@@ -47,6 +47,7 @@ const exportCooldown = 1000
 function AppIn() {
 	const classes = useStyles()
 	const LNG = useI18n()
+	const exportTemplate = useExportTemplate()
 	const hintApiRef = createRef<HintControllerApi>()
 	const editorApiRef = createRef<IntegratedEditorApi>()
 	const showToast = useToast()
@@ -175,7 +176,8 @@ function AppIn() {
 		return true
 	}
 	async function exportHtmlIn(path: string, editorApi: IntegratedEditorApi) {
-		const exportContent = editorApi.exportHtml()
+		const localFontLocation = 'file:///' + window.FileSystem.getResourcePath().replace(/\\/g, '/') + '/dist/public/nmn/font'
+		const exportContent = editorApi.exportHtml(exportTemplate, localFontLocation)
 		const basename = window.Path.basename(path)
 		if(await window.FileSystem.saveText(path, exportContent)) {
 			showToast(LNG('toast.exported', basename))
@@ -363,13 +365,41 @@ function AppIn() {
 		}
 	})
 
+	const editorPrefs = useMemo(() => ({
+		fontFamily: prefs.getValue<string>('fontFamily'),
+		fontSize: prefs.getValue<number>('fontSize'),
+		autoSave: prefs.getValue<string>('autoSave') as 'off',
+		previewRefresh: prefs.getValue<string>('previewRefresh'),
+		showFileSize: prefs.getValue<string>('showFileSize') as 'off',
+		fileSizeUnit: prefs.getValue<string>('fileSizeUnit') as 'kb',
+		showProcessTime: prefs.getValue<string>('showProcessTime') as 'off',
+		previewMaxWidth: prefs.getValue<number>('previewMaxWidth'),
+		previewAlign: prefs.getValue<string>('previewAlign') as 'left',
+		displayMode: prefs.getValue<string>('displayMode') as 'split',
+		modifyTitle: {
+			default: LNG('title.default'),
+			new: LNG('title.new'),
+			newDirty: LNG('title.newDirty'),
+			clean: LNG('title.clean'),
+			dirty: LNG('title.dirty')
+		}
+	}), [prefs, LNG])
+
 	return (
-		<div className={classes.main} onDragOver={hackDrag} onDrop={handleDrag}>
+		<div style={{
+			fontFamily: prefs.getValue<string>('uiFontFamily').replace(/(;|\{|\})/g, ''),
+		}} className={classes.main} onDragOver={hackDrag} onDrop={handleDrag}>
 			<div className={classes.appbar}>
 				<AppBar onItemClick={handleAppBarItem} />
 			</div>
 			<div className={classes.content}>
-				<IntegratedEditor ref={editorApiRef} />
+				<IntegratedEditor
+					ref={editorApiRef}
+					editorPrefs={editorPrefs}
+					colorScheme={ColorScheme}
+					language={NMNI18n.languages.zh_cn}
+					onRequestSave={saveDocument}
+				/>
 			</div>
 			{aboutDialog}
 			{settingsDialog}
@@ -382,11 +412,16 @@ function App() {
 	const prefs = usePref()
 
 	return <I18nProvider languageKey={prefs.getValue<string>('language')}>
-		<style>
-			::selection {'{'}
-				background: {ColorScheme.selection};
-			{'}'}
-		</style>
+		<style>{`
+			::selection {
+				background: ${ColorScheme.selection};
+			}
+			.SparksNMN-sechl' {
+				boxShadow: none !important;
+				backgroundColor: ${ColorScheme.selection};
+				opacity: 1 !important;
+			}
+		`}</style>
 		<AppIn />
 	</I18nProvider>
 }
