@@ -403,9 +403,13 @@ export class MusicPaint {
 				scale
 			)
 			if(!dryRun) tokenLeft.drawFast(this.root, currLeft, y, 'right', 'middle')
-			// tokenLeft.text = getLrcSymbolEquivalent(tokenLeft.text)
-			currLeft -= tokenLeft.measureFast(this.root)[0] / (  // 不再使用半角符号，而是使用半宽度
+			const halfWidthField = tokenLeft.measureFast(this.root)[0] / (  // 不再使用半角符号，而是使用半宽度
 				getLrcSymbolEquivalent(tokenLeft.text) != tokenLeft.text ? 2 : 1
+			)
+			tokenLeft.text = getLrcSymbolEquivalent(tokenLeft.text)
+			currLeft -= Math.max(
+				halfWidthField,
+				tokenLeft.measureFast(this.root)[0]
 			)
 		}
 
@@ -429,6 +433,14 @@ export class MusicPaint {
 			// tokenRight.text = getLrcSymbolEquivalent(tokenRight.text)
 			currRight += tokenRight.measureFast(this.root)[0] / (
 				getLrcSymbolEquivalent(tokenRight.text) != tokenRight.text ? 2 : 1
+			)
+			const halfWidthField = tokenRight.measureFast(this.root)[0] / (  // 不再使用半角符号，而是使用半宽度
+				getLrcSymbolEquivalent(tokenRight.text) != tokenRight.text ? 2 : 1
+			)
+			tokenRight.text = getLrcSymbolEquivalent(tokenRight.text)
+			currRight += Math.max(
+				halfWidthField,
+				tokenRight.measureFast(this.root)[0]
 			)
 		}
 

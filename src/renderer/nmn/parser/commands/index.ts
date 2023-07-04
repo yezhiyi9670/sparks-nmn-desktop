@@ -146,7 +146,7 @@ export const commandDefs: CommandDef[] = [
 	// Dl 页脚左侧文本
 	{
 		head: 'Dl',
-		headFull: 'DocLeft',
+		headFull: 'DescenderLeft',
 		contentType: 'text',
 		hasProps: 'none',
 		propsType: 'none',
@@ -156,7 +156,7 @@ export const commandDefs: CommandDef[] = [
 	// Dr 页脚右侧文本
 	{
 		head: 'Dr',
-		headFull: 'DocRight',
+		headFull: 'DescenderRight',
 		contentType: 'text',
 		hasProps: 'none',
 		propsType: 'none',
