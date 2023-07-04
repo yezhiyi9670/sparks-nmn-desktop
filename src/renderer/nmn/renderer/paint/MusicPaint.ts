@@ -430,10 +430,6 @@ export class MusicPaint {
 				scale
 			)
 			if(!dryRun) tokenRight.drawFast(this.root, currRight, y, 'left', 'middle')
-			// tokenRight.text = getLrcSymbolEquivalent(tokenRight.text)
-			currRight += tokenRight.measureFast(this.root)[0] / (
-				getLrcSymbolEquivalent(tokenRight.text) != tokenRight.text ? 2 : 1
-			)
 			const halfWidthField = tokenRight.measureFast(this.root)[0] / (  // 不再使用半角符号，而是使用半宽度
 				getLrcSymbolEquivalent(tokenRight.text) != tokenRight.text ? 2 : 1
 			)
