@@ -7,15 +7,16 @@ import $ from 'jquery'
 import { Equifield } from "../../equifield/equifield"
 import { IntegratedEditorContext } from "../IntegratedEditor"
 import { useOnceEffect } from "../../util/event"
+import { RenderSectionPickCallback } from "../../renderer/renderer"
 
 const useStyles = createUseStyles({
 	root: {
 		padding: '32px 0',
 		paddingBottom: '320px',
-		width: '100%',
+		width: 'calc(100% + 1px)',
 		boxSizing: 'border-box',
 		userSelect: 'text',
-		minHeight: '100%',
+		minHeight: '100%'
 	},
 	warningEf: {},
 	'@media print': {
@@ -25,6 +26,15 @@ const useStyles = createUseStyles({
 		root: {
 			border: 'none !important',
 			'& .SparksNMN-sechl': {
+				display: 'none'
+			},
+			'& .SparksNMN-notehl': {
+				display: 'none'
+			},
+			'& .SparksNMN-secsel': {
+				display: 'none !important'
+			},
+			'& .SparksNMN-validation': {
 				display: 'none'
 			}
 		},
@@ -44,6 +54,9 @@ export function PreviewView(props: {
 	onReportTiming?: (value: number) => void
 	onReportSize?: (value: number) => void
 	onReportPages?: (value: number) => void
+	highlightedNotes?: string[]
+	pickingSections?: boolean
+	onPickSection?: RenderSectionPickCallback
 }) {
 	const { language, prefs, colorScheme } = useContext(IntegratedEditorContext)
 
@@ -108,6 +121,12 @@ export function PreviewView(props: {
 				onReportTiming={props.onReportTiming}
 				onReportSize={props.onReportSize}
 				onReportPages={props.onReportPages}
+				
+				logTimeStat={prefs.logTimeStat}
+
+				highlightedNotes={props.highlightedNotes}
+				showSectionPickers={props.pickingSections ? ['*'] : []}
+				onPickSection={props.onPickSection}
 			/> : blankPreview}
 		</div>
 	)

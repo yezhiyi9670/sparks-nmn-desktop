@@ -228,6 +228,7 @@ export class NoteEater {
 					section.notes.push({
 						type: 'extend',
 						lineNumber: this.lineNumber,
+						uuid: '',
 						range: token.range,
 						startPos: Frac.add(startPos, Frac.mul(ratio, position)),
 						length: Frac.mul(ratio, Frac.create(1)),
@@ -396,6 +397,7 @@ export class NoteEater {
 				extendingNote = {
 					type: 'note',
 					lineNumber: this.lineNumber,
+					uuid: '',
 					range: [range0, Tokens.rangeSafe(this.input, this.tokenPtr, 0)],
 					startPos: noteStartPos,
 					length: Frac.mul(ratio, Frac.mul(length, noteRatio)),
@@ -616,6 +618,7 @@ export class NoteEater {
 						char: char,
 						octave: octave,
 						delta: delta,
+						finalDelta: NaN,
 					}
 				}
 			}
@@ -626,7 +629,7 @@ export class NoteEater {
 				this.passchar()
 				return {
 					type: 'text',
-					sampler: typeSampler,
+					sampler: typeSampler as any,
 					void: true
 				}
 			}

@@ -22,13 +22,13 @@ export class ColumnStater {
 		this.input = input
 	}
 
-	parse(issues: LinedIssue[]): ColumnScore<LinedArticle> {
+	parse(issues: LinedIssue[]) {
 		const linked = this.applyArticle(this.flattenArticle, this.input, issues)
 		this.applyArticle(this.allocateLocation, linked, issues)
 		this.applyArticle(this.interLink1, linked, issues)
 		const linked2 = this.applyArticle(this.flatten2Article, linked, issues)
 		const lined = this.applyArticle(this.linifyArticle, linked2, issues)
-		return lined
+		return { lined: lined, flattened: linked2 }
 	}
 
 	applyArticle<I extends ArticleBase, O>(func: (article: I, context: ScoreContext, issues: LinedIssue[]) => O, input: ColumnScore<I>, issues: LinedIssue[]): ColumnScore<O> {
@@ -105,7 +105,7 @@ export class ColumnStater {
 					})
 				})
 				// 合并 indexMap
-				fillArray(frontier.indexMap, sectionIndex, maxSectionCount, index, -1)
+				fillArray(frontier.indexMap, sectionIndex, maxSectionCount, index, () => -1)
 			})
 			if(fragment.jumper) {
 				jumpers.push({
@@ -115,15 +115,15 @@ export class ColumnStater {
 					attrs: fragment.jumper.attrs
 				})
 			}
-			fillArray(nMap, sectionIndex, maxSectionCount, fragContext.render.n!, -1)
+			fillArray(nMap, sectionIndex, maxSectionCount, fragContext.render.n!, () => -1)
 			if(fragment.break !== undefined) {
-				fillArray(breakMap, sectionIndex, 1, true, false)
+				fillArray(breakMap, sectionIndex, 1, true, () => false)
 			}
 			sectionIndex += maxSectionCount
 		})
 		// 填充
 		iterateMap(parts1, (data, index) => {
-			expandArray(data.notes.sections, sectionIndex, SectionStat.nullish)
+			expandArray(data.notes.sections, sectionIndex, () => ({...SectionStat.nullish}))
 			this.refineFCA(data, sectionIndex)
 			let val0 = -1
 			for(let i = data.indexMap.length - 1; i >= 0; i--) {
@@ -134,7 +134,7 @@ export class ColumnStater {
 				}
 			}
 		})
-		expandArray(breakMap, sectionIndex, false)
+		expandArray(breakMap, sectionIndex, () => false)
 		const parts: LinkedPart[] = []
 		iterateMap(parts1, (data) => parts.push(data))
 		return {
@@ -161,7 +161,7 @@ export class ColumnStater {
 				return item.head == ann.head && item.index == ann.index && item.originIndex == ann.originIndex
 			})[0]
 			if(curr === undefined) {
-				expandArray(frontier.fcaItems, frontier.fcaItems.length + 1, curr = (() => {
+				expandArray(frontier.fcaItems, frontier.fcaItems.length + 1, () => curr = (() => {
 					return {
 						lineNumber: -1,
 						type: 'annotations',
@@ -177,7 +177,7 @@ export class ColumnStater {
 	}
 	refineFCA(frontier: DestructedFCA, totalLength: number) {
 		frontier.fcaItems.forEach((ann) => {
-			expandArray(ann.sections as MusicSection<NoteCharAny>[], totalLength, SectionStat.nullish)
+			expandArray(ann.sections as MusicSection<NoteCharAny>[], totalLength, () => ({...SectionStat.nullish}))
 		})
 	}
 
@@ -271,9 +271,9 @@ export class ColumnStater {
 					this.mergeFCA(frontier, lyricLine, lyricLine.offset, -1)
 					SectionStat.paint(frontier.lyricAnnotations!.sections, lyricLine.lyricAnnotations?.sections, lyricLine.offset, -1)
 					// 合并 indexMap
-					fillArray(frontier.indexMap, lyricLine.offset, sectionCount - lyricLine.offset, lyricLine.index, -1)
+					fillArray(frontier.indexMap, lyricLine.offset, sectionCount - lyricLine.offset, lyricLine.index, () => -1)
 					// 合并 attrsMap
-					fillArray(frontier.attrsMap, lyricLine.offset, sectionCount - lyricLine.offset, lyricLine.lyric.tags, [])
+					fillArray(frontier.attrsMap, lyricLine.offset, sectionCount - lyricLine.offset, lyricLine.lyric.tags, () => [])
 					// 合并替代段落
 					lyricLine.notesSubstitute.forEach((Ns) => {
 						// 分配序号
@@ -283,20 +283,25 @@ export class ColumnStater {
 							if(mySection) {
 								section.startPos = mySection.startPos
 								section.statQuarters = mySection.statQuarters
+								section.ordinal = mySection.ordinal
 							}
 						})
 						// 小节连接
 						SectionStat.interLink(Ns.sections, Ns.decorations)
+						// 节拍校验
+						for(let section of Ns.sections) {
+							SectionStat.quarterCount(section)
+						}
 						frontier.notesSubstitute.push(Ns)
 					})
 					// 歌词小节化并合并（为防止连音线问题应当在小节连接之后）
 					const lrcSections = this.sectionifyLyrics(lyricLine, part.notes.sections, context, issues)
-					paintArray(frontier.sections, lrcSections, lyricLine.offset, -1, lyricSectionNullish)
+					paintArray(frontier.sections, lrcSections, lyricLine.offset, -1, () => ({...lyricSectionNullish}))
 				})
 				// 填充
 				iterateMap(lyricLines1, (lyricLine) => {
-					expandArray(lyricLine.sections, sectionCount, lyricSectionNullish)
-					expandArray(lyricLine.lyricAnnotations!.sections, sectionCount, SectionStat.nullish)
+					expandArray(lyricLine.sections, sectionCount, () => ({...lyricSectionNullish}))
+					expandArray(lyricLine.lyricAnnotations!.sections, sectionCount, () => ({...SectionStat.nullish}))
 					this.refineFCA(lyricLine, sectionCount)
 					let val0 = -1
 					for(let i = lyricLine.indexMap.length - 1; i >= 0; i--) {

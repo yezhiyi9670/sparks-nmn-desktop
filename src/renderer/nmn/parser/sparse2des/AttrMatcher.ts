@@ -346,6 +346,7 @@ export module AttrMatcher {
 			idCard: {
 				lineNumber: -1,
 				index: -1,
+				masterId: '',
 				uuid: ''
 			},
 			range: [tokenIn.range[0] + 1, tokenIn.range[1] - 1],
@@ -354,12 +355,14 @@ export module AttrMatcher {
 			separator: {
 				before: {char: '/', attrs: []},
 				after: {char: '/', attrs: []},
-				next: {char: '/', attrs: []}
+				next: {char: '/', attrs: []},
+				nextPrev: {char: '/', attrs: []}
 			},
 			musicalProps: scoreContextDefault.musical,
 			type: 'section',
 			totalQuarters: {x: 0, y: 0},
-			validation: 'pass',
+			beatsValidation: 'pass',
+			structureValidation: 'pass',
 			notes: [],
 			decoration: [],
 			leftSplit: false,

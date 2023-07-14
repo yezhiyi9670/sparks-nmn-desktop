@@ -145,6 +145,22 @@ export default flattenI18nData({
 				"title": "字体大小",
 				"desc": "控制代码编辑器使用的字体大小。",
 			},
+			"autoSave": {
+				"title": "自动保存",
+				"desc": "每隔 45s，编辑器将尝试保存你未保存的修改，以免意外情况导致工作丢失。",
+				"choice": {
+					"off": "关闭",
+					"overwrite": "直接保存至原文件"
+				}
+			},
+			"inspectorOpen": {
+				"title": "默认打开检查器",
+				"desc": "启动时自动打开乐谱检查工具窗口。",
+				"choice": {
+					"off": "关",
+					"on": "开"
+				}
+			},
 			"showFileSize": {
 				"title": "显示文件大小",
 				"desc": "在编辑器的状态栏中显示当前文件的大小。",
@@ -207,14 +223,6 @@ export default flattenI18nData({
 				"choice": {
 					"split": "拆分",
 					"preview": "预览"
-				}
-			},
-			"autoSave": {
-				"title": "自动保存",
-				"desc": "每隔 45s，编辑器将尝试保存你未保存的修改，以免意外情况导致工作丢失。",
-				"choice": {
-					"off": "关闭",
-					"overwrite": "直接保存至原文件"
 				}
 			},
 			"paperSize": {

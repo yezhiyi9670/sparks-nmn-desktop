@@ -5,6 +5,7 @@ import { PrefRendererInfo } from '../../util/prefs/PrefRenderer'
 import { getAvailableLanguages, useI18n } from '../i18n/i18n'
 import { SettingsFormUpdateHandler, SettingsFormValues } from './SettingsForm'
 import { useCheckboxClass } from '../style/checkbox'
+import { ReactSelect } from './react-select'
 
 type Value = string | number | boolean
 type Validate = 'pass' | 'less' | 'more' | 'invalid'
@@ -165,18 +166,22 @@ function SettingsFormField(props: {
 				})
 			}
 			return <>
-				<select
+				<ReactSelect
 					className={classes.field}
-					aria-label={LNG(`${props.i18nPrefix}item.${entry.key}.title`)}
+					label={LNG(`${props.i18nPrefix}item.${entry.key}.title`)}
 					value={value}
-					onChange={(evt) => {
+					style={{display: 'flex'}}
+					onChange={(val) => {
 						if(props.onUpdate) {
-							props.onUpdate(evt.target.value, 'pass')
+							props.onUpdate(val, 'pass')
 						}
 					}}
-				>
-					{choices.map((choice) => <option key={choice.item} value={choice.item}>{choice.text}</option>)}
-				</select>
+					items={choices.map((choice) => ({
+						value: choice.item,
+						label: choice.text
+					}))}
+					itemFontSize={'14px'}
+				/>
 			</>
 		})()}
 	</div>

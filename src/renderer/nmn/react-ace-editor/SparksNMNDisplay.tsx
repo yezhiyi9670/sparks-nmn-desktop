@@ -104,8 +104,8 @@ export function SparksNMNDisplay(props: Props) {
 		let startTime = +new Date()
 
 		const ef = new Equifield(element)
-		ef.field = 120
-		ef.padding = 10
+		// ef.field = 120
+		// ef.padding = 10
 		ef.resize()
 
 		const labels = renderResultFields.map(field => field.label)

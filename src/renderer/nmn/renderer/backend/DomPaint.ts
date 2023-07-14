@@ -311,7 +311,7 @@ export class DomPaint {
 	 * @param extraStyles 应用在 <span> 元素上的额外样式
 	 * @returns 文本的尺寸测量数据，不受 scale 参数影响，但受 fontScale 影响
 	 */
-	drawTextFast(x: number, y: number, text: string, font: FontMetric, scale: number, align: 'left' | 'center' | 'right' = 'left', alignY: 'top' | 'middle' | 'bottom' = 'top', extraStyles: ExtraStyles = {}, clickHandler?: () => void) {
+	drawTextFast(x: number, y: number, text: string, font: FontMetric, scale: number, align: 'left' | 'center' | 'right' = 'left', alignY: 'top' | 'middle' | 'bottom' = 'top', extraStyles: ExtraStyles = {}, extraClasses: string[] = [], clickHandler?: () => void) {
 		const textUpScale = getScaler()[0]
 		
 		let fontSize = font.fontSize * font.fontScale
@@ -346,7 +346,7 @@ export class DomPaint {
 				} : {}),
 				...extraStyles
 			}
-		)}" ${clickHandler ? 'id="DomPaint-clickable__' + token + '"' : ''}>${escapeXml(text)}</span>`
+		)}" class="${extraClasses.join(' ')}" ${clickHandler ? 'id="DomPaint-clickable__' + token + '"' : ''}>${escapeXml(text)}</span>`
 		this.htmlContent += textSpanText
 		domPaintStats.domDrawTime += +new Date()
 	}
@@ -362,8 +362,8 @@ export class DomPaint {
 	 * @param extraStyles 应用在 <span> 元素上的额外样式
 	 * @returns 文本的尺寸测量数据，不受 scale 参数影响，但受 fontScale 影响
 	 */
-	drawText(x: number, y: number, text: string, font: FontMetric, scale: number, align: 'left' | 'center' | 'right' = 'left', alignY: 'top' | 'middle' | 'bottom' = 'top', extraStyles: ExtraStyles = {}, clickHandler?: () => void) {
-		this.drawTextFast(x, y, text, font, scale, align, alignY, extraStyles, clickHandler)
+	drawText(x: number, y: number, text: string, font: FontMetric, scale: number, align: 'left' | 'center' | 'right' = 'left', alignY: 'top' | 'middle' | 'bottom' = 'top', extraStyles: ExtraStyles = {}, extraClasses: string[] = [], clickHandler?: () => void) {
+		this.drawTextFast(x, y, text, font, scale, align, alignY, extraStyles, extraClasses, clickHandler)
 		return this.measureText(text, font, scale, extraStyles)
 	}
 

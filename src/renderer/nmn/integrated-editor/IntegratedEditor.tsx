@@ -12,19 +12,82 @@ import { StatusFileSize } from './status/file-size'
 import { PreviewCursor, PreviewView } from './preview/PreviewView'
 import { StatusDirty } from './status/dirty-state'
 import { StatusPages } from './status/pages'
-import { LanguageArray } from '../i18n'
+import { I18n, LanguageArray } from '../i18n'
 import { basenameName } from '../util/basename'
+import $ from 'jquery'
+
+import * as Icons from 'react-icons/vsc'
+import { useRecreatedStyles } from './styles'
+import { InspectorView } from './inspector/InspectorView'
+import { PlayPanel } from './inspector/play/PlayPanel'
+import { DomUtils } from '../util/dom'
+import { MusicSection, NoteCharMusic } from '../parser/sparse2des/types'
+import { RenderSectionPickCallback } from '../renderer/renderer'
+import { InstrumentTestPanel } from './inspector/instrument-test/InstrumentTestPanel'
 
 const useStyles = createUseStyles({
 	editor: {
 		height: '100%',
 		display: 'flex',
+		flexDirection: 'column',
+		'& ::-webkit-scrollbar': {
+			width: '8px',
+			height: '8px'
+		},
+		'& ::-webkit-scrollbar-thumb': {
+			background: '#0004',
+		}
+	},
+	groupStatusBar: {
+		borderTop: '1px solid #0002',
+		height: '28px',
+		whiteSpace: 'nowrap',
+		display: 'flex',
+		flexDirection: 'row'
+	},
+	editorInner: {
+		height: '0',
+		flex: 'auto',
+		display: 'flex',
+		flexDirection: 'row'
+	},
+	editorInnerMobile: {
 		flexDirection: 'column'
+	},
+	groupInspector: {
+		width: '360px',
+		height: '100%',
+		borderLeft: '2px solid #0002',
+		flexShrink: '0',
+		overflowY: 'hidden',
+		display: 'flex',
+		flexDirection: 'column'
+	},
+	groupInspectorMobile: {
+		width: '100%',
+		height: 0,
+		flex: 4,
+		borderLeft: 'none',
+		borderTop: '2px solid #0002',
+	},
+	editorInnerInner: {
+		height: '100%',
+		width: '0',
+		display: 'flex',
+		flex: 'auto',
+		flexDirection: 'column',
+		position: 'relative',
+	},
+	editorInnerInnerMobile: {
+		height: 0,
+		width: '100%',
+		flex: 4,
 	},
 	groupPreview: {
 		height: 0,
 		flex: 4,
-		overflowY: 'auto'
+		overflowY: 'auto',
+		overflowX: 'hidden'
 	},
 	groupSeparator: {
 		height: '1px',
@@ -34,12 +97,31 @@ const useStyles = createUseStyles({
 		height: 0,
 		flex: 3,
 	},
-	groupStatusBar: {
-		borderTop: '1px solid #0002',
-		height: '28px',
-		whiteSpace: 'nowrap',
-		display: 'flex',
-		flexDirection: 'row'
+	groupInspectorButton: {
+		display: 'block',
+		position: 'absolute',
+		width: '42px',
+		height: '42px',
+		textAlign: 'center',
+		verticalAlign: 'middle',
+		right: '24px',
+		bottom: '24px',
+		fontSize: '24px',
+		zIndex: 10
+	},
+	groupInspectorButtonMobile: {
+		width: '36px',
+		height: '36px',
+		fontSize: '20px',
+		right: '24px',
+		bottom: '24px'
+	},
+	inspectorButton: {
+		display: 'block',
+		width: '100%',
+		height: '100%',
+		borderRadius: '0',
+		border: '1px solid #0002',
 	},
 	statusBarGroup: {
 		padding: '0 8px',
@@ -62,6 +144,18 @@ const useStyles = createUseStyles({
 		},
 		groupStatusBar: {
 			display: 'none'
+		},
+		groupInspectorButton: {
+			display: 'none'
+		},
+		groupInspector: {
+			display: 'none'
+		},
+		editorInner: {
+			height: 'unset',
+		},
+		editorInnerInner: {
+			position: 'initial',
 		}
 	}
 })
@@ -73,12 +167,18 @@ export interface IntegratedEditorColorScheme {
 	voidaryHover?: string,
 	voidarySelected?: string,
 	voidaryActive?: string,
+	positive: string,
+	positiveHover: string,
+	positiveActive: string
 }
 const defaultColorScheme: IntegratedEditorColorScheme = {
 	voidary: '#F0EEF1',
-	voidaryActive: '#0002',
-	voidaryHover: '#0001',
-	voidarySelected: '#00000019'
+	voidaryActive: '#d0ced1',
+	voidaryHover: '#e0dee1',
+	voidarySelected: '#d8d7d9',
+	positive: '#8764b8',
+	positiveHover: '#7851af',
+	positiveActive: '#644392',
 }
 
 export interface IntegratedEditorPrefs {
@@ -99,9 +199,14 @@ export interface IntegratedEditorPrefs {
 		"clean": string,
 		"dirty": string
 	},
+	inspectorOpen?: boolean,
 
 	importantWarning?: {text: string, height: number},
-	temporarySave?: boolean
+	temporarySave?: boolean,
+	logTimeStat?: boolean,
+
+	isMobile?: boolean,
+	instrumentSourceUrl?: string,
 }
 const defaultEditorPrefs: IntegratedEditorPrefs = {
 	fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', 'Sarasa Mono SC'",
@@ -115,9 +220,13 @@ const defaultEditorPrefs: IntegratedEditorPrefs = {
 	previewAlign: 'left',
 	displayMode: 'split',
 	modifyTitle: undefined,
+	inspectorOpen: false,
 
 	importantWarning: undefined,
-	temporarySave: false
+	temporarySave: false,
+	logTimeStat: false,
+
+	isMobile: false
 }
 
 interface Context {
@@ -172,19 +281,21 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 	}, [])
 	const languageArray = NMNI18n.languages.zh_cn
 	const classes = useStyles()
+	const classesColored = useRecreatedStyles(colorScheme)
 	const editorRef = useRef<AceEditor>(null)
 	const [ sessionToken, setSessionToken ] = useState(() => randomToken(24))
 
 	// ===== 显示模式 =====
-	const prevDisplayMode = useRef<DisplayMode>('split')
 	const [ displayMode, setDisplayMode ] = useState<DisplayMode>('split')
-	const displayModeChanged = displayMode != prevDisplayMode.current
-	prevDisplayMode.current = displayMode
 	useLayoutEffect(() => {
-		if(displayModeChanged) {
-			window.dispatchEvent(new Event('resize')) // 强制编辑器刷新自己的尺寸信息
-		}
-	})
+		window.dispatchEvent(new Event('resize')) // 强制编辑器刷新自己的尺寸信息
+	}, [ displayMode ])
+
+	// ===== 乐谱检查工具 =====
+	const [ inspectorOpen, setInspectorOpen ] = useState(!prefs.isMobile && prefs.inspectorOpen)
+	useLayoutEffect(() => {
+		window.dispatchEvent(new Event('resize'))
+	}, [ inspectorOpen ])
 
 	// ===== 预览刷新模式 =====
 	const updateChoice = prefs.previewRefresh!
@@ -223,6 +334,9 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 		}
 	})
 	const updateResult = useMethod((valueOverride?: string) => {
+		if(undefined === valueOverride && !isPreviewDirty) {
+			return
+		}
 		const parsed = parseNMN(valueOverride ?? value)
 		setParseResult({
 			result: parsed.result,
@@ -273,18 +387,6 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 	})
 
 	const cursorShown = (displayMode == 'preview') ? undefined : cursor
-	const previewView = useMemo(() => {
-		const ret = <PreviewView
-			result={parseResult.result}
-			onPosition={handlePosition}
-			language={languageArray}
-			cursor={cursorShown}
-			onReportSize={setRenderedSize}
-			onReportTiming={setRenderTiming}
-			onReportPages={setRenderedPages}
-		/>
-		return ret
-	}, [parseResult, handlePosition, languageArray, cursorShown])
 
 	function handleEditorKey(evt: React.KeyboardEvent) {
 		if(evt.key == 'Escape') { // 键盘导航无障碍：允许 ESC 键离开编辑器
@@ -298,31 +400,116 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 		}
 	}
 
+	const groupPreviewShown = displayMode != 'edit'
+	const groupEditShown = displayMode != 'preview' && (displayMode != 'split' || !prefs.isMobile || !inspectorOpen)
 	const fileSizeMode = prefs.showFileSize!
+
+	// ===== 检查器·音效试听 =====
+	const [ noteHighlights, setNoteHighlights ] = useState<string[]>([])
+	const updateNoteHighlights = useMethod(setNoteHighlights)
+	const previewContainerRef = useRef<HTMLDivElement>(null)
+	const autoScrollPreview = useMethod((val: string) => {
+		if(previewContainerRef.current) {
+			const outBox = previewContainerRef.current
+			const inBox = $<HTMLDivElement>('.SparksNMN-notehl-' + val)[0]
+			if(!inBox) {
+				return
+			}
+			const targetElement = DomUtils.iterateForClass(inBox, 'wcl-equifield-field')!
+			DomUtils.scrollToMakeVisible(outBox, targetElement, 'top')
+		}
+	})
+	const [ pickingSections, setPickingSections ] = useState(false)
+	const onTogglePicker = useMethod((state: boolean) => {
+		setPickingSections(state)
+	})
+	const sectionPickRef = useRef<RenderSectionPickCallback | null>(null)
+	const handleSectionPick = useMethod((articleId: number, section: MusicSection<NoteCharMusic>) => {
+		setPickingSections(false)
+		if(sectionPickRef.current) {
+			sectionPickRef.current(articleId, section)
+		}
+	})
+
+	const previewView = useMemo(() => {
+		const ret = <PreviewView
+			result={parseResult.result}
+			onPosition={handlePosition}
+			language={languageArray}
+			cursor={cursorShown}
+			onReportSize={setRenderedSize}
+			onReportTiming={setRenderTiming}
+			onReportPages={setRenderedPages}
+
+			highlightedNotes={noteHighlights}
+			pickingSections={pickingSections}
+			onPickSection={handleSectionPick}
+		/>
+		return ret
+	}, [parseResult, noteHighlights, handlePosition, languageArray, cursorShown, pickingSections, handleSectionPick])
+
 	const ret = <div className={classes.editor}>
-		<div className={`${classes.groupPreview} ${displayMode == 'edit' ? classes.hidden : ''}`}>
-			{previewView}
-		</div>
-		<div className={`${classes.groupSeparator} ${displayMode != 'split' ? classes.hidden : ''}`} />
-		<div className={`${classes.groupEdit} ${displayMode == 'preview' ? classes.hidden : ''}`} onKeyDown={handleEditorKey}>
-			<style>
-				{`
-					.${classes.groupEdit} .ace_editor, .ace_editor.ace_autocomplete {
-						font-family: ${prefs.fontFamily!}
-					}
-				`}
-			</style>
-			<SparksNMNEditor
-				key={sessionToken}
-				name={name}
-				language={languageArray}
-				value={value}
-				onChange={handleChange}
-				onCursorChange={handleCursorChange}
-				ref={editorRef}
-				issues={parseResult.result.issues}
-				fontSize={prefs.fontSize!}
-			/>
+		<div className={`${classes.editorInner} ${prefs.isMobile ? classes.editorInnerMobile : ''}`}>
+			<div className={`${classes.editorInnerInner} ${prefs.isMobile ? classes.editorInnerInnerMobile : ''}`}>
+				<div ref={previewContainerRef} className={`${classes.groupPreview} ${!groupPreviewShown ? classes.hidden : ''}`}>
+					{previewView}
+				</div>
+				<div className={`${classes.groupSeparator} ${!(groupPreviewShown && groupEditShown) ? classes.hidden : ''}`} />
+				<div className={`${classes.groupEdit} ${!groupEditShown ? classes.hidden : ''}`} onKeyDown={handleEditorKey}>
+					<style>
+						{`
+							.${classes.groupEdit} .ace_editor, .ace_editor.ace_autocomplete {
+								font-family: ${prefs.fontFamily!}
+							}
+						`}
+					</style>
+					<SparksNMNEditor
+						key={sessionToken}
+						name={name}
+						language={languageArray}
+						value={value}
+						onChange={handleChange}
+						onCursorChange={handleCursorChange}
+						ref={editorRef}
+						issues={parseResult.result.issues}
+						fontSize={prefs.fontSize!}
+					/>
+				</div>
+				{!inspectorOpen && <div className={`${classes.groupInspectorButton} ${prefs.isMobile ? classes.groupInspectorButtonMobile : ''}`} style={{background: colorScheme.voidary}}>
+					<button
+						className={`${classes.inspectorButton} ${classesColored.voidaryButton}`}
+						title={I18n.editorText(language, 'inspector.tooltip')}
+						onClick={() => setInspectorOpen(true)}
+					>
+						<Icons.VscWand style={{transform: 'translateY(2px)'}} />
+					</button>
+				</div>}
+			</div>
+			{inspectorOpen && <div className={`${classes.groupInspector} ${prefs.isMobile ? classes.groupInspectorMobile : ''}`}>
+				<InspectorView
+					onClose={() => setInspectorOpen(false)}
+					inspectors={[
+						{
+							id: 'play',
+							content: () => <PlayPanel
+								key={sessionToken}
+								result={parseResult.result}
+								pickingSections={pickingSections}
+								onAutoScroll={autoScrollPreview}
+								onNoteHighlightUpdate={updateNoteHighlights}
+								onTogglePicker={onTogglePicker}
+								getPickReporter={sectionPickRef}
+								code={value}
+								setCode={handleChange}
+							/>
+						},
+						{
+							id: 'instrument_test',
+							content: () => <InstrumentTestPanel />
+						}
+					]}
+				/>
+			</div>}
 		</div>
 		<div className={classes.groupStatusBar} style={{background: colorScheme.voidary}}>
 			<div className={classes.statusBarGroup}>

@@ -26,7 +26,7 @@ class PaginizerClass {
 
 		const uniformWidth = 1
 		const uniformHeight = renderProps.page!
-		const innerRatio = (uniformHeight - uniformWidth * 0.085 * 2) / (uniformWidth * 1 * (100 / 124))
+		const innerRatio = (uniformHeight - uniformWidth * 0.08 * 2) / (uniformWidth * 1 * (100 / 122))
 		const descendExtraMargin = (+hasDescend) * descendTextField * scale * 0.3  // 0.3 是有意为之的调整参数
 		const maxHeightEm = innerRatio * 100 - (+hasDescend) * descendTextField * scale * (1) - descendExtraMargin
 

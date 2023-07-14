@@ -90,6 +90,11 @@ export default {
 		"invalid_self_attr_end": "类型为 ${0} 的小节线属性不能作为序列末尾小节线的上方属性",
 		'unknown_separator_attr': '无法将 `${0}` 解析为小节线属性',
 		'unknown_omit_count': '无效的小节省略数 ${0}',
+
+		'mismatching_beats': '小节 ${0}（第 ${1} 小节）与其他同时的小节拍号不一致',
+		'mismatching_speed': '小节 ${0}（第 ${1} 小节），迭代数 ${2} 与其他声部的同位置小节拍速不一致 (${3}≠${4})',
+		'repeat_overflow': '反复迭代节的数量超出上限 ${0}，可能是因为反复结构存在问题导致死循环',
+		'repeat_conflict': '第 ${0} 小节被反复迭代数 ${1} 穿越超过一次',
 	},
 	'notices': {
 		'iter_invalid': '反复记号迭代数写在了无效的位置，很可能是错误的。',
@@ -199,6 +204,7 @@ export default {
 		'author_sep': ' ',
 		'omit': '(后略)',
 		'page': 'Page ${0} / Total ${1}',
+		'secsel': 'm${0}'
 	},
 	'efLabels': {
 		'top': '文档标题',
@@ -269,5 +275,71 @@ export default {
 				}
 			}
 		},
+
+		// 检查器
+		"inspector": {
+			"tooltip": "乐谱检查工具",
+			"select": "选择工具",
+			"play": {
+				"title": "音效试听与结构检查",
+				"play": "播放",
+				"play_pre": "打节拍一小节后播放",
+				"pause": "暂停",
+				"stop": "回到此章节开头",
+				"auto_scroll": "自动滚动预览",
+				"export": "保存为 MIDI 文件",
+				"modifier": {
+					"speed": "倍速",
+					"pitch": "音高"
+				},
+				"selector": {
+					"article": {
+						"untitled": "无标题章节 ${0}",
+						"titled": "${0}"
+					},
+					"visual_pick": "在乐谱预览中点选小节",
+					"no_articles": "没有可供试听的音乐章节",
+					"iter_number": "反复次数",
+					"ignore_repeats": "忽略反复与区分（不建议使用）",
+					"no_sections": "此章节内没有任何小节",
+				},
+				"overview": {
+					"section_unavailable": "此小节不存在于当前迭代节中"
+				},
+				"controls": {
+					"part": {
+						"beat_machine": "节拍器",
+						"titled": "${0}",
+						"untitled": "未命名声部 ${0}"
+					},
+					"octave": "八度",
+					"synth": "乐器",
+					"instrument": {
+						"chip": "芯片*",
+						"piano": "钢琴",
+						"organ": "管风琴",
+						"violin": "提琴",
+						"guitar": "吉他",
+						"horn": "管乐*",
+						"beat1": "节拍1",
+						"beat2": "节拍2",
+						"snare": "Snare",
+						"drum": "鼓点"
+					},
+					"prefab": {
+						"hint": "为方便之后加载，可将混音配置以注释形式写入代码，并随乐谱一同保存。",
+						"save": "写入代码",
+						"load": "从代码中加载"
+					},
+					"remark": "保存的混音配置文件"
+				}
+			},
+			"instrument_test": {
+				"title": "乐(lè)器音源测试",
+				"tonic": "音符乐器类",
+				"drumline": "鼓点乐器类",
+				"comment": "注：带有 * 的是电子合成音，其余是采样音。"
+			}
+		}
 	})
 }

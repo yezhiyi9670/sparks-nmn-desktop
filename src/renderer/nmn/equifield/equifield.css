@@ -10,6 +10,7 @@
 	page-break-inside: avoid;
 	page-break-after: auto;
 	overflow-x: visible;
+	content-visibility: auto;
 	/* border-bottom: 1px dashed #00000019; */
 }
 .wcl-equifield-content {
@@ -23,7 +24,7 @@
 		left: 50%;
 		transform: translateX(-50%);
 		width: 100vw;
-		font-size: calc(100vw / 124) !important;
+		font-size: calc(100vw / 122) !important;
 		box-sizing: border-box;
 	}
 	.wcl-equifield-field {

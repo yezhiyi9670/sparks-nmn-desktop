@@ -88,9 +88,10 @@ export type Linked2Article = LinkedArticleBase<Linked2LyricLine> & ({
 } | {
 	type: 'text'
 })
-export type Linked2Part = LinkedPartBase<Linked2LyricLine> & {
-	lyricLineSignatures: LyricLineSignature[]
-}
+
+export type Linked2MusicArticle = Linked2Article & {type: 'music'}
+
+export type Linked2Part = LinkedPartBase<Linked2LyricLine>
 
 export type Linked2LyricLineBase = DestructedFCA & {
 	lineNumber: number
@@ -219,15 +220,11 @@ export type LinedLyricLine = Linked2LyricLineBase & {
 
 // =====================================================================
 
-export type ColumnSignature = {
-	hash: string
-	value: Fraction
-}
-export function columnSignature(value: Fraction) {
-	return {
-		hash: Frac.repr(value),
-		value: value
+function signatureHash(text: string) {
+	if(new TextEncoder().encode(text).length > 32) {
+		return md5(text)
 	}
+	return text
 }
 
 export type LyricLineSignature = {
@@ -250,7 +247,7 @@ export type LyricLineSignature = {
 export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSignature {
 	if(tags.length == 0) {
 		return {
-			hash: md5('index_' + index.toString()),
+			hash: signatureHash('index_' + index.toString()),
 			type: 'index',
 			index: index,
 			attrs: tags
@@ -259,7 +256,7 @@ export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSig
 	const tag0 = tags[0]
 	if(tag0.type == 'text') {
 		return {
-			hash: md5('text_' + tag0.text),
+			hash: signatureHash('text_' + tag0.text),
 			type: 'text',
 			text: tag0.text,
 			attrs: tags
@@ -267,7 +264,7 @@ export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSig
 	}
 	if(tag0.type == 'scriptedText') {
 		return {
-			hash: md5('sub_' + tag0.text + '_' + tag0.sub),
+			hash: signatureHash('sub_' + tag0.text + '_' + tag0.sub),
 			type: 'sub',
 			text: tag0.text,
 			sub: tag0.sub,
@@ -282,7 +279,7 @@ export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSig
 			return -1
 		}).sort()
 		return {
-			hash: md5('iter_' + iters.join('_')),
+			hash: signatureHash('iter_' + iters.join('_')),
 			type: 'iter',
 			iters: iters,
 			attrs: tags
@@ -296,7 +293,7 @@ export type PartSignature = {
 	hash: string
 } & ({
 	type: 'titled'
-	value: PartAttr[]
+	value: PartAttr
 } | {
 	type: 'untitled'
 	value: number
@@ -316,10 +313,18 @@ export function partSignature(head: string, tags: PartAttr[], index: number): Pa
 		hashStr = 'index_' + index.toString()
 	}
 	hashStr = head + '_' + hashStr
-	return {
-		hash: md5(hashStr),
-		type: tags.length > 0 ? 'titled' : 'untitled',
-		value: (tags.length > 0 ? tags[0] : index) as any
+	if(tags.length > 0) {
+		return {
+			hash: signatureHash(hashStr),
+			type: 'titled',
+			value: tags[0]
+		}
+	} else {
+		return {
+			hash: signatureHash(hashStr),
+			type: 'untitled',
+			value: index
+		}
 	}
 }
 

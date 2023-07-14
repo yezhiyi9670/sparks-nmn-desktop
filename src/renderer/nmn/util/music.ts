@@ -105,4 +105,24 @@ export module MusicTheory {
 
 		return sgn * (remainderValue + 12 * octaves)
 	}
+
+	/**
+	 * 速度统一翻译到 qpm
+	 * 
+	 * metrics 是 hpm, qpm, spm 或其附点形式
+	 */
+	export function speedToQpm(value: number, metrics: string, defaultReduction: number) {
+		const translateSize = {
+			'hpm': 2,
+			'h.pm': 3,
+			'qpm': 1,
+			'q.pm': 1.5,
+			'spm': 1 / defaultReduction,
+			's.pm': 1 / defaultReduction * 1.5
+		}[metrics]
+		if(translateSize === undefined) {
+			throw new Error('Unknown speed metric ' + metrics)
+		}
+		return value * translateSize
+	}
 }

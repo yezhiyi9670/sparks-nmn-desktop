@@ -656,7 +656,7 @@ export class MusicPaint {
 			noteText = note.char.char
 		}
 		const metric = (noteText != '_') ? noteMetricA : noteMetricB
-		this.root.drawTextFast(x, y, noteText, metric, scale, 'center', 'middle', extraStyles, () => {
+		this.root.drawTextFast(x, y, noteText, metric, scale, 'center', 'middle', extraStyles, [], () => {
 			if(context.positionCallback) {
 				context.positionCallback(note.lineNumber, note.range[0])
 			}

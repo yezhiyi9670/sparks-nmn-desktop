@@ -11,9 +11,9 @@ export default {
 	negative: '#EC407A',
 	negativeHover: '#E91E63',
 	negativeActive: '#D81B60',
-	voidary: Color(systemColor).desaturate(0.35).lightness(97).hex(),
-	voidaryHover: Color(systemColor).desaturate(0.4).lightness(91).hex(),
-	voidarySelected: Color(systemColor).desaturate(0.44).lightness(88).hex(),
-	voidaryActive: Color(systemColor).desaturate(0.5).lightness(85).hex(),
+	voidary: Color(systemColor).desaturate(0.45).lightness(95).hex(),
+	voidaryHover: Color(systemColor).desaturate(0.5).lightness(90).hex(),
+	voidarySelected: Color(systemColor).desaturate(0.54).lightness(86).hex(),
+	voidaryActive: Color(systemColor).desaturate(0.6).lightness(85).hex(),
 	selection: Color(systemColor).alpha(0.37).toString(),
 }

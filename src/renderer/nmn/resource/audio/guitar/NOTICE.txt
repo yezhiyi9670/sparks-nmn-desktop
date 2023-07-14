@@ -1,0 +1,1 @@
+Samples taken from <https://github.com/nbrosowsky/tonejs-instruments>, released under CC-BY-3.0.

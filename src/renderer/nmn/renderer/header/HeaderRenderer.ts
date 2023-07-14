@@ -1,12 +1,13 @@
 import { NMNResult } from "../.."
 import { DomPaint } from "../backend/DomPaint"
-import { EquifieldSection, RenderContext } from "../renderer"
+import { RenderContext } from "../renderer"
 import $ from 'jquery'
 import { FontMetric } from "../FontMetric"
 import { ScoreContext } from "../../parser/sparse2des/context"
 import { I18n } from "../../i18n"
 import { MusicPaint } from "../paint/MusicPaint"
 import { PaintTextToken } from "../paint/PaintTextToken"
+import { EquifieldSection } from "../../equifield/equifield"
 
 class HeaderRendererClass {
 	renderTop(score: NMNResult['result'], sections: EquifieldSection[], context: RenderContext) {

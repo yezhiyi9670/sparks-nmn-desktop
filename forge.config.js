@@ -2,7 +2,7 @@ module.exports = {
 	packagerConfig: {
 		name: "sparks-nmn-desktop",
 		asar: {
-			unpackDir: 'dist/public/nmn/font'  // Preview HTML need to load fonts from here
+			unpackDir: 'dist/public/nmn/resource/font'  // Preview HTML need to load fonts from here
 		},
 		icon: "./public/static/logo/logo",
 		ignore: (path) => {

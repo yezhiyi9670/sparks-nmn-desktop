@@ -1,13 +1,15 @@
-import React, { ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { ReactNode, createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createUseStyles } from 'react-jss'
 import { useOnceEffect } from '../../util/event'
-import FocusTrap from 'focus-trap-react'
 import Color from 'color'
 import ColorScheme from '../ColorScheme'
 import { useCheckboxClass } from '../style/checkbox'
+import { randomToken } from '../../util/random'
+import FocusLock from 'react-focus-lock'
 
 const useStyles = createUseStyles({
 	wrapper: {
+		position: 'fixed',
 		zIndex: 1000
 	},
 	backdrop: {
@@ -138,6 +140,7 @@ export type DialogButton = {
 	onClick?: (checkboxState: boolean) => void
 	focus?: boolean
 }
+
 interface Props {
 	open: boolean
 	title?: string
@@ -160,7 +163,7 @@ export function Dialog(props: Props) {
 	const focusRef = React.createRef<HTMLButtonElement>()
 	const selfRef = React.createRef<HTMLDivElement>()
 	const [ checkboxState, setCheckboxState ] = useState(props.defaultCheck ?? false)
-	
+
 	const isOpened = useRef(props.open)
 	const isOpening = !isOpened.current && props.open
 	isOpened.current = props.open
@@ -201,58 +204,56 @@ export function Dialog(props: Props) {
 			maxHeight: props.maxHeight ?? 'calc(100% - 48px)',
 			minHeight: props.minHeight ?? '0'
 		}}>
-				{props.title !== undefined && <div className={classes.contentTitle + ' ' + (props.separators ? 'separator' : '')}>
-					{props.title}
-				</div>}
-				<div className={classes.contentBody}>
-					{props.children}
+			{props.title !== undefined && <div className={classes.contentTitle + ' ' + (props.separators ? 'separator' : '')}>
+				{props.title}
+			</div>}
+			<div className={classes.contentBody}>
+				{props.children}
+			</div>
+			{(props.buttons || props.checkbox !== undefined) && <div className={classes.contentButtons + ' ' + (props.separators ? 'separator' : '')}>
+				<div className={classes.groupCheckbox}>
+					{props.checkbox !== undefined && (
+						<label className={checkboxClass.label + ' ' + (checkboxState ? checkboxClass.checked : '')}>
+							<input
+								type='checkbox'
+								className={classes.checkbox}
+								checked={checkboxState}
+								onChange={(evt) => setCheckboxState(evt.target.checked)}
+							/>
+							{' '}
+							{props.checkbox}
+						</label>
+					)}
 				</div>
-				{(props.buttons || props.checkbox !== undefined) && <div className={classes.contentButtons + ' ' + (props.separators ? 'separator' : '')}>
-					<div className={classes.groupCheckbox}>
-						{props.checkbox !== undefined && (
-							<label className={checkboxClass.label + ' ' + (checkboxState ? checkboxClass.checked : '')}>
-								<input
-									type='checkbox'
-									className={classes.checkbox}
-									checked={checkboxState}
-									onChange={(evt) => setCheckboxState(evt.target.checked)}
-								/>
-								{' '}
-								{props.checkbox}
-							</label>
-						)}
-					</div>
-					<div className={classes.groupSpacer} />
-					<div className={classes.groupButtons}>
-						{props.buttons && props.buttons.map((btn, index) => {
-							return <button
-								type='button'
-								key={index}
-								className={`${classes.button} ${btn.color}`}
-								onClick={() => btn.onClick && btn.onClick(checkboxState)}
-								ref={btn.focus ? focusRef : undefined}
-								{...btn.disabled && {disabled: true}}
-							>
-								{btn.text}
-							</button>
-						})}
-					</div>
-				</div>}
+				<div className={classes.groupSpacer} />
+				<div className={classes.groupButtons}>
+					{props.buttons && props.buttons.map((btn, index) => {
+						return <button
+							type='button'
+							key={index}
+							className={`${classes.button} ${btn.color}`}
+							onClick={() => btn.onClick && btn.onClick(checkboxState)}
+							ref={btn.focus ? focusRef : undefined}
+							{...btn.disabled && {disabled: true}}
+						>
+							{btn.text}
+						</button>
+					})}
+				</div>
+			</div>}
 		</div>
 	</>
 	return <>
-		{props.open && <>
-			<FocusTrap focusTrapOptions={{ escapeDeactivates: false }}>
-				<div className={classes.wrapper}>
-					<div className={classes.backdrop} onClick={handleEscape}></div>
-					<div className={classes.dialogTable} onKeyDown={handleKeyDown}>
-						<div className={classes.dialogTableIn}>
-							{dialogWindow}
-						</div>
+		{props.open && <FocusLock>
+			<div className={classes.wrapper}>
+				<div className={classes.backdrop} onClick={handleEscape}></div>
+				<div className={classes.dialogTable} onKeyDown={handleKeyDown}>
+					<div className={classes.dialogTableIn}>
+						{dialogWindow}
 					</div>
 				</div>
-			</FocusTrap>
-		</>}
+			</div>
+		</FocusLock>}
 	</>
 }
 

@@ -1,5 +1,6 @@
 import { RenderProps, renderPropsDefault } from "../../renderer/props"
-import { MusicProps } from "./types"
+import { MusicTheory } from "../../util/music"
+import { AttrShift, MusicProps } from "./types"
 
 /**
  * 乐谱上下文（包含音乐属性和渲染属性）
@@ -63,4 +64,30 @@ export function copyContext(context: ScoreContext): ScoreContext {
 		musical: Object.assign({}, context.musical),
 		render: Object.assign({}, context.render)
 	}
+}
+
+export function handleMusicShift(props: MusicProps, attr: AttrShift): MusicProps {
+	props = { ...props }
+	props.base = { ...props.base! }
+	if(props.base!.value != props.base!.value) {
+		props.base!.value = 0
+	}
+	if(props.base!.baseValue != props.base!.baseValue) {
+		props.base!.baseValue = 0
+	}
+	const oldBase = props.base!.value
+	if(attr.metrics == 'absolute') {
+		props.base = attr.value
+	} else {
+		const delta = MusicTheory.pitchInterval2dKey(attr.value, attr.metrics)
+		props.base = {
+			value: props.base!.value + delta,
+			baseValue: props.base!.value + delta,
+			explicitOctave: true
+		}
+	}
+	if(attr.changeTranspose) {
+		props.transp = props.transp! + props.base.value - oldBase
+	}
+	return props
 }

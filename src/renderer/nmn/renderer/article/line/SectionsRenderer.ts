@@ -1,4 +1,4 @@
-import { NMNResult } from "../../..";
+import { NMNI18n, NMNResult } from "../../..";
 import { I18n } from "../../../i18n";
 import { SectionStat } from "../../../parser/des2cols/section/SectionStat";
 import { MusicDecorationRange, MusicNote, MusicSection, NoteCharMusic } from "../../../parser/sparse2des/types";
@@ -33,6 +33,30 @@ export class SectionsRenderer {
 
 	constructor(columns: PositionDispatcher) {
 		this.columns = columns
+	}
+
+	noteHighlightColor(note: MusicNote<NoteCharMusic>) {
+		if(note.type == 'extend') {
+			if(note.voided) {
+				return '#0000'
+			}
+			return 'hsl(0deg, 0%, 80%)'
+		}
+		const char = note.char.char
+		const finalDelta = note.char.finalDelta
+		if(char == '0') {
+			return 'hsl(0deg, 0%, 80%)'
+		}
+		if('1234567'.indexOf(char) == -1) {
+			return 'hsl(0deg, 0%, 60%)'
+		}
+
+		const tuneValue = ([-1, 0, 2, 4, 5, 7, 9, 11][+char] + finalDelta) * 1 % 12
+		const hue = tuneValue * 30
+		const lightnessMid = 60
+		const lightness = lightnessMid - 20 * Math.cos((hue - 60) * Math.PI / 180) + 7 * Math.cos((hue + 20) * Math.PI / 180)
+
+		return `hsl(${hue}deg, 85%, ${lightness}%)`
 	}
 
 	render(currY: number, part: SectionsRenderData, sectionCount: number, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirstPart: boolean, type: 'normal' | 'accompany' | 'substitute') {
@@ -115,41 +139,6 @@ export class SectionsRenderer {
 			})
 		}
 
-		// ===== 连接线 =====
-		const drawConnect = (startX: number, linkStart: boolean, endX: number, linkEnd: boolean, baseY: number, maxHeight: number) => {
-			const connectorHeightRatio = 1 - Math.sin(Math.PI / 2 * this.connectorAngle)
-
-			let heightRestrictions = 0
-			if(linkStart) {
-				heightRestrictions += 1
-			}
-			if(linkEnd) {
-				heightRestrictions += 1
-			}
-			let rangeWidth = endX - startX
-			let height = maxHeight / connectorHeightRatio  // 换算为宽度单位
-			if(rangeWidth < heightRestrictions * height * scale) {
-				height = rangeWidth / heightRestrictions / scale
-			}
-
-			baseY += height * Math.sin(Math.PI / 2 * this.connectorAngle)  // 保证小的连音线与大的有一致观感。已加大连音线间距避免此处发生事故。
-
-			const topY = baseY - height
-
-			const startAnchorX = ((+linkStart) * height * scale) + startX
-			const endAnchorX = - ((+linkEnd)   * height * scale) + endX
-
-			const connectEase = (x: number) => (Math.max(0, x - this.connectorAngle) / 0.65) ** 0.6
-			if(linkStart) {
-				root.drawQuarterCircle(startAnchorX, baseY, height, 'left', 'top', 0.25, x => connectEase(x), scale)
-			}
-			if(linkEnd) {
-				root.drawQuarterCircle(endAnchorX, baseY, height, 'right', 'top', 0.25, x => connectEase(1 - x), scale)
-			}
-			// const anchorPadding = Math.min((endAnchorX - startAnchorX) * 0.1, 0.1)  // 有的渲染器精度不太行，我不说是谁
-			const anchorPadding = 1e-4
-			root.drawLine(startAnchorX, topY, endAnchorX, topY, 0.25, anchorPadding, scale)
-		}
 		const noteMeasure = msp.measureNoteChar(context, isSmall, scale)
 		
 		// 拉平所有音符列表
@@ -190,7 +179,193 @@ export class SectionsRenderer {
 				}
 			})
 		}
-		// 绘制连音线
+
+		// ===== 小节音符 =====
+		sections.forEach((section, sectionIndex) => {
+			// 画高亮区
+			if(type != 'substitute' && section.idCard.lineNumber != -1 && section.idCard.masterId != '') {
+				const startX = this.columns.startPosition(sectionIndex)
+				const endX = this.columns.endPosition(sectionIndex)
+				const centerY = currY + fieldHeight * (0.5 - 0.5 / 2)
+				const highlightClass = [`SparksNMN-sechl`, `SparksNMN-sechl-${section.idCard.masterId}`]
+				const lineWidth = fieldHeight * 0.5
+				root.drawLine(startX, centerY, endX, centerY, lineWidth, 0, scale, {
+					boxShadow: 'none',
+					background: `#9C27B0`,
+					opacity: 0.25,
+					visibility: 'hidden'
+				}, highlightClass)
+			}
+			// 画小节选取器
+			if(type != 'substitute') {
+				const startX = this.columns.startPosition(sectionIndex)
+				const topY = currY - fieldHeight / 2
+				root.drawText(
+					startX, topY,
+					NMNI18n.renderToken(context.language, 'secsel', '' + (section.ordinal + 1)),
+					new FontMetric('CommonLight/700/1', 2.0), scale,
+					'left', 'top', {
+						background: '#8764b8',
+						color: '#FFF',
+						cursor: 'pointer',
+						padding: '8px 8px',
+						zIndex: 2,
+						visibility: 'hidden'
+					},
+					[
+						'SparksNMN-secsel',
+						'SparksNMN-secsel-ordinal-' + section.ordinal,
+						'SparksNMN-secsel-id-' + section.idCard.uuid
+					],
+					() => {
+						context.sectionPickCallback && context.sectionPickCallback(context.articleOrdinal, section)
+					}
+				)
+			}
+			if(section.type == 'section') {
+				// 节拍校验域
+				if(section.beatsValidation != 'pass' && context.render.debug!) {
+					const topY = currY
+					const bottomY = currY + fieldHeight / 2
+					const startX = this.columns.paddedEndPosition(sectionIndex)
+					const endX = this.columns.endPosition(sectionIndex)
+					const midX = (startX + endX) / 2
+					root.drawLine(midX, topY, midX, bottomY, endX - startX, 0, scale, {
+						boxShadow: `inset 0 0 0 100em ${section.beatsValidation == 'less' ? '#FF9800' : '#03A9F4'}`
+					}, ['SparksNMN-validation'])
+				}
+				// 曲式结构校验域
+				if(section.structureValidation != 'pass' && context.render.debug!) {
+					const topY = currY - fieldHeight / 2
+					const bottomY = currY
+					const startX = this.columns.paddedEndPosition(sectionIndex)
+					const endX = this.columns.endPosition(sectionIndex)
+					const midX = (startX + endX) / 2
+					root.drawLine(midX, topY, midX, bottomY, endX - startX, 0, scale, {
+						boxShadow: `inset 0 0 0 100em #EE0000`
+					}, ['SparksNMN-validation'])
+				}
+
+				const noteMeasure = msp.measureNoteChar(context, isSmall, scale)
+				// 画音符
+				section.notes.forEach((note) => {
+					let reductionLevel = 0
+					section.decoration.forEach((decor) => {
+						if(decor.char == '_') {
+							if(Frac.compare(decor.startPos, note.startPos) <= 0 && Frac.compare(note.startPos, decor.endPos) <= 0) {
+								reductionLevel = Math.max(reductionLevel, decor.level)
+							}
+						}
+					})
+
+					const noteX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, note.startPos))
+
+					// 音符高亮域
+					const topY = currY - noteMeasure[1] * 0.6
+					const bottomY = currY + noteMeasure[1] * 0.6
+					const lineWidth = noteMeasure[0] * 2 * 0.7
+					const highlightClass = [`SparksNMN-notehl`, `SparksNMN-notehl-${note.uuid}`]
+					root.drawLine(noteX, topY, noteX, bottomY, lineWidth, 0, scale, {
+						boxShadow: 'none',
+						background: this.noteHighlightColor(note),
+						opacity: 0.5,
+						visibility: 'hidden'
+					}, highlightClass)
+
+					// 音符
+					msp.drawMusicNote(context, noteX, currY, note, reductionHeight, reductionLevel, isSmall, scale)
+				})
+				// 画减时线
+				section.decoration.forEach((decor) => {
+					if(decor.char == '_') {
+						const startX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.startPos)) - noteMeasure[0] / 2
+						const endX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.endPos)) + noteMeasure[0] / 2
+						const redY = currY + noteMeasure[1] / 2 - noteMeasure[1] * 0.03 + (decor.level - 1) * reductionHeight
+						root.drawLine(startX, redY, endX, redY, 0.15, 0, scale)
+					}
+				})
+				// 画插入符号
+				const insertCount: {[_: string]: number} = {}
+				section.decoration.forEach((decor) => {
+					if(decor.type == 'insert') {
+						const sig = Frac.repr(decor.target)
+						if(!(sig in insertCount)) {
+							insertCount[sig] = 0
+						}
+						decor.ordinal = insertCount[sig]
+						insertCount[sig] += 1
+					}
+				})
+				section.decoration.forEach((decor) => {
+					if(decor.type == 'insert') {
+						const sig = Frac.repr(decor.target)
+						const times = insertCount[sig]
+						const pos = this.columns.fracInsertPosition(sectionIndex, Frac.add(section.startPos, decor.target), decor.ordinal, times)
+						msp.drawInsert(context, pos, currY, decor.char, isSmall, scale)
+					}
+				})
+				// 画属性
+				const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
+				const topAdjust = (topAttr && topAttr.type == 'top') ? topAttr.margin : 0
+				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY - topAdjust, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale, {}, type == 'normal')
+				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY - topAdjust, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale, {}, type == 'normal')
+			} else if(section.type == 'omit') {
+				const omitFontMetric = new FontMetric('CommonBlack/400', 2.16)
+				if(section.count != section.count) {
+					const startX = this.columns.paddedStartPosition(sectionIndex)
+					root.drawTextFast(startX, currY, I18n.renderToken(context.language, 'omit'), omitFontMetric, scale, 'left', 'middle')
+				} else {
+					const omitNumberMetric = new FontMetric('SparksNMN-mscore-20/400', 3.4)
+					const startX = this.columns.startPosition(sectionIndex)
+					const endX = this.columns.endPosition(sectionIndex)
+					const startPaddedX = this.columns.paddedStartPosition(sectionIndex)
+					const endPaddedX = this.columns.paddedEndPosition(sectionIndex)
+					const midX = (startX + endX) / 2
+					const barWidth = 0.8
+					const sideLength = 2 / 2
+					root.drawLine(startPaddedX, currY, endPaddedX, currY, barWidth, 0, scale) // 横杠
+					root.drawLine(startPaddedX, currY - sideLength, startPaddedX, currY + sideLength, 0.15, 0, scale) // 左边界线
+					root.drawLine(endPaddedX, currY - sideLength, endPaddedX, currY + sideLength, 0.15, 0, scale) // 右边界线
+					root.drawTextFast(midX, currY, section.count.toString(), omitNumberMetric, scale, 'center', 'bottom')
+				}
+			}
+		})
+
+		// ===== 连音线 =====
+		const drawConnect = (startX: number, linkStart: boolean, endX: number, linkEnd: boolean, baseY: number, maxHeight: number) => {
+			const connectorHeightRatio = 1 - Math.sin(Math.PI / 2 * this.connectorAngle)
+
+			let heightRestrictions = 0
+			if(linkStart) {
+				heightRestrictions += 1
+			}
+			if(linkEnd) {
+				heightRestrictions += 1
+			}
+			let rangeWidth = endX - startX
+			let height = maxHeight / connectorHeightRatio  // 换算为宽度单位
+			if(rangeWidth < heightRestrictions * height * scale) {
+				height = rangeWidth / heightRestrictions / scale
+			}
+
+			baseY += height * Math.sin(Math.PI / 2 * this.connectorAngle)  // 保证小的连音线与大的有一致观感。已加大连音线间距避免此处发生事故。
+
+			const topY = baseY - height
+
+			const startAnchorX = ((+linkStart) * height * scale) + startX
+			const endAnchorX = - ((+linkEnd)   * height * scale) + endX
+
+			const connectEase = (x: number) => (Math.max(0, x - this.connectorAngle) / 0.65) ** 0.6
+			if(linkStart) {
+				root.drawQuarterCircle(startAnchorX, baseY, height, 'left', 'top', 0.25, x => connectEase(x), scale)
+			}
+			if(linkEnd) {
+				root.drawQuarterCircle(endAnchorX, baseY, height, 'right', 'top', 0.25, x => connectEase(1 - x), scale)
+			}
+			// const anchorPadding = Math.min((endAnchorX - startAnchorX) * 0.1, 0.1)  // 有的渲染器精度不太行，我不说是谁
+			const anchorPadding = 1e-4
+			root.drawLine(startAnchorX, topY, endAnchorX, topY, 0.25, anchorPadding, scale)
+		}
 		const drawConnector = (decor: MusicDecorationRange, decors: MusicDecorationRange[]) => {
 			const connectorHeightRatio = 1 - Math.sin(Math.PI / 2 * this.connectorAngle)
 
@@ -310,142 +485,52 @@ export class SectionsRenderer {
 			}
 		})
 
-		// ===== 小节音符 =====
+		// ===== 三连音 =====
 		sections.forEach((section, sectionIndex) => {
-			// 画高亮区
-			if(type != 'substitute' && section.idCard.lineNumber != -1 && section.idCard.uuid != '') {
-				const startX = this.columns.startPosition(sectionIndex)
-				const endX = this.columns.endPosition(sectionIndex)
-				const centerY = currY + fieldHeight / 4
-				const highlightClass = [`SparksNMN-sechl`, `SparksNMN-sechl-${section.idCard.uuid}`]
-				const lineWidth = fieldHeight / 2
-				root.drawLine(startX, centerY, endX, centerY, lineWidth, 0, scale, {
-					boxShadow: `inset 0 0 0 100em #9C27B0`,
-					opacity: 0.25,
-					visibility: 'hidden'
-				}, highlightClass)
+			if(section.type != 'section') {
+				return
 			}
-			if(section.type == 'section') {
-				const noteMeasure = msp.measureNoteChar(context, isSmall, scale)
-				// 画音符
-				section.notes.forEach((note) => {
-					let reductionLevel = 0
-					section.decoration.forEach((decor) => {
-						if(decor.char == '_') {
-							if(Frac.compare(decor.startPos, note.startPos) <= 0 && Frac.compare(note.startPos, decor.endPos) <= 0) {
-								reductionLevel = Math.max(reductionLevel, decor.level)
-							}
-						}
-					})
-
-					const noteX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, note.startPos))
-					msp.drawMusicNote(context, noteX, currY, note, reductionHeight, reductionLevel, isSmall, scale)
-				})
-				// 画减时线
+			// 画三连音
+			if(!isSmall) {
 				section.decoration.forEach((decor) => {
-					if(decor.char == '_') {
+					if(decor.char == 'T') {
+						// ==== 确定文本 ====
+						let tripletText = '' + decor.level
+						if(decor.extraNumber) {
+							tripletText += '/' + decor.extraNumber
+						}
+						// ==== 绘制 ====
 						const startX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.startPos)) - noteMeasure[0] / 2
 						const endX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.endPos)) + noteMeasure[0] / 2
-						const redY = currY + noteMeasure[1] / 2 - noteMeasure[1] * 0.03 + (decor.level - 1) * reductionHeight
-						root.drawLine(startX, redY, endX, redY, 0.15, 0, scale)
-					}
-				})
-				// 画三连音
-				if(!isSmall) {
-					section.decoration.forEach((decor) => {
-						if(decor.char == 'T') {
-							// ==== 确定文本 ====
-							let tripletText = '' + decor.level
-							if(decor.extraNumber) {
-								tripletText += '/' + decor.extraNumber
-							}
-							// ==== 绘制 ====
-							const startX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.startPos)) - noteMeasure[0] / 2
-							const endX = this.columns.fracPosition(sectionIndex, Frac.add(section.startPos, decor.endPos)) + noteMeasure[0] / 2
-							// const lowY = currY - noteMeasure[1] / 2 - 0.5
-							let highY = currY - noteMeasure[1] / 2 - 2
-							const heightSpacing = noteMeasure[1] * (tripletText == '3' ? 0.25 : 0.4)
-							checkNoteList((note) => { // 检查连音线高度
-								highY = Math.min(highY, note.leftTop - heightSpacing)
-								highY = Math.min(highY, note.rightTop - heightSpacing)
-							}, Frac.add(section.startPos, decor.startPos), Frac.add(section.startPos, decor.endPos), true, true)
-							const lowY = highY + 1.5
-							const midX = (startX + endX) / 2
-							const annoToken = new PaintTextToken(
-								tripletText, new FontMetric('SparksNMN-mscore-20/400', 3),
-								scale, {fontStyle: 'italic'}
-							)
-							const annoMeasure = annoToken.measureFast(root)
-							const midLX = midX - annoMeasure[0] / 2 - 0.5 * scale
-							const midRX = midX + annoMeasure[0] / 2 + 0.5 * scale
-							root.drawLine(startX, lowY, startX, highY, 0.15, 0.1, scale) // 左边线
-							if(midLX > startX) {
-								root.drawLine(startX, highY, midLX, highY, 0.15, 0.1, scale) // 左横线
-							}
-							annoToken.drawFast(root, midX, highY, 'center', 'middle')
-							if(endX > midRX) {
-								root.drawLine(midRX, highY, endX, highY, 0.15, 0.1, scale) // 右横线
-							}
-							root.drawLine(endX, lowY, endX, highY, 0.15, 0.1, scale) // 右边线
+						// const lowY = currY - noteMeasure[1] / 2 - 0.5
+						let highY = currY - noteMeasure[1] / 2 - 2
+						const heightSpacing = noteMeasure[1] * (tripletText == '3' ? 0.25 : 0.4)
+						checkNoteList((note) => { // 检查连音线高度
+							highY = Math.min(highY, note.leftTop - heightSpacing)
+							highY = Math.min(highY, note.rightTop - heightSpacing)
+						}, Frac.add(section.startPos, decor.startPos), Frac.add(section.startPos, decor.endPos), true, true)
+						const lowY = highY + 1.5
+						const midX = (startX + endX) / 2
+						const annoToken = new PaintTextToken(
+							tripletText, new FontMetric('SparksNMN-mscore-20/400', 3),
+							scale, {fontStyle: 'italic'}
+						)
+						const annoMeasure = annoToken.measureFast(root)
+						const midLX = midX - annoMeasure[0] / 2 - 0.5 * scale
+						const midRX = midX + annoMeasure[0] / 2 + 0.5 * scale
+						root.drawLine(startX, lowY, startX, highY, 0.15, 0.1, scale) // 左边线
+						if(midLX > startX) {
+							root.drawLine(startX, highY, midLX, highY, 0.15, 0.1, scale) // 左横线
 						}
-					})
-				}
-				// 画插入符号
-				const insertCount: {[_: string]: number} = {}
-				section.decoration.forEach((decor) => {
-					if(decor.type == 'insert') {
-						const sig = Frac.repr(decor.target)
-						if(!(sig in insertCount)) {
-							insertCount[sig] = 0
+						annoToken.drawFast(root, midX, highY, 'center', 'middle')
+						if(endX > midRX) {
+							root.drawLine(midRX, highY, endX, highY, 0.15, 0.1, scale) // 右横线
 						}
-						decor.ordinal = insertCount[sig]
-						insertCount[sig] += 1
+						root.drawLine(endX, lowY, endX, highY, 0.15, 0.1, scale) // 右边线
 					}
 				})
-				section.decoration.forEach((decor) => {
-					if(decor.type == 'insert') {
-						const sig = Frac.repr(decor.target)
-						const times = insertCount[sig]
-						const pos = this.columns.fracInsertPosition(sectionIndex, Frac.add(section.startPos, decor.target), decor.ordinal, times)
-						msp.drawInsert(context, pos, currY, decor.char, isSmall, scale)
-					}
-				})
-				// 画校验域
-				if(section.validation != 'pass' && context.render.debug!) {
-					const topY = currY - noteMeasure[1] / 2
-					const bottomY = currY + noteMeasure[1] / 2
-					const startX = this.columns.paddedEndPosition(sectionIndex)
-					const endX = this.columns.endPosition(sectionIndex)
-					const midX = (startX + endX) / 2
-					root.drawLine(midX, topY, midX, bottomY, endX - startX, 0, scale, {
-						boxShadow: `inset 0 0 0 100em ${section.validation == 'less' ? '#FF9800' : '#03A9F4'}`
-					})
-				}
-				// 画属性
-				const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
-				const topAdjust = (topAttr && topAttr.type == 'top') ? topAttr.margin : 0
-				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY - topAdjust, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale, {}, type == 'normal')
-				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY - topAdjust, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale, {}, type == 'normal')
-			} else if(section.type == 'omit') {
-				const omitFontMetric = new FontMetric('CommonBlack/400', 2.16)
-				if(section.count != section.count) {
-					const startX = this.columns.paddedStartPosition(sectionIndex)
-					root.drawTextFast(startX, currY, I18n.renderToken(context.language, 'omit'), omitFontMetric, scale, 'left', 'middle')
-				} else {
-					const omitNumberMetric = new FontMetric('SparksNMN-mscore-20/400', 3.4)
-					const startX = this.columns.startPosition(sectionIndex)
-					const endX = this.columns.endPosition(sectionIndex)
-					const startPaddedX = this.columns.paddedStartPosition(sectionIndex)
-					const endPaddedX = this.columns.paddedEndPosition(sectionIndex)
-					const midX = (startX + endX) / 2
-					const barWidth = 0.8
-					const sideLength = 2 / 2
-					root.drawLine(startPaddedX, currY, endPaddedX, currY, barWidth, 0, scale) // 横杠
-					root.drawLine(startPaddedX, currY - sideLength, startPaddedX, currY + sideLength, 0.15, 0, scale) // 左边界线
-					root.drawLine(endPaddedX, currY - sideLength, endPaddedX, currY + sideLength, 0.15, 0, scale) // 右边界线
-					root.drawTextFast(midX, currY, section.count.toString(), omitNumberMetric, scale, 'center', 'bottom')
-				}
 			}
 		})
+
 	}
 }

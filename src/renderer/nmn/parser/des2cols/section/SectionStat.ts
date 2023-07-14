@@ -9,7 +9,8 @@ export module SectionStat {
 		idCard: {
 			lineNumber: -1,
 			index: -1,
-			uuid: '',
+			masterId: '',
+			uuid: ''
 		},
 		range: [-1, -1],
 		ordinal: 0,
@@ -17,10 +18,12 @@ export module SectionStat {
 		separator: {
 			before: {char: '/', attrs: []},
 			after: {char: '/', attrs: []},
-			next: {char: '/', attrs: []}
+			next: {char: '/', attrs: []},
+			nextPrev: {char: '/', attrs: []}
 		},
 		musicalProps: scoreContextDefault.musical,
-		type: 'nullish'
+		structureValidation: 'pass',
+		type: 'nullish',
 	}
 	/**
 	 * 小节列填充（作用同 paintArray 函数）
@@ -33,10 +36,10 @@ export module SectionStat {
 			padLength = data.length
 		}
 		while(sections.length < offset) {
-			sections.push(nullish)
+			sections.push({...nullish})
 		}
 		for(let i = 0; i < padLength; i++) {
-			sections[offset + i] = (i < data.length) ? data[i] : nullish
+			sections[offset + i] = (i < data.length) ? data[i] : {...nullish}
 		}
 	}
 	/**
@@ -86,16 +89,16 @@ export module SectionStat {
 			if(!Frac.equals(section.totalQuarters, shouldBe)) {
 				let ch = Frac.compare(section.totalQuarters, shouldBe)
 				if(ch > 0) {
-					section.validation = 'more'
+					section.beatsValidation = 'more'
 				} else {
-					section.validation = 'less'
+					section.beatsValidation = 'less'
 				}
 			}
 		} else {
 			// 散板节拍型仅判断拍数是否为整数
 			const beats = Frac.prod(Frac.create(section.musicalProps.beats!.value.y), Frac.create(1, 4), section.totalQuarters)
 			if(beats.y != 1) {
-				section.validation = 'less'
+				section.beatsValidation = 'less'
 			}
 		}
 		return Frac.max(section.totalQuarters, shouldBe)
@@ -356,7 +359,7 @@ export module SectionStat {
 			...line,
 			sections: line.sections.slice(startSection, startSection + sectionCount).map((section, index) => {
 				if(overwriteIdSections && overwriteIdSections.length > index) {
-					section.idCard.uuid = overwriteIdSections[index].idCard.uuid
+					section.idCard.masterId = overwriteIdSections[index].idCard.masterId
 				}
 				return section
 			})

@@ -6,22 +6,33 @@ import { HeaderRenderer } from "./header/HeaderRenderer";
 import $ from 'jquery'
 import { ArticleRenderer } from "./article/ArticleRenderer";
 import { EquifieldSection } from "../equifield/equifield";
+import { MusicSection, NoteCharMusic } from "../parser/sparse2des/types";
 
 export type RenderContext = ScoreContext & {
 	language: LanguageArray
 	positionCallback: RenderPositionCallback | undefined
+	sectionPickCallback: RenderSectionPickCallback | undefined
+	articleOrdinal: number
 }
 export type RenderPositionCallback = (lineNumber: number, charPos: number) => void
+export type RenderSectionPickCallback = (articleOrdinal: number, section: MusicSection<NoteCharMusic>) => void
 
 class RendererClass {
-	render(score: NMNResult['result'], lng: LanguageArray, positionCallback: RenderPositionCallback | undefined): EquifieldSection[] {
+	render(
+		score: NMNResult['result'],
+		lng: LanguageArray,
+		positionCallback: RenderPositionCallback | undefined,
+		sectionPickCallback: RenderSectionPickCallback | undefined
+	): EquifieldSection[] {
 		let sections: EquifieldSection[] = []
-		const context = {
+		const context: RenderContext = {
 			language: lng,
 			positionCallback: positionCallback,
+			sectionPickCallback: sectionPickCallback,
 			...addMusicProp(addRenderProp(
 				scoreContextDefault, score.renderProps?.props
-			), score.musicalProps?.props)
+			), score.musicalProps?.props),
+			articleOrdinal: NaN
 		}
 
 		// ==== 头部信息 ====
@@ -30,15 +41,15 @@ class RendererClass {
 		HeaderRenderer.renderTopSpacer(score, sections, context)
 		// ==== 章节 ====
 		let context1 = context
-		score.articles.forEach((article) => {
+		score.articles.forEach((article, articleOrdinal) => {
 			let contextPre = addRenderProp(context1, article.renderProps?.props)
 			if(article.type == 'music') {
 				contextPre = addMusicProp(contextPre, article.musicalProps?.props)
 			}
 			const context = {
-				language: lng,
-				positionCallback: positionCallback,
-				...contextPre
+				...context1,
+				...contextPre,
+				articleOrdinal: articleOrdinal,
 			}
 			ArticleRenderer.renderArticle(article, sections, context)
 		})

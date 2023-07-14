@@ -19,6 +19,7 @@ import $ from 'jquery'
 import Color from 'color'
 import ColorScheme from './ColorScheme'
 import { compareVersions } from 'compare-versions'
+import { IntegratedEditorPrefs } from './nmn/integrated-editor/IntegratedEditor'
 
 const checkUpdateUrl = 'https://nmn.sparks-lab.art/latest-version.json'
 
@@ -199,7 +200,7 @@ function AppIn() {
 		return true
 	}
 	async function exportHtmlIn(path: string, editorApi: IntegratedEditorApi) {
-		const localFontLocation = 'file:///' + window.FileSystem.getResourcePath().replace(/\\/g, '/') + '/dist/public/nmn/font'
+		const localFontLocation = 'file:///' + window.FileSystem.getResourcePath().replace(/\\/g, '/') + '/dist/public/nmn/resource/font'
 		const exportContent = editorApi.exportHtml(exportTemplate, localFontLocation)
 		const basename = window.Path.basename(path)
 		if(await window.FileSystem.saveText(path, exportContent)) {
@@ -388,25 +389,30 @@ function AppIn() {
 		}
 	})
 
-	const editorPrefs = useMemo(() => ({
-		fontFamily: prefs.getValue<string>('fontFamily'),
-		fontSize: prefs.getValue<number>('fontSize'),
-		autoSave: prefs.getValue<string>('autoSave') as 'off',
-		previewRefresh: prefs.getValue<string>('previewRefresh'),
-		showFileSize: prefs.getValue<string>('showFileSize') as 'off',
-		fileSizeUnit: prefs.getValue<string>('fileSizeUnit') as 'kb',
-		showProcessTime: prefs.getValue<string>('showProcessTime') as 'off',
-		previewMaxWidth: prefs.getValue<number>('previewMaxWidth'),
-		previewAlign: prefs.getValue<string>('previewAlign') as 'left',
-		displayMode: prefs.getValue<string>('displayMode') as 'split',
-		modifyTitle: {
-			default: LNG('title.default'),
-			new: LNG('title.new'),
-			newDirty: LNG('title.newDirty'),
-			clean: LNG('title.clean'),
-			dirty: LNG('title.dirty')
+	const editorPrefs = useMemo(() => {
+		const editorPrefs: IntegratedEditorPrefs = {
+			fontFamily: prefs.getValue<string>('fontFamily'),
+			fontSize: prefs.getValue<number>('fontSize'),
+			autoSave: prefs.getValue<string>('autoSave') as 'off',
+			previewRefresh: prefs.getValue<string>('previewRefresh'),
+			showFileSize: prefs.getValue<string>('showFileSize') as 'off',
+			fileSizeUnit: prefs.getValue<string>('fileSizeUnit') as 'kb',
+			showProcessTime: prefs.getValue<string>('showProcessTime') as 'off',
+			previewMaxWidth: prefs.getValue<number>('previewMaxWidth'),
+			previewAlign: prefs.getValue<string>('previewAlign') as 'left',
+			displayMode: prefs.getValue<string>('displayMode') as 'split',
+			modifyTitle: {
+				default: LNG('title.default'),
+				new: LNG('title.new'),
+				newDirty: LNG('title.newDirty'),
+				clean: LNG('title.clean'),
+				dirty: LNG('title.dirty')
+			},
+			instrumentSourceUrl: './nmn/resource/audio',
+			inspectorOpen: prefs.getValue<string>('inspectorOpen') == 'on'
 		}
-	}), [prefs, LNG])
+		return editorPrefs
+	}, [prefs, LNG])
 
 	return (
 		<div style={{
@@ -439,10 +445,12 @@ function App() {
 			::selection {
 				background: ${ColorScheme.selection};
 			}
-			.SparksNMN-sechl' {
-				boxShadow: none !important;
-				backgroundColor: ${ColorScheme.selection};
+			.SparksNMN-sechl {
+				background-color: ${ColorScheme.selection} !important;
 				opacity: 1 !important;
+			}
+			.SparksNMN-secsel {
+				background-color: ${ColorScheme.positive} !important;
 			}
 		`}</style>
 		<AppIn />
@@ -455,7 +463,7 @@ export function useExportTemplate() {
 	return useContext(ExportTemplateContext)
 }
 
-SparksNMN.fontLoader.requestFontLoad('./nmn/font', () => {
+SparksNMN.fontLoader.requestFontLoad('./nmn/resource/font', () => {
 	$.get('static/export-template.txt', (data) => {
 		createRoot(document.getElementById('root')!).render(
 			<ErrorBoundary fallback={(recover) => (<>

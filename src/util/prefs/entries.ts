@@ -37,6 +37,12 @@ const entries: PrefRendererInfo = [
 				choices: ['off', 'overwrite']
 			},
 			{
+				key: 'inspectorOpen',
+				defaultValue: ['string', 'off'],
+				type: 'select',
+				choices: ['off', 'on']
+			},
+			{
 				key: 'previewRefresh',
 				defaultValue: ['string', 'delay1000'],
 				type: 'select',

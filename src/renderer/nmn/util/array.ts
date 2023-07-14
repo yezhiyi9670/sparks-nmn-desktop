@@ -138,29 +138,29 @@ export function countArray<T>(arr: T[], element: T) {
 	return ret
 }
 
-export function expandArray<T>(arr: T[], length: number, element: T) {
+export function expandArray<T>(arr: T[], length: number, glueCreator: () => T) {
 	while(arr.length < length) {
-		arr.push(element)
+		arr.push(glueCreator())
 	}
 }
 
-export function fillArray<T>(arr: T[], offset: number, length: number, element: T, glue: T) {
+export function fillArray<T>(arr: T[], offset: number, length: number, element: T, glueCreator: () => T) {
 	while(arr.length < offset) {
-		arr.push(glue)
+		arr.push(glueCreator())
 	}
 	for(let i = 0; i < length; i++) {
 		arr[offset + i] = element
 	}
 }
 
-export function paintArray<T>(arr: T[], src: T[], offset: number, length: number, glue: T) {
+export function paintArray<T>(arr: T[], src: T[], offset: number, length: number, glueCreator: () => T) {
 	if(length == -1) {
 		length = src.length
 	}
 	while(arr.length < offset) {
-		arr.push(glue)
+		arr.push(glueCreator())
 	}
 	for(let i = 0; i < length; i++) {
-		arr[offset + i] = (i < src.length) ? src[i] : glue
+		arr[offset + i] = (i < src.length) ? src[i] : glueCreator()
 	}
 }

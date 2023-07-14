@@ -6,14 +6,14 @@ import { BracketPair } from "../../lnt2sparse/SparseBuilder";
 import { addIssue, LinedIssue } from "../../parser";
 import { BracketPairFilters, BracketToken, BracketTokenList, TokenFilter, Tokens } from "../../tokenizer/tokens";
 import { AttrMatcher } from "../AttrMatcher";
-import { ScoreContext } from "../context";
+import { ScoreContext, handleMusicShift } from "../context";
 import { AttrShift, MusicProps, MusicSection, NoteCharAny, NoteCharMusic, SectionSeparator, SectionSeparatorChar, sectionSeparatorCharMap, SectionSeparators, SeparatorAttr, SeparatorAttrBase, separatorAttrPosition } from "../types";
 import { NoteEater } from "./NoteEater";
 
 type RangedSectionSeparators = SectionSeparators & {
 	range: [number, number]
 }
-type SampledSection<TypeSampler> = MusicSection<NoteCharAny & {type: TypeSampler}>
+type SampledSection<TypeSampler> = MusicSection<NoteCharAny & {sampler: TypeSampler}>
 
 class SectionsParserClass {
 	parseSections<TypeSampler>(tokens: BracketTokenList, lineNumber: number, issues: LinedIssue[], context: ScoreContext, musicalPropsOverride: [MusicProps[], number] | undefined, typeSampler: TypeSampler, acceptVariation?: boolean): SampledSection<TypeSampler>[] {
@@ -84,6 +84,10 @@ class SectionsParserClass {
 				next: {
 					char: chars as SectionSeparatorChar,
 					attrs: []
+				},
+				nextPrev: {
+					char: '/',
+					attrs: []
 				}
 			}
 		})
@@ -121,13 +125,14 @@ class SectionsParserClass {
 			}
 		})
 		// ===== 提取小节线之间的小节并解析（对空白小节、属性区间重叠进行警告） =====
-		let ret: MusicSection<NoteCharAny & {type: TypeSampler}>[] = []
+		let ret: MusicSection<NoteCharAny & {sampler: TypeSampler}>[] = []
 		function virtualLine(rangeL: number, rangeR: number): RangedSectionSeparators {
 			return {
 				range: [rangeL, rangeR],
 				before: { char: '/', attrs: [] },
 				after: { char: '/', attrs: [] },
-				next: { char: '/', attrs: [] }
+				next: { char: '/', attrs: [] },
+				nextPrev: { char: '/', attrs: [] }
 			}
 		}
 		if(separators.length == 0 || separators[0].range[0] > 0) {
@@ -180,7 +185,7 @@ class SectionsParserClass {
 				)
 			}
 			// 每个小节线属性
-			function handleAttr(attr: SeparatorAttr, slot: 'after' | 'next' | 'before') {
+			function checkAttrCorrectness(attr: SeparatorAttr, slot: 'after' | 'next' | 'before') {
 				const def = separatorAttrPosition[attr.type]
 				if(undefined === def) {
 					return
@@ -218,13 +223,13 @@ class SectionsParserClass {
 				}
 			}
 			for(let attr of separators[i].after.attrs) {
-				handleAttr(attr, 'after')
+				checkAttrCorrectness(attr, 'after')
 			}
 			for(let attr of separators[i].next.attrs) {
-				handleAttr(attr, 'next')
+				checkAttrCorrectness(attr, 'next')
 			}
 			for(let attr of separators[i].before.attrs) {
-				handleAttr(attr, 'before')
+				checkAttrCorrectness(attr, 'before')
 			}
 		}
 		// 处理属性变化并读取小节
@@ -240,7 +245,7 @@ class SectionsParserClass {
 				)
 			}
 			// 根据上一小节的 next 属性和此小节的 before 属性修改当前的音乐属性
-			const handleAttr = (attr: SeparatorAttr) => {
+			const handleAttrVariation = (attr: SeparatorAttr) => {
 				if(attr.type == 'beats') {
 					context.musical = Object.assign({}, context.musical)
 					context.musical.beats = attr.beats
@@ -250,15 +255,15 @@ class SectionsParserClass {
 					context.musical.qpm = attr.qpm
 				}
 				if(attr.type == 'shift') {
-					context.musical = this.handleShift(context.musical, attr)
+					context.musical = handleMusicShift(context.musical, attr)
 				}
 			}
 			if(acceptVariation) {
 				for(let attr of separators[i - 1].next.attrs) {
-					handleAttr(attr)
+					handleAttrVariation(attr)
 				}
 				for(let attr of separators[i - 1].before.attrs) {
-					handleAttr(attr)
+					handleAttrVariation(attr)
 				}
 			}
 			// 枚举每一对相邻小节线，并取出相应区间进行操作。
@@ -284,7 +289,8 @@ class SectionsParserClass {
 				], separator: {
 					before: separators[i - 1].before,
 					after: separators[i].after,
-					next: separators[i].next
+					next: separators[i].next,
+					nextPrev: separators[i - 1].next
 				}},
 				typeSampler
 			))
@@ -360,22 +366,6 @@ class SectionsParserClass {
 		})
 		return ret
 	}
-	handleShift(props: MusicProps, attr: AttrShift): MusicProps {
-		props = Object.assign({}, props)
-		const oldBase = props.base!.value
-		if(attr.metrics == 'absolute') {
-			props.base = attr.value
-		} else {
-			const delta = MusicTheory.pitchInterval2dKey(attr.value, attr.metrics)
-			props.base = {
-				value: props.base!.value + delta,
-				baseValue: props.base!.value + delta,
-				explicitOctave: true
-			}
-		}
-		props.transp = props.transp! + props.base.value - oldBase
-		return props
-	}
 
 	parseSection<TypeSampler>(tokens: BracketTokenList, sectionIndex: number, lineNumber: number, context: ScoreContext, issues: LinedIssue[], knownValues: {
 		range: [number, number],
@@ -384,6 +374,7 @@ class SectionsParserClass {
 		const idCard = {
 			lineNumber: lineNumber,
 			index: sectionIndex,
+			masterId: `${lineNumber}-${sectionIndex}`,
 			uuid: `${lineNumber}-${sectionIndex}`
 		}
 		const base = {
@@ -399,7 +390,8 @@ class SectionsParserClass {
 			new TokenFilter('word', 'empty')
 		).test(tokens)) {
 			return Object.assign({}, base, {
-				type: 'empty' as 'empty'
+				type: 'empty' as 'empty',
+				structureValidation: 'pass' as 'pass',
 			})
 		}
 		// omit
@@ -408,6 +400,7 @@ class SectionsParserClass {
 		).test(tokens)) {
 			return Object.assign({}, base, {
 				type: 'omit' as 'omit',
+				structureValidation: 'pass' as 'pass',
 				count: NaN
 			})
 		}
@@ -429,6 +422,7 @@ class SectionsParserClass {
 				}
 				return Object.assign({}, base, {
 					type: 'omit' as 'omit',
+					structureValidation: 'pass' as 'pass',
 					count: val
 				})
 			}
@@ -436,7 +430,8 @@ class SectionsParserClass {
 		const ret: SampledSection<TypeSampler> = Object.assign({}, base, {
 			type: 'section' as 'section',
 			totalQuarters: { x: 0, y: 1 },
-			validation: 'pass' as 'pass',
+			beatsValidation: 'pass' as 'pass',
+			structureValidation: 'pass' as 'pass',
 			notes: [],
 			decoration: [],
 			leftSplit: false,
@@ -445,6 +440,27 @@ class SectionsParserClass {
 		})
 		const [ writtenQuarters ] = new NoteEater(tokens, lineNumber, context).parse<TypeSampler>(ret, Frac.create(1), Frac.create(0), issues, typeSampler)
 		ret.totalQuarters = writtenQuarters
+
+		// 分配音符编号
+		let noteOrdinal = 0
+		ret.notes.forEach(note => {
+			note.uuid = idCard.uuid + '-' + (noteOrdinal++)
+		})
+		// 分配未知的变化音
+		let accidentalRemembered: {[_: string]: number} = {}
+		ret.notes.forEach(note => {
+			if(note.type != 'note' || note.char.type != 'music') {
+				return
+			}
+			const noteChar = note.char
+			if(noteChar.delta == noteChar.delta) {
+				noteChar.finalDelta = noteChar.delta
+			} else {
+				noteChar.finalDelta = accidentalRemembered[noteChar.char] ?? 0
+			}
+			accidentalRemembered[noteChar.char] = noteChar.finalDelta
+		})
+
 		return ret
 	}
 }
