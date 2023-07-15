@@ -41,7 +41,7 @@ export const controlDataPartDefault: ControlDataPart = {
 	type: 'part',
 	octave: 0,
 	tonicInstrument: 'piano',
-	drumlineInstrument: 'drum'
+	drumlineInstrument: 'snare'
 }
 export const controlDataPartBeatMachine: ControlDataPart = {
 	mute: false,

@@ -79,6 +79,9 @@ function recreateControlData(result: NMNResult, previous?: ControlData) {
 					control: signature.type == 'beatMachine' ? controlDataPartBeatMachine : controlDataPartDefault,
 					signature: signature,
 				}
+				if(signature.type != 'beatMachine' && signature.head == 'Na') {
+					newData[hash].control.drumlineInstrument = 'drum'
+				}
 			}
 		}
 	}
