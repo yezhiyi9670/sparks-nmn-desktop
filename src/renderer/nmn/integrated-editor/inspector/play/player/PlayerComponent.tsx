@@ -229,7 +229,6 @@ export const PlayerComponent = memo((props: {
 	 */
 	useOnceEffect(() => {
 		return () => {
-			console.log('invoke end')
 			invokeEnd()
 			handleEnd()
 		}

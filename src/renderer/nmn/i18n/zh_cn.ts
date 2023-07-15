@@ -317,11 +317,12 @@ export default {
 					"synth": "乐器",
 					"instrument": {
 						"chip": "芯片*",
+						"saw": "锯齿*",
+						"flute": "长笛*",
 						"piano": "钢琴",
 						"organ": "管风琴",
 						"violin": "提琴",
 						"guitar": "吉他",
-						"horn": "管乐*",
 						"beat1": "节拍1",
 						"beat2": "节拍2",
 						"snare": "Snare",

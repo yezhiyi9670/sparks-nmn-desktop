@@ -1,7 +1,7 @@
 import { PartSignature } from "../../../../parser/des2cols/types"
 import { ChipInstrument } from "../../../../tone/instrument/tonic/ChipInstrument"
 import { SnareDrumlineInstrument, SnareTonicInstrument } from "../../../../tone/instrument/SnareInstrument"
-import { HornInstrument } from "../../../../tone/instrument/tonic/HornInstrument"
+import { FluteInstrument } from "../../../../tone/instrument/tonic/FluteInstrument"
 import { PianoInstrument } from "../../../../tone/instrument/tonic/PianoInstrument"
 import { inCheck, iterateMap } from "../../../../util/array"
 import { OrganInstrument } from "../../../../tone/instrument/tonic/OrganInstrument"
@@ -10,6 +10,7 @@ import { ViolinInstrument } from "../../../../tone/instrument/tonic/ViolinInstru
 import { BeatInstrument1 } from "../../../../tone/instrument/drumline/BeatInstrument1"
 import { BeatInstrument2 } from "../../../../tone/instrument/drumline/BeatInstrument2"
 import { DrumsInstrument } from "../../../../tone/instrument/drumline/DrumsInstrument"
+import { SawInstrument } from "../../../../tone/instrument/tonic/SawInstrument"
 
 export type ControlData = {[partHash: string]: {
 	control: ControlDataPart
@@ -54,11 +55,12 @@ export const controlDataPartBeatMachine: ControlDataPart = {
 
 export const TonicInstruments = {
 	chip: ChipInstrument,
+	saw: SawInstrument,
+	flute: FluteInstrument,
 	piano: PianoInstrument,
 	organ: OrganInstrument,
 	violin: ViolinInstrument,
 	guitar: GuitarInstrument,
-	horn: HornInstrument,
 	snare: SnareTonicInstrument
 }
 export type TonicInstrumentName = keyof(typeof TonicInstruments)

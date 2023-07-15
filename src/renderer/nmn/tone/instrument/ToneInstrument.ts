@@ -65,7 +65,7 @@ export abstract class ToneInstrument {
 	 * 停止播放并丢弃
 	 */
 	dispose() {
-		this.synth.dispose()
+		this.synth.disconnect()
 	}
 }
 
