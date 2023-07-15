@@ -6,6 +6,6 @@ import { TonicToneInstrument } from '../ToneInstrument';
  */
 export class ChipInstrument extends TonicToneInstrument {
 	create() {
-		return new Tone.Synth()
+		return new Tone.PolySynth(Tone.Synth, {})
 	}
 }

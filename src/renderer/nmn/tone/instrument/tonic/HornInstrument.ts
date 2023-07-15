@@ -6,7 +6,7 @@ import { TonicToneInstrument } from '../ToneInstrument';
  */
 export class HornInstrument extends TonicToneInstrument {
 	create() {
-		return new Tone.MonoSynth({
+		return new Tone.PolySynth(Tone.MonoSynth, {
 			volume: -8,
 			oscillator: {
 				type: "square8"
