@@ -304,7 +304,7 @@ export const PlayerComponent = memo((props: {
 			beatMachineInstrument.drumlineInstrument.now = now
 			const control = props.controlData[beatMachineName]?.control
 			for(let n = 0; n < (beats.value.x == 0 ? maxBeatPoints : Math.min(maxBeatPoints, beats.value.x)); n++) {
-				if(control && control.type == 'beatMachine' && n % control.beatModulo != 0) {
+				if(control && control.type == 'beatMachine' && beats.value.y > 4 && n % control.beatModulo != 0) {
 					continue
 				}
 				beatMachineInstrument.drumlineInstrument.scheduleNote(
