@@ -35,7 +35,7 @@ export class GuitarInstrument extends TonicToneInstrument {
 		'D5': 'D5.mp3',
 		'D#2': 'Ds2.mp3',
 		'D#3': 'Ds3.mp3',
-		'D#4': 'Ds3.mp3',
+		'D#4': 'Ds4.mp3',
 		'E2': 'E2.mp3',
 		'E3': 'E3.mp3',
 		'E4': 'E4.mp3',

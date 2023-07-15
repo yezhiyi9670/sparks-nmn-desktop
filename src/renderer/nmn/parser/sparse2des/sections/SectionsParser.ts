@@ -290,7 +290,12 @@ class SectionsParserClass {
 					before: separators[i - 1].before,
 					after: separators[i].after,
 					next: separators[i].next,
-					nextPrev: separators[i - 1].next
+					nextPrev: {  // 仅包含最前面的，其他留给 interLink 阶段做合并处理
+						...separators[i - 1].next,
+						...(i - 1 != 0 && {
+							attrs: []
+						})
+					}
 				}},
 				typeSampler
 			))

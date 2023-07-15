@@ -222,11 +222,11 @@ export class ArticleSequenceReader {
 	 */
 	checkPortalHead() {
 		if(
-			SequenceSectionStat.isStructureRepeatPos(this.article, this.sectionCursor) == '@' &&
+			SequenceSectionStat.isStructureRepeatPos(this.article, this.sectionCursor).includes('@') &&
 			this.hasUsedRepeatsAfter(this.sectionCursor)
 		) {
 			const jumpTo = SequenceSectionStat.findNextSectionIndex(this.article, this.sectionCursor, cursor => {
-				return SequenceSectionStat.isStructureRepeatCommand(this.article, cursor) == '@'
+				return SequenceSectionStat.isStructureRepeatCommand(this.article, cursor).includes('@')
 			})
 			if(jumpTo === undefined) {
 				return false
@@ -293,7 +293,14 @@ export class ArticleSequenceReader {
 				if(section.type != 'nullish') {
 					return SequenceSectionStat.getAttr(section.separator, pos).attrs
 				}
-				return SequenceSectionStat.getAttr(primoSection.separator, pos).attrs
+				for(let part of this.article.parts) {
+					const section = part.notes.sections[this.sectionCursor]
+					const attrs = SequenceSectionStat.getAttr(section.separator, pos).attrs
+					if(attrs.length > 0) {
+						return attrs
+					}
+				}
+				return []
 			})()
 			
 			for(let attr of applyingSeq) {
@@ -482,15 +489,15 @@ export class ArticleSequenceReader {
 			return true
 		}
 		// 结构反复记号
-		const repeatTypeAttr = SequenceSectionStat.isStructureRepeatCommand(this.article, this.sectionCursor)
+		const repeatAttrs = SequenceSectionStat.isStructureRepeatCommand(this.article, this.sectionCursor)
 		if(
-			[true, 'D.C.', 'D.S.'].includes(repeatTypeAttr) &&
+			(repeatAttrs.includes('D.S.') || repeatAttrs.includes('D.C.')) &&
 			this.checkDurability(this.sectionCursor, 1, +1)
 		) {
 			let jumpTo: number | undefined = 0
-			if(repeatTypeAttr == 'D.S.') {
+			if(repeatAttrs.includes('D.S.')) {
 				jumpTo = SequenceSectionStat.findPrevSectionIndex(this.article, this.sectionCursor, cursor => {
-					return SequenceSectionStat.isStructureRepeatPos(this.article, cursor) == '$'
+					return SequenceSectionStat.isStructureRepeatPos(this.article, cursor).includes('$')
 				})
 			}
 			if(jumpTo === undefined) {
@@ -503,7 +510,7 @@ export class ArticleSequenceReader {
 			return true
 		}
 		// Fine. 结束判定
-		const hasFine = repeatTypeAttr == 'Fine.'
+		const hasFine = repeatAttrs.includes('Fine.')
 		if(
 			hasFine &&
 			this.hasUsedRepeatsAfter(this.sectionCursor)

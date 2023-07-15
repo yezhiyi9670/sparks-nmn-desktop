@@ -384,15 +384,15 @@ export const PlayPanel = React.memo(function(props: {
 			}
 		}
 		// 重新开始
-		else if(!evt.ctrlKey && evt.key.toLocaleLowerCase() == 'r') {
+		else if(!evt.ctrlKey && evt.key.toLowerCase() == 'r') {
 			resetProgress()
 		}
 		// 自动滚动
-		else if(!evt.ctrlKey && evt.key.toLocaleLowerCase() == 'a') {
+		else if(!evt.ctrlKey && evt.key.toLowerCase() == 'a') {
 			toggleAutoScroll()
 		}
 		// 自动播放
-		else if(!evt.ctrlKey && evt.key == ' ') {
+		else if(!evt.ctrlKey && evt.key.toLowerCase() == 'k') {
 			if(playing) {
 				setPlaying(false)
 			} else {

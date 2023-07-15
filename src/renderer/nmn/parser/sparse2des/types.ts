@@ -624,7 +624,7 @@ export type SectionSeparators = {
 	before: SectionSeparator,  // 此小节前（若在行首）需要的小节线，属性为该小节线的后置属性
 	after: SectionSeparator,   // 此小节后（若在行尾）需要的小节线，属性为该小节线的前置属性
 	next: SectionSeparator     // 此小节后（若在行中）需要的小节线，属性为该小节线的上方属性
-	nextPrev: SectionSeparator // 莫得小节线信息，但是是上一个小节线的上方属性
+	nextPrev: SectionSeparator // 莫得小节线信息，但是是上一个小节线的上方属性（interLink 阶段赋予）
 }
 /**
  * 音乐小节

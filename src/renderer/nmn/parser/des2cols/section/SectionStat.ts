@@ -248,6 +248,10 @@ export module SectionStat {
 		let prevSection: MusicSection<CharType> | undefined = undefined as any
 		sections.forEach((section) => {
 			if(prevSection) {
+				section.separator.nextPrev = {
+					...section.separator.nextPrev,
+					attrs: [ ...prevSection.separator.next.attrs, ...section.separator.nextPrev.attrs ]
+				}
 				if(section.separator.before.char == '||:') {
 					const replacementChar = ((): SectionSeparatorChar => {
 						const char = prevSection.separator.next.char

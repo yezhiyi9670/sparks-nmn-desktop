@@ -11,6 +11,7 @@ import { randomToken } from '../../../../util/random'
 import { IntegratedEditorContext } from '../../../IntegratedEditor'
 import { noteCharChecker } from '../../../../parser/sparse2des/types'
 import { iterateMap } from '../../../../util/array'
+import { useOnceEffect } from '../../../../util/event'
 
 type PartInstruments = {
 	type: 'part'
@@ -223,6 +224,16 @@ export const PlayerComponent = memo((props: {
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ handleEnd, handlePlay, props.playing ])
+	/**
+	 * 销毁时结束播放
+	 */
+	useOnceEffect(() => {
+		return () => {
+			console.log('invoke end')
+			invokeEnd()
+			handleEnd()
+		}
+	})
 	/**
 	 * 更新乐器
 	 */

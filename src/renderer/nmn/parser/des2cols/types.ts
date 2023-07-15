@@ -291,6 +291,7 @@ export function lyricLineSignature(tags: LrcAttr[], index: number): LyricLineSig
 
 export type PartSignature = {
 	hash: string
+	head: string
 } & ({
 	type: 'titled'
 	value: PartAttr
@@ -316,12 +317,14 @@ export function partSignature(head: string, tags: PartAttr[], index: number): Pa
 	if(tags.length > 0) {
 		return {
 			hash: signatureHash(hashStr),
+			head: head,
 			type: 'titled',
 			value: tags[0]
 		}
 	} else {
 		return {
 			hash: signatureHash(hashStr),
+			head: head,
 			type: 'untitled',
 			value: index
 		}

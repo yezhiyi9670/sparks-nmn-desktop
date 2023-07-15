@@ -147,26 +147,26 @@ export module SequenceSectionStat {
 		const attrs = getMergedAttrs(article, index, 'after').concat(
 			getMergedAttrs(article, index, 'next')
 		).filter(item => item.type == 'repeat')
-		if(attrs.length == 0) {
-			return false
-		}
-		const attr = attrs[0]
-		if(attr.type != 'repeat') {
-			return false
-		}
-		if(attr.char == 'D.S.') {
-			return 'D.S.'
-		}
-		if(attr.char == 'D.C.') {
-			return 'D.C.'
-		}
-		if(attr.char == 'Fine.') {
-			return 'Fine.'
-		}
-		if(attr.char == '@') {
-			return '@'
-		}
-		return false
+		return attrs.filter(item => item.type == 'repeat').map(item => {
+			if(item.type != 'repeat') {
+				return '$'
+			}
+			if(item.char == '$') {
+				return '$'
+			}
+			if(item.char == '@') {
+				return '@'
+			}
+			if(item.char == 'D.C.') {
+				return 'D.C.'
+			}
+			if(item.char == 'D.S.') {
+				return 'D.S.'
+			}
+			if(item.char == 'Fine.') {
+				return 'Fine.'
+			}
+		})
 	}
 	/**
 	 * 判断小节线是否为结构反复目标
@@ -175,20 +175,17 @@ export module SequenceSectionStat {
 		const attrs = getMergedAttrs(article, index, 'nextPrev').concat(
 			getMergedAttrs(article, index, 'before')
 		).filter(item => item.type == 'repeat')
-		if(attrs.length == 0) {
-			return false
-		}
-		const attr = attrs[0]
-		if(attr.type != 'repeat') {
-			return false
-		}
-		if(attr.char == '$') {
-			return '$'
-		}
-		if(attr.char == '@') {
-			return '@'
-		}
-		return false
+		return attrs.filter(item => item.type == 'repeat').map(item => {
+			if(item.type != 'repeat') {
+				return '$'
+			}
+			if(item.char == '$') {
+				return '$'
+			}
+			if(item.char == '@') {
+				return '@'
+			}
+		})
 	}
 	/**
 	 * 在前面寻找最近符合条件的小节序号

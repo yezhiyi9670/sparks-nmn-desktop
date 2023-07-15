@@ -310,7 +310,8 @@ export default {
 					"part": {
 						"beat_machine": "节拍器",
 						"titled": "${0}",
-						"untitled": "未命名声部 ${0}"
+						"untitled": "未命名声部 ${0}",
+						"accompany": " (鼓点)"
 					},
 					"octave": "八度",
 					"synth": "乐器",

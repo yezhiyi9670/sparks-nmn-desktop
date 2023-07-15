@@ -275,7 +275,7 @@ export const ControlsPart = memo((props: {
 	)
 })
 
-function partLabel(language: LanguageArray, signature: PartSignature | BeatMachineSignature) {
+function partLabelPrimary(language: LanguageArray, signature: PartSignature | BeatMachineSignature) {
 	if(signature.type == 'beatMachine') {
 		return NMNI18n.editorText(language, `${i18nPrefix}part.beat_machine`)
 	}
@@ -290,4 +290,13 @@ function partLabel(language: LanguageArray, signature: PartSignature | BeatMachi
 		return NMNI18n.editorText(language, `${i18nPrefix}part.titled`, text)
 	}
 	return NMNI18n.editorText(language, `${i18nPrefix}part.untitled`, '' + (signature.value + 1))
+}
+
+function partLabel(language: LanguageArray, signature: PartSignature | BeatMachineSignature) {
+	const label = partLabelPrimary(language, signature)
+	if(signature.type != 'beatMachine' && signature.head == 'Na') {
+		return label + NMNI18n.editorText(language, `${i18nPrefix}part.accompany`)
+	} else {
+		return label
+	}
 }
