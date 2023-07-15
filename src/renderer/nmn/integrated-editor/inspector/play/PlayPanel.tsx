@@ -76,7 +76,7 @@ function recreateControlData(result: NMNResult, previous?: ControlData) {
 				}
 			} else {
 				newData[hash] = {
-					control: signature.type == 'beatMachine' ? controlDataPartBeatMachine : controlDataPartDefault,
+					control: signature.type == 'beatMachine' ? { ...controlDataPartBeatMachine } : { ...controlDataPartDefault },
 					signature: signature,
 				}
 				if(signature.type != 'beatMachine' && signature.head == 'Na') {
