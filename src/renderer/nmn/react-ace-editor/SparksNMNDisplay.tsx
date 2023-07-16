@@ -7,6 +7,7 @@ import { lineRendererStats } from '../renderer/article/line/LineRenderer'
 import { positionDispatcherStats } from '../renderer/article/line/PositionDispatcher'
 import { domPaintStats } from '../renderer/backend/DomPaint'
 import { randomToken } from '../util/random'
+import { useMethod } from '../util/hook'
 
 type Props = {
 	result: NMNResult | undefined
@@ -29,11 +30,11 @@ export function SparksNMNDisplay(props: Props) {
 	const token = React.useMemo(() => randomToken(24), [])
 	const tokenClass = `SparksNMN-preview-${token}`
 
-	const positionCallback = React.useCallback((row: number, col: number) => {
+	const positionCallback = useMethod((row: number, col: number) => {
 		if(onPosition) {
 			onPosition(row, col)
 		}
-	}, [onPosition])
+	})
 
 	let hasRendered = false
 	let timing = 0
@@ -86,7 +87,7 @@ export function SparksNMNDisplay(props: Props) {
 				pages: NaN
 			}
 		}
-	}, [result, language, positionCallback, props.transformFields])
+	}, [result, language, props.transformFields])
 
 	const renderResultFields = renderResult.fields
 	React.useEffect(() => {

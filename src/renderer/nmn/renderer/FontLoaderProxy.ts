@@ -2,6 +2,8 @@ import { FontLoader } from "./FontLoader"
 
 let fontPhase: 'none' | 'loading' | 'loaded' = 'none'
 let pendingRequests: (() => void)[] = []
+let pendingProgresses: ((progress: number, total: number) => void)[] = []
+let fontLoadProgress: number = 0
 
 const fonts = [
 	{ family: 'CommonLight', name: 'noto_sans_sc_light', format: 'woff2', asc: undefined, desc: undefined },
@@ -29,7 +31,10 @@ export module FontLoaderProxy {
 	export function getState() {
 		return fontPhase
 	}
-	export function requestFontLoad(fontStatic: string, callback?: () => void) {
+	export function requestFontLoad(fontStatic: string, callback?: () => void, progressCallback?: (progress: number, total: number) => void) {
+		const totalCount = fonts.length
+
+		progressCallback && progressCallback(fontLoadProgress, totalCount)
 		if(fontPhase == 'loaded') {
 			callback && callback()
 			return
@@ -43,9 +48,17 @@ export module FontLoaderProxy {
 			FontLoader.loadFonts(tasks, () => {
 				fontPhase = 'loaded'
 				pendingRequests.forEach(func => func())
+				pendingRequests = []
+			}, () => {
+				fontLoadProgress += 1
+				pendingProgresses.forEach(func => func(fontLoadProgress, totalCount))
+				if(fontLoadProgress == totalCount) {
+					pendingProgresses = []
+				}
 			})
 			fontPhase = 'loading'
 		}
 		callback && pendingRequests.push(callback)
+		progressCallback && pendingProgresses.push(progressCallback)
 	}
 }

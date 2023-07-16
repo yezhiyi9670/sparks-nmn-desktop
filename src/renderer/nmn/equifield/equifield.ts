@@ -1,4 +1,5 @@
 import jquery from 'jquery'
+import './equifield.css'
 
 export type EquifieldSection = {
 	element: HTMLElement

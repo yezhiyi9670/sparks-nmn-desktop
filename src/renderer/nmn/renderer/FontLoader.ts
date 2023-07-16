@@ -73,6 +73,7 @@ export module FontLoader {
 				loadFont(task, () => {
 					loadings -= 1
 					task.state = 'loaded'
+					loadCallback && loadCallback()
 					startTasks()
 				}, () => {
 					loadings -= 1
