@@ -90,7 +90,7 @@ export function SparksNMNDisplay(props: Props) {
 	}, [result, language, props.transformFields])
 
 	const renderResultFields = renderResult.fields
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if(props.onReportError) {
 			props.onReportError(renderResult.error)
 		}
@@ -129,7 +129,7 @@ export function SparksNMNDisplay(props: Props) {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [renderResultFields, tokenClass, props.efRange])
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if(!result) {
 			return
 		}

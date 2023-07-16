@@ -1,5 +1,5 @@
 import $ from 'jquery'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo } from 'react'
 import { NMNResult, SparksNMN } from '..'
 import { Equifield, EquifieldSection } from '../equifield/equifield'
 import { LanguageArray } from '../i18n'
@@ -123,7 +123,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 		}
 	}, [result, language, logTimeStat])
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if(hasRendered) {
 			if(props.onReportError) {
 				props.onReportError(renderResult.error)
@@ -146,7 +146,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 		}
 	})
 	
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		const element = divRef.current
 		if(!element) {
 			return
@@ -168,7 +168,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [renderResult, logTimeStat, tokenClass])
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if(!result) {
 			return
 		}
@@ -179,7 +179,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 		}
 	}, [result, renderResult, props.cursor, tokenClass])
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if(!result) {
 			return
 		}
@@ -195,7 +195,7 @@ export function SparksNMNPreview(props: SparksNMNPreviewProps) {
 		}
 	}, [result, renderResult, props.highlightedNotes, tokenClass])
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if(!result) {
 			return
 		}
