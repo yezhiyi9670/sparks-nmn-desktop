@@ -174,9 +174,9 @@ export const PlayPanel = React.memo(function(props: {
 	}, [props.result])
 	const updateNoteHighlight = useMethod((val: string[]) => {
 		if(val.length > 0) {
-			lastHighlight.current = val[0]
+			lastHighlight.current = val[val.length - 1]
 			if(autoScroll && +new Date() - lastUpdateTime.current >= 500) {
-				props.onAutoScroll(val[0])
+				props.onAutoScroll(lastHighlight.current)
 			}
 		}
 		props.onNoteHighlightUpdate(val)
