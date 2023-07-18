@@ -208,7 +208,7 @@ export class SectionsRenderer {
 						background: '#8764b8',
 						color: '#FFF',
 						cursor: 'pointer',
-						padding: '8px 8px',
+						padding: '0.3em 0.3em',
 						zIndex: 2,
 						visibility: 'hidden'
 					},
@@ -265,7 +265,7 @@ export class SectionsRenderer {
 					const bottomY = currY + noteMeasure[1] * 0.6
 					const lineWidth = noteMeasure[0] * 2 * 0.7
 					const highlightClass = [`SparksNMN-notehl`, `SparksNMN-notehl-${note.uuid}`]
-					root.drawLine(noteX, topY, noteX, bottomY, lineWidth, 0, scale, {
+					root.drawLine(noteX, topY, noteX, bottomY, lineWidth / scale, 0, scale, {
 						boxShadow: 'none',
 						background: this.noteHighlightColor(note),
 						opacity: 0.5,
