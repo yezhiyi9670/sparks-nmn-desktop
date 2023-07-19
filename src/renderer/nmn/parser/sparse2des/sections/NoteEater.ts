@@ -820,7 +820,6 @@ export class NoteEater {
 				}
 				let textHeadingResult = matchTextHeaderNote(token1)
 				if(textHeadingResult) {
-					console.log('found text heading', textHeadingResult)
 					return { ...textHeadingResult, sampler: typeSampler as any }
 				}
 				let forceResult = matchForceNote(token1)
