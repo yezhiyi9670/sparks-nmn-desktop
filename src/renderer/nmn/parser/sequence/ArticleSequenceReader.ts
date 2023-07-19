@@ -367,8 +367,8 @@ export class ArticleSequenceReader {
 					...mProps,
 					base: {
 						...mProps.base!,
-						value: mProps.base!.value + octaveShift * 12,
-						baseValue: mProps.base!.baseValue + octaveShift * 12
+						value: (isNaN(mProps.base!.value) ? 0 : mProps.base!.value) + octaveShift * 12,
+						baseValue: (isNaN(mProps.base!.baseValue) ? 0 : mProps.base!.baseValue) + octaveShift * 12
 					}
 				}
 			}
