@@ -487,7 +487,10 @@ export module SectionStat {
 	/**
 	 * 小节是否包含前置/后置小节线属性
 	 */
-	export function hasSeparatorSideAttrs(section: MusicSection<unknown>, beforeOnly: boolean = false, ignoreOpenRange: boolean = false) {
+	export function hasSeparatorSideAttrs(head: string, section: MusicSection<unknown>, beforeOnly: boolean = false, ignoreOpenRange: boolean = false) {
+		if(head == 'Na') {
+			return false
+		}
 		function checkSeparatorAttrs(attrs: SeparatorAttr[]) {
 			if(!ignoreOpenRange && attrs.filter(attr => attr.type == 'openRange').length != 0) {
 				return false

@@ -127,11 +127,11 @@ export class LineRenderer {
 		for(let i = 0; i < line.sectionCount; i++) {
 			const section = part.notes.sections[i]
 			if(firstAnnotation) {
-				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorSideAttrs(section)) {
+				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorSideAttrs(part.notes.head, section)) {
 					hasAnnAttrOverlap = true
 				}
 			}
-			if(SectionStat.hasSeparatorSideAttrs(section, false, true) || SectionStat.hasSeparatorTopAttrs(section)) {
+			if(SectionStat.hasSeparatorSideAttrs(part.notes.head, section, false, true) || SectionStat.hasSeparatorTopAttrs(section)) {
 				hasAttr = true
 			}
 			upsetMax = Math.max(upsetMax, getTopMargin(section))
@@ -249,7 +249,7 @@ export class LineRenderer {
 				if(startIn) {
 					const sectionIndex = jumper.startSection - line.startSection
 					const section = firstPart.notes.sections[sectionIndex]
-					if(SectionStat.hasSeparatorSideAttrs(section, true)) {
+					if(SectionStat.hasSeparatorSideAttrs(part.notes.head, section, true)) {
 						hasJumperAttrOverlap = true
 					}
 				}
