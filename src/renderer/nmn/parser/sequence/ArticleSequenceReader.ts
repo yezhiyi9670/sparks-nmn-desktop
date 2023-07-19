@@ -36,6 +36,10 @@ export class ArticleSequenceReader {
 	 */
 	currentProps: {[partHash: string]: MusicProps} = {}
 	/**
+	 * 经过小节的次数
+	 */
+	passingTimes: number[] = []
+	/**
 	 * 反复指令记号的耐久度信息
 	 */
 	repeatDamage: number[] = []
@@ -89,6 +93,7 @@ export class ArticleSequenceReader {
 	initialize() {
 		this.sectionCursor = 0
 		this.repeatDamage = Array(this.article.sectionCount).fill(0)
+		this.passingTimes = Array(this.article.sectionCount).fill(0)
 		this.jumperHeadStat = Array(this.article.sectionCount).fill(undefined)
 		this.jumperSectionStat = Array(this.article.sectionCount).fill(0).map(() => [])
 		this.passingIterations = Array(this.article.sectionCount).fill(0).map(() => ({}))
@@ -344,6 +349,7 @@ export class ArticleSequenceReader {
 	 * 推入当前小节
 	 */
 	pushCurrentSection() {
+		let passingTimes = this.passingTimes[this.sectionCursor] += 1
 		let octaveShift = 0
 		if(this.jumperSectionStat[this.sectionCursor]) {
 			for(let attr of this.jumperSectionStat[this.sectionCursor]) {
@@ -373,7 +379,7 @@ export class ArticleSequenceReader {
 				))
 			}
 			if(!this.flat) { // 替代旋律
-				const lrcLine = SequenceSectionStat.pickLrcLine(part, this.sectionCursor, this.frontier!.number)
+				const lrcLine = SequenceSectionStat.pickLrcLine(part, this.sectionCursor, passingTimes)
 				if(lrcLine) {
 					for(let substitute of lrcLine.notesSubstitute) {
 						const startIndex = substitute.substituteLocation
