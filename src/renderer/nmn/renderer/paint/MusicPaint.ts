@@ -1,7 +1,7 @@
 import { I18n } from '../../i18n'
 import { Linked2LyricChar } from '../../parser/des2cols/types'
 import { getLrcSymbolEquivalent } from '../../parser/sparse2des/lyrics/symbols'
-import { AttrInsert, AttrShift, BaseTune, Beats, JumperAttr, LrcAttr, MusicNote, MusicProps, MusicSection, NoteCharAny, noteCharChecker, NoteCharChord, NoteCharForce, NoteCharMusic, NoteCharText, PartAttr, Qpm, SectionSeparator, SectionSeparatorChar, sectionSeparatorInset, SectionSeparators, SeparatorAttr, SeparatorAttrBase } from '../../parser/sparse2des/types'
+import { AttrInsert, AttrShift, BaseTune, Beats, JumperAttr, LrcAttr, MusicNote, MusicProps, MusicSection, NoteCharAny, noteCharChecker, NoteCharChord, NoteCharForce, NoteCharMusic, NoteCharText, NoteCharTextHeading, PartAttr, Qpm, SectionSeparator, SectionSeparatorChar, sectionSeparatorInset, SectionSeparators, SeparatorAttr, SeparatorAttrBase } from '../../parser/sparse2des/types'
 import { findWithKey } from '../../util/array'
 import { Frac } from '../../util/frac'
 import { MusicTheory } from '../../util/music'
@@ -17,6 +17,11 @@ const window = null
 const document = null
 
 type ExtraStyles = {[_: string]: number | string}
+
+const FontSizes = {
+	attr: 2.06,
+	labelLarge: 2.3
+}
 
 /**
  * 音乐符号绘制类
@@ -262,14 +267,14 @@ export class MusicPaint {
 	 * 绘制单个类文本小节线属性
 	 */
 	drawSeparatorAttrText(context: RenderContext, x: number, y: number, attr: SeparatorAttrBase, fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, dryRun: boolean = false, labelType: 'normal' | 'large' | 'bold' = 'normal'): number[] {
-		const fontMetricA = new FontMetric(context.render.font_attr!, 2.06 * fontScale)
+		const fontMetricA = new FontMetric(context.render.font_attr!, FontSizes.attr * fontScale)
 		const fontSize = fontMetricA.fontSize * fontMetricA.fontScale
 		const fontMetricB = new FontMetric('CommonSerif/400', fontSize)
 		const fontMetricIter = new FontMetric('CommonSerif/400', fontSize)
 		const fontMetricItalic = new FontMetric('RomanItalic/400', fontSize)
 		const fontMetricC = new FontMetric('SparksNMN-Bravura/400', fontSize * 1.5)
-		const fontMetricLx = new FontMetric(context.render.font_checkpoint!, 2.3 * fontScale)
-		const fontMetricLxr = new FontMetric(context.render.font_checkpoint!, 2.06 * fontScale)
+		const fontMetricLx = new FontMetric(context.render.font_checkpoint!, FontSizes.labelLarge * fontScale)
+		const fontMetricLxr = new FontMetric(context.render.font_checkpoint!, FontSizes.attr * fontScale)
 		fontMetricLxr.fontWeight = 700
 		const extraStylesItalic = {
 			...extraStyles,
@@ -351,17 +356,17 @@ export class MusicPaint {
 			return measure
 		}
 		if(attr.type == 'label') {
-			const rectTopY = y - 1.4 * fontMetricLxr.fontScale
-			const rectBottomY = y + 1.4 * fontMetricLxr.fontScale
+			const rectTopY = y - 1.4 * fontMetricLxr.fontScale * fontScale
+			const rectBottomY = y + 1.4 * fontMetricLxr.fontScale * fontScale
 			const rectCenterY = y
-			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, 1, scale, extraStyles, true, 'bold')
+			const measure = this.drawSeparatorAttrText(context, x, rectCenterY, attr.label, fontScale, scale, extraStyles, true, 'bold')
 			const rectWidth = Math.max(measure[0] + 0.5 * scale * 2, (rectBottomY - rectTopY) * scale)
 			x += rectWidth / 2
 			const rectLeftX = x - rectWidth / 2
 			const rectRightX = x + rectWidth / 2
 			if(!dryRun) {
 				this.root.drawRectOutline(rectLeftX, rectTopY, rectRightX, rectBottomY, 0.15, scale, extraStyles)
-				this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr.label, 1, scale, extraStyles, false, 'bold')
+				this.drawSeparatorAttrText(context, x - measure[0] / 2, rectCenterY, attr.label, fontScale, scale, extraStyles, false, 'bold')
 			}
 			return [rectWidth, rectBottomY - rectTopY]
 		}
@@ -445,7 +450,7 @@ export class MusicPaint {
 	/**
 	 * 绘制标记音符
 	 */
-	drawFCANote(context: RenderContext, startX: number, endX: number, y: number, annotationIndex: number, note: NoteCharForce | NoteCharChord | NoteCharText, isSmall: boolean, scale: number = 1, extraStyles: ExtraStyles = {}) {
+	drawFCANote(context: RenderContext, startX: number, endX: number, y: number, annotationIndex: number, note: NoteCharForce | NoteCharChord | NoteCharText | NoteCharTextHeading, isSmall: boolean, scale: number = 1, extraStyles: ExtraStyles = {}) {
 		if('void' in note) {
 			return
 		}
@@ -533,6 +538,17 @@ export class MusicPaint {
 			token4.drawFast(this.root, currX, y, 'left', 'bottom')
 			currX += token4.measureFast(this.root)[0]
 			token5.drawFast(this.root, currX, y, 'left', 'middle')
+		} else if(note.type == 'textHeading') {
+			let attrMetric = new FontMetric(context.render.font_checkpoint!, FontSizes.attr)
+			let textMult = (
+				annotationMetric.fontScale * annotationMetric.fontSize
+			) / (
+				attrMetric.fontScale * attrMetric.fontSize
+			)
+			this.drawSeparatorAttrText(context, startX, y, {
+				type: 'label',
+				label: note.content
+			}, textMult, scale)
 		} else {
 			this.root.drawTextFast(startX, y, note.text, annotationMetric, scale, 'left', 'middle', extraStyles)
 		}

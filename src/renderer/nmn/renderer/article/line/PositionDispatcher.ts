@@ -350,9 +350,13 @@ export class PositionDispatcher {
 						}
 						const normalCharWidthRatio = 1.1
 						addConstraint(fracPos, actualIndex, [
+							noteCharMeasure[0] / 2 * 1,
+							noteCharMeasure[0] / 2 * 1
+						], true) // 音符本身占据排版域
+						addConstraint(fracPos, actualIndex, [
 							noteCharMeasure[0] / 2 * normalCharWidthRatio,
 							noteCharMeasure[0] / 2 * normalCharWidthRatio
-						], true) // 音符本身占据排版域
+						], false) // 音符本身占据排版域
 						addConstraint(fracPos, actualIndex, [
 							noteCharMeasure[0] / 2 * normalCharWidthRatio + accidentalCount * accidentalMeasure[0] + leftAddCount * addNoteCharMeasure[0] / 2 + noteCharMeasure[1] * 1.2,
 							noteCharMeasure[0] / 2 * normalCharWidthRatio + Math.max(

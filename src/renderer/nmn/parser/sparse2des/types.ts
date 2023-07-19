@@ -494,10 +494,24 @@ export type NoteCharText = {
 	sampler: 'annotations' | 'text'
 	void: true
 }
+/**
+ * 文本标记的段标
+ */
+export type NoteCharTextHeading = {
+	type: 'textHeading'
+	sampler: 'annotations'
+	offset: number
+	content: AttrText | AttrScriptedText
+} | {
+	type: 'textHeading'
+	sampler: 'annotations'
+	void: true
+}
 export type NoteCharAnnotation =
 	NoteCharForce |
 	NoteCharChord |
-	NoteCharText
+	NoteCharText |
+	NoteCharTextHeading
 export type NoteCharAny =
 	NoteCharMusic |
 	NoteCharAnnotation

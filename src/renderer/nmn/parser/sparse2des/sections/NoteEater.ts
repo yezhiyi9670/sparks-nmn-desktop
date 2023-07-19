@@ -6,7 +6,7 @@ import { CodeToken } from "../../tokenizer/tokenizer";
 import { BracketToken, BracketTokenList, TokenFilter, Tokens } from "../../tokenizer/tokens";
 import { AttrMatcher } from "../AttrMatcher";
 import { ScoreContext } from "../context";
-import { attrInsertCharCheck, MusicDecoration, MusicNote, MusicSection, NoteAttr, NoteCharAny, noteCharChecker, NoteCharChord, NoteCharForce, noteCharForceWeight, NoteCharText } from "../types";
+import { attrInsertCharCheck, MusicDecoration, MusicNote, MusicSection, NoteAttr, NoteCharAny, noteCharChecker, NoteCharChord, NoteCharForce, noteCharForceWeight, NoteCharText, NoteCharTextHeading } from "../types";
 
 type SampledSectionBase<TypeSampler> = {
 	type: 'section'
@@ -710,6 +710,53 @@ export class NoteEater {
 				}
 				return ret as any
 			}
+			const matchTextHeaderNote = (token1: CodeToken): NoteCharTextHeading | undefined => {
+				if(token1.type != 'word' || token1.content != 'h') {
+					return undefined
+				}
+
+				const token2 = this.peek()
+				// 读取一个 stringLiteral
+				if(!token2 || 'bracket' in token2 || token2.type != 'stringLiteral') {
+					return undefined
+				}
+				const text1 = token2.content
+				this.pass()
+
+				const token3 = this.peek()
+				if(!token3 || 'bracket' in token3 || token3.type != 'symbol' || token3.content != '_') {
+					const ret: NoteCharTextHeading = {
+						type: 'textHeading',
+						sampler: typeSampler as any,
+						offset: offset,
+						content: {
+							type: 'text',
+							text: text1
+						}
+					}
+					return ret
+				}
+				this.pass()
+
+				let textPiece2 = ''
+				const token4 = this.peek()
+				if(token4 && !('bracket' in token4) && token4.type == 'stringLiteral') {
+					textPiece2 = token4.content
+					this.pass()
+				}
+
+				const ret: NoteCharTextHeading = {
+					type: 'textHeading',
+					sampler: typeSampler as any,
+					offset: offset,
+					content: {
+						type: 'scriptedText',
+						text: text1,
+						sub: textPiece2
+					}
+				}
+				return ret
+			}
 			const matchForceNote = (token1: CodeToken): NoteCharForce | undefined => {
 				if(token1.type == 'word') {
 					if(inCheck(token1.content, noteCharForceWeight)) {
@@ -770,6 +817,11 @@ export class NoteEater {
 				let chordResult = matchChordNote(token1)
 				if(chordResult) {
 					return { ...chordResult, sampler: typeSampler as any }
+				}
+				let textHeadingResult = matchTextHeaderNote(token1)
+				if(textHeadingResult) {
+					console.log('found text heading', textHeadingResult)
+					return { ...textHeadingResult, sampler: typeSampler as any }
 				}
 				let forceResult = matchForceNote(token1)
 				if(forceResult) {
