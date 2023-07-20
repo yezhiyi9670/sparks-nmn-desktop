@@ -11,7 +11,7 @@ const entries: PrefRendererInfo = [
 			},
 			{
 				key: 'uiFontFamily',
-				defaultValue: ['string', "sans-serif, system-ui"],
+				defaultValue: ['string', "system-ui"],
 				type: 'string'
 			},
 		]

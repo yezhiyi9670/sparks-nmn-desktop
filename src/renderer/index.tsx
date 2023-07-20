@@ -415,12 +415,15 @@ function AppIn() {
 	}, [prefs, LNG])
 
 	return (
-		<div style={{
-			fontFamily: prefs.getValue<string>('uiFontFamily').replace(/(;|\{|\})/g, ''),
-		}} className={classes.main} onDragOver={hackDrag} onDrop={handleDrag}>
+		<div className={classes.main} onDragOver={hackDrag} onDrop={handleDrag}>
+			<style>{`
+				body {
+					font-family: ${prefs.getValue<string>('uiFontFamily').replace(/(;|\{|\})/g, '')};
+				}
+			`}</style>
 			<div className={classes.appbar}>
 				<AppBar onItemClick={handleAppBarItem} />
-			</div>
+			s</div>
 			<div className={classes.content}>
 				<IntegratedEditor
 					ref={editorApiRef}
