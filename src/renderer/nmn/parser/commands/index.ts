@@ -138,7 +138,7 @@ export const commandDefs: CommandDef[] = [
 		propsType: 'text',
 		levels: [LineLevels.document]
 	},
-	// Df 文档脚注
+	// Df 文档尾注
 	{
 		head: 'Df',
 		headFull: 'DocFootnote',

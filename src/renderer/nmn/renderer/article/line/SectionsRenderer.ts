@@ -10,7 +10,7 @@ import { MusicPaint } from "../../paint/MusicPaint";
 import { PaintTextToken } from "../../paint/PaintTextToken";
 import { RenderContext } from "../../renderer";
 import { reductionLineSpace } from "./font/fontMetrics";
-import { PositionDispatcher } from "./PositionDispatcher";
+import { PositionDispatcher } from "./positioning/PositionDispatcher";
 
 type NMNLine = (NMNResult['result']['articles'][0] & {type: 'music'})['lines'][0]
 type NMNPart = NMNLine['parts'][0]

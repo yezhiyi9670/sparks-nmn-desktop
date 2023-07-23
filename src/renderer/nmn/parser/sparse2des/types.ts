@@ -746,7 +746,7 @@ export type DestructedLine = {
 	head: 'Dt' | 'Dp' | 'Dv' | 'Ds' | 'Dl' | 'Dr'
 	text: string
 } | {
-	type: 'note' // 包含起始标签的作者、脚注
+	type: 'note' // 包含起始标签的作者、尾注
 	head: 'Da' | 'Df'
 	tag: string
 	text: string

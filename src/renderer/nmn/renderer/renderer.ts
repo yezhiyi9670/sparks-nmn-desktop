@@ -53,7 +53,7 @@ class RendererClass {
 			}
 			ArticleRenderer.renderArticle(article, sections, context)
 		})
-		// ==== 脚注 ====
+		// ==== 尾注 ====
 		HeaderRenderer.renderFooter(score, sections, context)
 
 		// ==== 移除末尾空白 ====

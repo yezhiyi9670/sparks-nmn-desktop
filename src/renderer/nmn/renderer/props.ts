@@ -19,6 +19,10 @@ export interface RenderProps {
 	 */
 	time_lining?: boolean
 	/**
+	 * 使用旧版布局算法
+	 */
+	legacy_positioning?: boolean
+	/**
 	 * 调试模式
 	 */
 	debug?: boolean
@@ -79,7 +83,7 @@ export interface RenderProps {
 	 */
 	font_text?: string
 	/**
-	 * 字体-脚注
+	 * 字体-尾注
 	 */
 	font_footnote?: string
 	/**
@@ -169,6 +173,7 @@ export const renderPropsDefault: RenderProps = {
 	double_sided: false,
 	n: 4,
 	time_lining: false,
+	legacy_positioning: false,
 	debug: true,
 	sectionorder: 'paren',
 	scale: 1.0,
