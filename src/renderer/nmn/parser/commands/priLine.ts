@@ -49,6 +49,10 @@ export type CookedLine = {
 	 * 原始文本
 	 */
 	text: string
+	/**
+	 * 原始文本区间
+	 */
+	textRange: [number, number]
 } | {
 	/**
 	 * 类型：分隔线

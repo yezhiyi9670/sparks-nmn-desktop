@@ -330,7 +330,7 @@ export class LineTreeBuilder {
 			ensureCurrent()
 			// 即将插入。如果当前树已经添加过子树，那应该是不太对的。
 			const currentTree = currentTreeNullable!
-			if(currentTree.finalized) {
+			if(currentTree.finalized && !commandDef.allowTail) {
 				addIssue(issues,
 					line.lineNumber, 0, 'warning', 'post_header',
 					'As a header of a ${0}, ${1} should come first.',

@@ -324,13 +324,20 @@ class ParserClass {
 				// 找到冒号，即确定是指令行
 				const colonIndex = new TokenFilter('symbol', ':').findInLayered(tokens, tokenParens)
 				if(colonIndex != -1) {
+					const origText = line.text.substring(tokens[colonIndex].range[1])
+					const origTextTrimStart = origText.trimStart()
+					const origTextTrimStartEnd = origTextTrimStart.trimEnd()
 					let ret: CookedLine = {
 						lineNumber: line.lineNumber,
 						type: 'command',
 						head: tokens[0].content,
 						props: null,
 						content: tokens.slice(colonIndex + 1),
-						text: line.text.substring(tokens[colonIndex].range[1]).trim(),
+						text: origTextTrimStartEnd,
+						textRange: [
+							tokens[colonIndex].range[1] + origText.length - origTextTrimStart.length,
+							origText.length - (origTextTrimStart.length - origTextTrimStartEnd.length)
+						],
 						propsText: null
 					}
 					// 若冒号不是紧随其后，则应当有属性参数
@@ -344,7 +351,7 @@ class ParserClass {
 								'Command line format does not look right. It should be something like "Head: content" or "Head[props]: content".'
 							)
 						} else {
-							const fakeEOF = Object.assign({}, tokens[tokens.length - 1])
+							const fakeEOF = { ...tokens[tokens.length - 1] }
 							fakeEOF.range = [tokens[colonIndex - 1].range[1], tokens[colonIndex - 1].range[1]]
 							ret.props = tokens.slice(2, colonIndex - 1).concat([fakeEOF])
 							ret.propsText = line.text.substring(tokens[2].range[0], tokens[colonIndex - 1].range[0]).trim()

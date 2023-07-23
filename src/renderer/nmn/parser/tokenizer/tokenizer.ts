@@ -40,6 +40,88 @@ export interface TokenizeResult {
 	issues: Issue[]
 }
 
+export interface EscapeParseResult {
+	result: string
+	nextIndex: number
+	issues: Issue[]
+}
+/**
+ * 解析转义字符串
+ */
+export function tokenizer_parseEscapeSequence(code: string, index: number): EscapeParseResult {
+	let ptr = index
+	let typeChar = code[index + 1]
+	let content = ''
+
+	ptr += 2
+	if(typeChar == "\\" || typeChar == '"' || typeChar == "'" || typeChar == '/') {
+		content += typeChar
+	} else if(typeChar == 'r') {
+		content += "\r"
+	} else if(typeChar == '*') {
+		content += ""
+	} else if(typeChar == 'n') {
+		content += "\n"
+	} else if(typeChar == 't') {
+		content += "\t"
+	} else if(typeChar == 'x') {
+		ptr += 2
+		let seq = code.substring(index, ptr)
+		try {
+			seq = JSON.parse('"' + seq + '"')
+		} catch(err) {
+			return {
+				nextIndex: ptr,
+				result: content,
+				issues: [createIssue(index, 'error', 'token.invalid_escape', 'Invalid escape sequence ${0}', seq)]
+			}
+		}
+		content += seq
+	} else if(typeChar == 'u') {
+		ptr += 4
+		let seq = code.substring(index, ptr)
+		try {
+			seq = JSON.parse('"' + seq + '"')
+		} catch(err) {
+			return {
+				nextIndex: ptr,
+				result: content,
+				issues: [createIssue(index, 'error', 'token.invalid_escape', 'Invalid escape sequence ${0}', seq)]
+			}
+		}
+		content += seq
+	}
+	return {
+		nextIndex: ptr,
+		result: content,
+		issues: []
+	}
+}
+/**
+ * 字符串直接转义，忽略引号
+ */
+export function tokenizer_unescapeLine(code: string, startPos: number, endPos: number) {
+	let result = ''
+	let issues: Issue[] = []
+	for(let i = startPos; i < endPos; i++) {
+		const char = code[i]
+		if(char == "\\") {
+			const parseResult = tokenizer_parseEscapeSequence(code, i)
+			result += parseResult.result
+			i = parseResult.nextIndex - 1
+			for(let issue of parseResult.issues) {
+				issues.push(issue)
+			}
+		} else {
+			result += char
+		}
+	}
+	return {
+		result: result,
+		issues: issues
+	}
+}
+
 /**
  * 代码令牌化
  */
@@ -187,38 +269,14 @@ export function tokenize(code: string, options: TokenizerOption = TokenizerOptio
 				if(stringQuote == code[index]) {
 					return {nextIndex: ptr + 1, content: content, extra: stringQuote, finalize: true}
 				} else if(code[index] == "\\") {
-					let typeChar = code[index + 1]
-					ptr += 2
-					if(typeChar == "\\" || typeChar == '"' || typeChar == "'") {
-						content += typeChar
-					} else if(typeChar == 'r') {
-						content += "\r"
-					} else if(typeChar == 'n') {
-						content += "\n"
-					} else if(typeChar == 't') {
-						content += "\t"
-					} else if(typeChar == 'x') {
-						ptr += 2
-						let seq = code.substring(index, ptr)
-						try {
-							seq = JSON.parse('"' + seq + '"')
-						} catch(err) {
-							return {nextIndex: ptr, content: content, extra: stringQuote,
-								issues: [createIssue(index, 'error', 'token.invalid_escape', 'Invalid escape sequence ${0}', seq)]
-							}
-						}
-						content += seq
-					} else if(typeChar == 'u') {
-						ptr += 4
-						let seq = code.substring(index, ptr)
-						try {
-							seq = JSON.parse('"' + seq + '"')
-						} catch(err) {
-							return {nextIndex: ptr, content: content, extra: stringQuote,
-								issues: [createIssue(index, 'error', 'token.invalid_escape', 'Invalid escape sequence ${0}', seq)]
-							}
-						}
-						content += seq
+					let parseResult = tokenizer_parseEscapeSequence(code, index)
+					ptr = parseResult.nextIndex
+					content += parseResult.result
+					return {
+						nextIndex: ptr,
+						content: content,
+						extra: stringQuote,
+						issues: parseResult.issues
 					}
 				} else {
 					if(code[index] != "\r" && code[index] != "\n") {

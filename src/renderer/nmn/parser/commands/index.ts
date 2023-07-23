@@ -48,6 +48,10 @@ export interface CommandDef {
 	 * 级别
 	 */
 	levels: number[]
+	/**
+	 * 是否允许在非头部出现
+	 */
+	allowTail?: boolean
 }
 
 export const LineLevels = {
@@ -141,7 +145,8 @@ export const commandDefs: CommandDef[] = [
 		contentType: 'text',
 		hasProps: 'none',
 		propsType: 'text',
-		levels: [LineLevels.document]
+		levels: [LineLevels.document],
+		allowTail: true
 	},
 	// Dl 页脚左侧文本
 	{

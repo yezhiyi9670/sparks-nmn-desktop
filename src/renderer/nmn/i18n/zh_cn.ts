@@ -337,7 +337,7 @@ export default {
 				}
 			},
 			"instrument_test": {
-				"title": "乐(lè)器音源测试",
+				"title": "乐器音源测试",
 				"tonic": "音符乐器类",
 				"drumline": "鼓点乐器类",
 				"comment": "注：带有 * 的是电子合成音，其余是采样音。"

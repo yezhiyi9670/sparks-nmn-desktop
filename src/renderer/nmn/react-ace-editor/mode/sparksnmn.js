@@ -5,7 +5,7 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 	var oop = ace_require("../lib/oop");
 	var TextHighlightRules = ace_require("./text_highlight_rules").TextHighlightRules;
 	var SparksnmnHighlightRules = function () {		
-		var stringEscape = "\\\\(x[0-9A-Fa-f]{2}|[0-7]{3}|[\\\\rntx'\"]|u[0-9A-Fa-f]{4})";
+		var stringEscape = "\\\\(x[0-9A-Fa-f]{2}|[\\\\rnt\*'\"\/]|u[0-9A-Fa-f]{4})";
 
 		let moreModes = {}
 		function addMode(modeName, obj) {
@@ -151,6 +151,10 @@ ace.define("ace/mode/sparksnmn_highlight_rules", ["require", "exports", "module"
 			addMode(mode, [
 				...commentMode(mode, false),
 				...continueOrRestart(mode),
+				{
+					token: "constant.language.escape",
+					regex: stringEscape
+				},
 				{
 					defaultToken: 'string'
 				}

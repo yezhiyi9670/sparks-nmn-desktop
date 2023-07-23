@@ -1,7 +1,7 @@
 import { LineTree, mapTreeLines } from "../clns2lnt/LineTreeBuilder"
 import { CookedLine } from "../commands/priLine"
 import { addIssue, LinedIssue } from "../parser"
-import { CodeToken } from "../tokenizer/tokenizer"
+import { CodeToken, tokenizer_unescapeLine } from "../tokenizer/tokenizer"
 import { Tokens } from "../tokenizer/tokens"
 
 export type SparseLine = {
@@ -84,29 +84,59 @@ export class SparseBuilder {
 	}
 
 	/**
+	 * 删除字符串行内容中的报错
+	 */
+	filterIssues(line: CookedLine & {type: 'command'}, issues: LinedIssue[]) {
+		/* TODO: Performance fix */
+		for(let i = issues.length - 1; i >= 0; i--) {
+			if(line.lineNumber == issues[i].lineNumber && issues[i].index >= line.textRange[0]) {
+				issues.splice(i, 1)
+			}
+		}
+	}
+	
+	/**
+	 * 处理转义符号
+	 */
+	handleUnescape(line: CookedLine & {type: 'command'}, issues: LinedIssue[]) {
+		const parsed = tokenizer_unescapeLine(line.text, 0, line.text.length)
+		const mappedIssues: LinedIssue[] = parsed.issues.map(issue => ({
+			...issue,
+			index: line.textRange[0] + issue.index,
+			lineNumber: line.lineNumber,
+			rendered: false
+		}))
+		mappedIssues.forEach(issue => issues.push(issue))
+		return parsed.result
+	}
+
+	/**
 	 * 处理行
 	 */
 	handleLine(line: CookedLine & {type: 'command'}, issues: LinedIssue[]): SparseLine {
 		if(['Dt', 'Dp', 'Dv', 'Ds', 'Dl', 'Dr', 'T', 'S'].indexOf(line.head) != -1) {
+			this.filterIssues(line, issues)
 			return {
 				lineNumber: line.lineNumber,
 				head: line.head as 'T',
-				content: line.text
+				content: this.handleUnescape(line, issues)
 			}
 		}
 		if(['Da', 'Df'].indexOf(line.head) != -1) {
+			this.filterIssues(line, issues)
 			return {
 				lineNumber: line.lineNumber,
 				head: line.head as 'Da',
 				props: line.propsText,
-				content: line.text
+				content: this.handleUnescape(line, issues)
 			}
 		}
 		if(['P', 'Pi', 'Rp', 'Sp', 'Srp', 'Frp'].indexOf(line.head) != -1) {
+			this.filterIssues(line, issues)
 			return {
 				lineNumber: line.lineNumber,
 				head: line.head as 'P',
-				content: line.text.split(' ').filter((str) => !!str)
+				content: this.handleUnescape(line, issues).split(' ').filter((str) => !!str)
 			}
 		}
 		if(line.head == 'B') {
