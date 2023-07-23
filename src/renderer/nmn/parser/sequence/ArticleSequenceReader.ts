@@ -24,6 +24,10 @@ export class ArticleSequenceReader {
 	 * 迭代节数量限制
 	 */
 	iterationLimit: number = 2048
+	/**
+	 * 总计时间
+	 */
+	cumulativeLengthMillis: number = 0
 
 	/**
 	 * 小节数指针位置
@@ -92,6 +96,7 @@ export class ArticleSequenceReader {
 	 */
 	initialize() {
 		this.sectionCursor = 0
+		this.cumulativeLengthMillis = 0
 		this.repeatDamage = Array(this.article.sectionCount).fill(0)
 		this.passingTimes = Array(this.article.sectionCount).fill(0)
 		this.jumperHeadStat = Array(this.article.sectionCount).fill(undefined)
@@ -398,6 +403,8 @@ export class ArticleSequenceReader {
 			}
 		})
 		const minutes = Frac.toFloat(quarters) / minSpeed
+		const millis = minutes * 60 * 1000
+		this.cumulativeLengthMillis += millis
 
 		const partsMap: {[hash: string]: SequencePartInfo} = {}
 		for(let partInfo of partsInfo) {
@@ -413,6 +420,8 @@ export class ArticleSequenceReader {
 			qpm: minSpeed,
 			beats: primoSection.musicalProps.beats!,
 			lengthQuarters: quarters,
+			lengthMillis: millis,
+			cumulativeLengthMillis: this.cumulativeLengthMillis
 		})
 	}
 	/**

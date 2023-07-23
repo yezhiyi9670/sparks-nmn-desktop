@@ -56,7 +56,19 @@ export const SectionSelector = memo((props: {
 					borderBottomWidth: '1px',
 				}}
 				index={i}
-				// title={included ? undefined : NMNI18n.editorText(language, `${i18nPrefix}section_unavailable`)}
+				title={(() => {
+					if(!included) {
+						return NMNI18n.editorText(language, `${i18nPrefix}section_unavailable`)
+					}
+					const seconds = iteration.sections[walkPtr].cumulativeLengthMillis / 1000
+					const timeSeconds = seconds % 60
+					const timeMinutes = Math.floor(seconds / 60)
+					if(timeMinutes == 0) {
+						return NMNI18n.editorText(language, `${i18nPrefix}time_seconds`, timeSeconds.toFixed(1))
+					} else {
+						return NMNI18n.editorText(language, `${i18nPrefix}time_minutes`, timeMinutes.toFixed(0), timeSeconds.toFixed(1))
+					}
+				})()}
 			>
 				{article.parts[0].notes.sections[i].ordinal + 1}
 			</Button>

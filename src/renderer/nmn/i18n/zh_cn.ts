@@ -304,7 +304,9 @@ export default {
 					"no_sections": "此章节内没有任何小节",
 				},
 				"overview": {
-					"section_unavailable": "此小节不存在于当前迭代节中"
+					"section_unavailable": "此小节不存在于当前迭代节中",
+					"time_seconds": "累计长度 ${0} 秒",
+					"time_minutes": "累计长度 ${0} 分 ${1} 秒",
 				},
 				"controls": {
 					"part": {

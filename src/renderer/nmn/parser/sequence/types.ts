@@ -71,6 +71,14 @@ export type SequenceSection = {
 	 * 按四分音符的小节长度，抄写自乐谱信息。
 	 */
 	lengthQuarters: Fraction
+	/**
+	 * 按毫秒数的小节长度
+	 */
+	lengthMillis: number
+	/**
+	 * 按毫秒数的累计小节长度
+	 */
+	cumulativeLengthMillis: number
 }
 
 export type SequencePartInfo = {
