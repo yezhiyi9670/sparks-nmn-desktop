@@ -248,7 +248,7 @@ export function renderPropConvert(key: string, val: string) {
 		}
 		return { error: 'value' }
 	}
-	if(['time_lining', 'debug', 'grayout', 'explicitmarkers', 'left_separator', 'double_sided'].includes(key)) {
+	if(['time_lining', 'debug', 'grayout', 'explicitmarkers', 'left_separator', 'double_sided', 'legacy_positioning'].includes(key)) {
 		if(val == 'true') {
 			return true
 		}
