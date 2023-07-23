@@ -25,6 +25,7 @@ const useStyles = createUseStyles({
 
 interface AppBarProps {
 	onItemClick: (key: string) => void
+	onItemRightClick: (key: string) => void
 }
 export function AppBar(props: AppBarProps) {
 	const classes = useStyles()
@@ -36,6 +37,7 @@ export function AppBar(props: AppBarProps) {
 			itemKey={entry.key}
 			icon={entry.icon}
 			onClick={() => {props.onItemClick(entry.key)}}
+			onRightClick={() => {props.onItemRightClick(entry.key)}}
 		/>
 	}
 

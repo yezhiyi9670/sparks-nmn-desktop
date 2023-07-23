@@ -21,7 +21,7 @@ const entries: PrefRendererInfo = [
 		entries: [
 			{
 				key: 'fontFamily',
-				defaultValue: ['string', "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', 'Microsoft YaHei UI'"],
+				defaultValue: ['string', "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', system-ui"],
 				type: 'string'
 			},
 			{
@@ -130,6 +130,11 @@ const entries: PrefRendererInfo = [
 			},
 			{
 				key: 'hintLargeHtml',
+				defaultValue: ['boolean', true],
+				type: 'boolean'
+			},
+			{
+				key: 'hintJsonUsage',
 				defaultValue: ['boolean', true],
 				type: 'boolean'
 			},

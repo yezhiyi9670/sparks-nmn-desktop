@@ -32,12 +32,13 @@ interface AppBarButtonProps {
 	itemKey: string
 	icon: React.ReactNode
 	onClick?: () => void
+	onRightClick?: () => void
 }
 export function AppBarButton(props: AppBarButtonProps) {
 	const classes = useStyles()
 	const LNG = useI18n()
 
-	return <button onClick={props.onClick} type='button' className={classes.item}>
+	return <button onClick={props.onClick} onContextMenu={props.onRightClick} type='button' className={classes.item}>
 		<div className={classes.iconContainer}>
 			{props.icon}
 		</div>

@@ -36,6 +36,14 @@ const entries: HintEntries = [
 		focusButton: true
 	},
 	{
+		key: 'jsonUsage',
+		lines: 2,
+		prefKey: 'hintJsonUsage',
+		dismiss: false,
+		confirm: true,
+		focusButton: true
+	},
+	{
 		key: 'printEssence',
 		lines: 3,
 		prefKey: 'hintPrintEssence',

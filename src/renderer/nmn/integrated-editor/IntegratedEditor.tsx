@@ -335,7 +335,7 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 	})
 	const updateResult = useMethod((valueOverride?: string) => {
 		if(undefined === valueOverride && !isPreviewDirty) {
-			return
+			return parseResult.result
 		}
 		const parsed = parseNMN(valueOverride ?? value)
 		setParseResult({
@@ -343,6 +343,7 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 			timing: parsed.time
 		})
 		setIsPreviewDirty(false)
+		return parsed.result
 	})
 
 	function handleChange(newValue: string) {
@@ -586,11 +587,12 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 		resetSession()
 	})
 	const handleExport = useMethod((template: string, localFontLocation: string) => {
+		let result = parseResult.result
 		if(isPreviewDirty) {
-			updateResult()
+			result = updateResult()
 		}
-		const fields = SparksNMN.render(parseResult.result.result, languageArray)
-		const pagedFields = SparksNMN.paginize(parseResult.result.result, fields, languageArray).result
+		const fields = SparksNMN.render(result.result, languageArray)
+		const pagedFields = SparksNMN.paginize(result.result, fields, languageArray).result
 		let title = NMNI18n.editorText(language, 'preview.new_title')
 		if(filename !== undefined) {
 			title = basenameName(filename)
@@ -605,6 +607,14 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 				localFontLocation
 			))
 		return htmlData
+	})
+	const handleExportJson = useMethod(() => {
+		let result = parseResult.result
+		if(isPreviewDirty) {
+			result = updateResult()
+		}
+		const jsonResult = JSON.stringify(result)
+		return jsonResult
 	})
 	useImperativeHandle(ref, () => ({
 		getValue: () => {
@@ -630,6 +640,9 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 		},
 		exportHtml: (template: string, localFontLocation: string) => {
 			return handleExport(template, localFontLocation)
+		},
+		exportJson: () => {
+			return handleExportJson()
 		}
 	}))
 
@@ -645,4 +658,5 @@ export interface IntegratedEditorApi {
 	triggerNew: () => void
 	triggerOpen: (data: {path: string, content: string}) => void
 	exportHtml: (template: string, localFontLocation: string) => string
+	exportJson: () => string
 }

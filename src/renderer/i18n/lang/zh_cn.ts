@@ -40,9 +40,11 @@ export default flattenI18nData({
 	"toast": {
 		"open_fail": "无法打开文件 ${0}",
 		"save_fail": "无法保存至 ${0}",
-		"export_fail": "无法导出到 ${0}",
 		"save_before_export": "不能导出未保存过的文件。",
-		"exported": "已将预览导出到 ${0}",
+		"preview_exported": "已将预览导出到 ${0}",
+		"preview_export_fail": "无法导出到 ${0}",
+		"json_exported": "已将数据导出到 ${0}",
+		"json_export_fail": "无法导出到 ${0}",
 		"print_fail": "准备打印环境失败",
 		"print_launch_fail": "无法启动浏览器，请检查设置中的浏览器路径是否正确。",
 		"new_version": "新版本 ${0} 现已可用，可前往官网下载。",
@@ -75,6 +77,14 @@ export default flattenI18nData({
 				"2": `为了保证显示效果的一致性，预览显示前需要加载一些字体。在本机器上，预览会加载 ${appName} 自带的字体文件；而在其他机器上，则需要通过网络（目前通过 jsdelivr.net）加载字体，这可能是非常缓慢的。`,
 				"3": '由于需要使用统一格式逐个描述乐谱中的文本与图形，HTML 文件可能会非常大。因此，不建议尝试用文本编辑器编辑 HTML 文件。',
 				'4': '不建议通过直接嵌入 HTML 文件框架的方式在你的页面中嵌入 Sparks NMN 乐谱。'
+			},
+			"confirm": "导出"
+		},
+		"jsonUsage": {
+			"title": "JSON 用途提示",
+			"line": {
+				"1": `导出的 JSON 文件包含解析后的乐谱数据。这些数据可供第三方软件使用，可以用来渲染乐谱，也可以用来生成一些音乐相关的内容，例如 MIDI 文件。`,
+				"2": `JSON 文件是一种目标格式，并不直接包含源代码。`,
 			},
 			"confirm": "导出"
 		},
@@ -257,6 +267,10 @@ export default flattenI18nData({
 			"hintLargeHtml": {
 				"title": "HTML 用途提示",
 				"desc": "触发：导出 HTML 文件前。"
+			},
+			"hintJsonUsage": {
+				"title": "JSON 用途提示",
+				"desc": "触发：导出 JSON 文件前。JSON 文件导出可通过右键点击“导出”按钮触发。"
 			},
 			"hintExportEssence": {
 				"title": "关于 PNG/PDF 导出的本质",

@@ -204,9 +204,9 @@ function AppIn() {
 		const exportContent = editorApi.exportHtml(exportTemplate, localFontLocation)
 		const basename = window.Path.basename(path)
 		if(await window.FileSystem.saveText(path, exportContent)) {
-			showToast(LNG('toast.exported', basename))
+			showToast(LNG('toast.preview_exported', basename))
 		} else {
-			showToast(LNG('toast.export_fail', basename))
+			showToast(LNG('toast.preview_export_fail', basename))
 		}
 	}
 	function exportHtml() {
@@ -226,6 +226,32 @@ function AppIn() {
 				const parsedFn = window.Path.parse(filename)
 				const exportPath = window.Path.join(parsedFn.dir, parsedFn.name + '.html')
 				await exportHtmlIn(exportPath, api)
+			})
+		})
+	}
+	function exportJson() {
+		if(!checkExportCooldown()) {
+			return
+		}
+		callRef(editorApiRef, api => {
+			callRef(hintApiRef, async hint => {
+				const filename = api.getFilename()
+				if(filename === undefined) {
+					showToast(LNG('toast.save_before_export'))
+					return
+				}
+				if(!await hint.invoke('jsonUsage')) {
+					return
+				}
+				const parsedFn = window.Path.parse(filename)
+				const exportPath = window.Path.join(parsedFn.dir, parsedFn.name + '.json')
+				const exportContent = api.exportJson()
+				const basename = window.Path.basename(exportPath)
+				if(await window.FileSystem.saveText(exportPath, exportContent)) {
+					showToast(LNG('toast.json_exported', basename))
+				} else {
+					showToast(LNG('toast.json_export_fail', basename))
+				}
 			})
 		})
 	}
@@ -290,6 +316,11 @@ function AppIn() {
 			exportHtml()
 		} else if(key == 'print') {
 			printHtml()
+		}
+	}
+	async function handleAppBarRightItem(key: string) {
+		if(key == 'export') {
+			exportJson()
 		}
 	}
 	async function openDocumentPath(path: string) {
@@ -422,7 +453,7 @@ function AppIn() {
 				}
 			`}</style>
 			<div className={classes.appbar}>
-				<AppBar onItemClick={handleAppBarItem} />
+				<AppBar onItemClick={handleAppBarItem} onItemRightClick={handleAppBarRightItem} />
 			s</div>
 			<div className={classes.content}>
 				<IntegratedEditor
