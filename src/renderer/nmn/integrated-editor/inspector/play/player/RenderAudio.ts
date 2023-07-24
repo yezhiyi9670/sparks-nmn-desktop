@@ -42,6 +42,7 @@ export module RenderAudio {
 		)
 		const codecWorkerPromise = new PromiseWorker(codecWorker)
 		const encData: Uint8Array = await codecWorkerPromise.postMessage(bufferMeta)
+		codecWorker.terminate()
 		if(!checkAvailability()) {
 			return
 		}
