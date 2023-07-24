@@ -44,6 +44,12 @@ export default {
 		return await ipcRenderer.invoke('saveText', path, content)
 	},
 	/**
+	 * 存储二进制文件
+	 */
+	saveBinary: async (path: string, content: Uint8Array): Promise<boolean> => {
+		return await ipcRenderer.invoke('saveBinary', path, content)
+	},
+	/**
 	 * 获取临时目录
 	 */
 	getTempPath: async (): Promise<string> => {

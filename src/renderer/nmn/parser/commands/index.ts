@@ -294,6 +294,17 @@ export const commandDefs: CommandDef[] = [
 		required: 1,
 		levels: [LineLevels.part]
 	},
+	// Nc 压行音符
+	{
+		head: 'Nc',
+		headFull: 'NotesCompact',
+		contentType: 'tokenized',
+		hasProps: 'optional',
+		propsType: 'multiple',
+		unique: 'N',
+		required: 1,
+		levels: [LineLevels.part]
+	},
 	// L 手动分割歌词
 	{
 		head: 'L',

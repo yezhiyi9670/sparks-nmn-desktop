@@ -124,6 +124,7 @@ export default {
 		'Frp': '渲染属性',
 		'N': '音符序列',
 		'Na': '鼓点音符序列',
+		'Nc': '紧凑音符序列',
 		'A': '标记符号',
 		'La': '标记型歌词',
 		'L': '歌词（手动分割）',
@@ -230,6 +231,11 @@ export default {
 				"split": "拆分",
 				"preview": "预览",
 			},
+			// 正在渲染
+			"exporting": {
+				"rendering": "渲染音频中",
+				"encoding": "编码音频中"
+			},
 			// 保存状态
 			"dirty": {
 				"new": "新文档",
@@ -288,7 +294,15 @@ export default {
 				"pause": "暂停",
 				"stop": "回到此章节开头",
 				"auto_scroll": "自动滚动预览",
-				"export": "保存为 MIDI 文件",
+				"render": {
+					"idle": "渲染",
+					"tooltip.idle": "生成音频并导出为 FLAC 文件",
+					"progress": {
+						"rendering": "${0}%",
+						"encoding": "编码中"
+					},
+					"tooltip.progress": "再次点击中断渲染",
+				},
 				"modifier": {
 					"speed": "倍速",
 					"pitch": "音高"
@@ -343,6 +357,7 @@ export default {
 				"title": "乐器音源测试",
 				"tonic": "音符乐器类",
 				"drumline": "鼓点乐器类",
+				"offline": "离线音频渲染",
 				"comment": "注：带有 * 的是电子合成音，其余是采样音。"
 			}
 		}

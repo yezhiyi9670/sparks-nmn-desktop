@@ -1,8 +1,8 @@
 import { SectionStat } from "../des2cols/section/SectionStat";
 import { Linked2LyricLine, Linked2MusicArticle, Linked2Part, LinkedPartBase } from "../des2cols/types";
 import { handleMusicShift } from "../sparse2des/context";
-import { JumperAttr, MusicProps, MusicSection, NoteCharAny, SectionSeparator, SectionSeparators, SeparatorAttr } from "../sparse2des/types";
-import { SequenceData } from "./types";
+import { JumperAttr, MusicNote, MusicProps, MusicSection, NoteCharAny, NoteCharMusic, SectionSeparator, SectionSeparators, SeparatorAttr } from "../sparse2des/types";
+import { SequenceArticle, SequenceData, SequencePartInfo, SequenceSection } from "./types";
 
 export module SequenceSectionStat {
 
@@ -299,6 +299,63 @@ export module SequenceSectionStat {
 			article: articleIndex,
 			iteration: -1,
 			section: -1
+		}
+	}
+
+	/**
+	 * 根据序列小节处理音符
+	 */
+	export function handleSequenceNotes(thisSection: SequenceSection,
+		getHandler: (part: SequencePartInfo, partId: string) => (((note: MusicNote<NoteCharMusic>) => void) | undefined)
+	) {
+		for(let partId in thisSection.parts) {
+			const part = thisSection.parts[partId]
+			if(part.section.type != 'section') {
+				continue
+			}
+			const handler = getHandler(part, partId)
+			if(!handler) {
+				continue
+			}
+			for(let note of part.section.notes) {
+				handler(note)
+			}
+		}
+	}
+
+	/**
+	 * 在序列中寻找小节
+	 */
+	export function findSectionInSequence(sequence: SequenceArticle, iterationIndex: number, sectionIndex: number, firstAsNext?: boolean) {
+		let foundSection: SequenceSection | undefined = undefined
+		let foundNext: [number, number] | undefined = undefined
+		for(let i = iterationIndex; i < sequence.iterations.length; i++) {
+			const iteration = sequence.iterations[i]
+			if(i != iterationIndex && !foundSection) {
+				break
+			}
+			for(let j = 0; j < iteration.sections.length; j++) {
+				const section = iteration.sections[j]
+				if(foundSection || firstAsNext) {
+					foundNext = [i, section.index]
+					break
+				}
+				if(i == iterationIndex) {
+					if(!foundSection && section.index == sectionIndex) {
+						foundSection = section
+					}
+				}
+			}
+			if(foundSection && foundNext) {
+				break
+			}
+		}
+		if(foundNext && iterationIndex == 0 && foundNext[0] > 0) {
+			foundNext = undefined
+		}
+		return {
+			section: foundSection,
+			next: foundNext
 		}
 	}
 }

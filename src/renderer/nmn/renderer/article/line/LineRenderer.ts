@@ -127,11 +127,11 @@ export class LineRenderer {
 		for(let i = 0; i < line.sectionCount; i++) {
 			const section = part.notes.sections[i]
 			if(firstAnnotation) {
-				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorSideAttrs(part.notes.head, section)) {
+				if(!SectionStat.allEmpty(firstAnnotation, i, 1) && SectionStat.hasSeparatorSideAttrs(part, section)) {
 					hasAnnAttrOverlap = true
 				}
 			}
-			if(SectionStat.hasSeparatorSideAttrs(part.notes.head, section, false, true) || SectionStat.hasSeparatorTopAttrs(section)) {
+			if(SectionStat.hasSeparatorSideAttrs(part, section, false, true) || SectionStat.hasSeparatorTopAttrs(section)) {
 				hasAttr = true
 			}
 			upsetMax = Math.max(upsetMax, getTopMargin(section))
@@ -249,7 +249,7 @@ export class LineRenderer {
 				if(startIn) {
 					const sectionIndex = jumper.startSection - line.startSection
 					const section = firstPart.notes.sections[sectionIndex]
-					if(SectionStat.hasSeparatorSideAttrs(part.notes.head, section, true)) {
+					if(SectionStat.hasSeparatorSideAttrs(part, section, true)) {
 						hasJumperAttrOverlap = true
 					}
 				}
@@ -707,20 +707,29 @@ export class LineRenderer {
 	renderPartNotes(startY: number, part: NMNPart, sectionCount: number, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirst: boolean) {
 		let currY = startY
 
-		const isAccompany = part.notes.head == 'Na'
+		const renderType = {
+			N: 'normal',
+			Nc: 'compact',
+			Na: 'accompany'
+		}[part.notes.head]
+		const isCompact = renderType != 'normal'
 
 		if(!part.noMargin[0]) {
 			currY += 2.5
 		}
+		if(part.noMargin[0] && part.notes.head == 'Nc') {
+			// 压行音符行间添加固定的额外间距
+			currY += 0.60
+		}
 		
-		const fieldHeight = isAccompany ? 4.4 : 5.5
+		const fieldHeight = isCompact ? 4.4 : 5.5
 		const scale = context.render.scale!
 
 		currY += fieldHeight / 2
 
 		lineRendererStats.sectionsRenderTime -= +new Date()
 		
-		new SectionsRenderer(this.columns).render(currY, part, sectionCount, root, context, hasJumperOverlap, isFirst, isAccompany ? 'accompany' : 'normal')
+		new SectionsRenderer(this.columns).render(currY, part, sectionCount, root, context, hasJumperOverlap, isFirst, renderType as any)
 		lineRendererStats.sectionsRenderTime += +new Date()
 
 		currY += fieldHeight / 2

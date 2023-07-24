@@ -183,10 +183,10 @@ export class MusicPaint {
 	/**
 	 * 绘制属性
 	 */
-	drawBeforeAfterAttrs(context: RenderContext, x: number, y: number, attrs: SeparatorAttr[], section: MusicSection<unknown>, isFirstSection: boolean, pos: 'before' | 'after', fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, showTextLike: boolean = false) {
+	drawBeforeAfterAttrs(context: RenderContext, x: number, y: number, fieldHeight: number, attrs: SeparatorAttr[], section: MusicSection<unknown>, isFirstSection: boolean, pos: 'before' | 'after', fontScale: number = 1, scale: number = 1, extraStyles: ExtraStyles = {}, showTextLike: boolean = false) {
 		let sign = pos == 'before' ? 1 : -1
 		let currX = x
-		let attrY = y - 5.2
+		let attrY = y - fieldHeight / 5.5 * 5.2
 		const margin = 0.7 * scale
 		currX += sign * 1 * scale
 		let hX = x + sign * 0.8 * scale

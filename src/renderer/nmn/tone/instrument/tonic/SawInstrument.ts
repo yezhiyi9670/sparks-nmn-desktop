@@ -9,7 +9,7 @@ export class SawInstrument extends TonicToneInstrument {
 		return new Tone.PolySynth(Tone.Synth, {
 			oscillator: {
 				type: "amtriangle",
-				harmonicity: 0.5,
+				harmonicity: 1,
 				modulationType: "sine"
 			},
 			envelope: {

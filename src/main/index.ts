@@ -30,7 +30,7 @@ PrefBackend.initialize()
 				contextIsolation: true,
 				preload: distPath('preload/index.js'),
 				defaultEncoding: 'UTF-8',
-			}
+			},
 		})
 		win.setMenu(null)
 		return win

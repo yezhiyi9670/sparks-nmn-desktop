@@ -85,6 +85,7 @@ export class ColumnStater {
 						lyricLines: [],
 						fcaItems: [],
 						indexMap: [],
+						headMap: [],
 						decorations: []
 					}
 				}
@@ -106,6 +107,7 @@ export class ColumnStater {
 				})
 				// 合并 indexMap
 				fillArray(frontier.indexMap, sectionIndex, maxSectionCount, index, () => -1)
+				fillArray(frontier.headMap, sectionIndex, maxSectionCount, part.notes.head, () => undefined)
 			})
 			if(fragment.jumper) {
 				jumpers.push({
@@ -125,18 +127,27 @@ export class ColumnStater {
 		iterateMap(parts1, (data, index) => {
 			expandArray(data.notes.sections, sectionIndex, () => ({...SectionStat.nullish}))
 			this.refineFCA(data, sectionIndex)
-			let val0 = -1
+			let lastIndex = -1
+			let lastNotesHead: ('N' | 'Na' | 'Nc') = 'N'
 			for(let i = data.indexMap.length - 1; i >= 0; i--) {
 				if(data.indexMap[i] == -1) {
-					data.indexMap[i] = val0
+					data.indexMap[i] = lastIndex
 				} else {
-					val0 = data.indexMap[i]
+					lastIndex = data.indexMap[i]
+				}
+				if(data.headMap[i] == undefined) {
+					data.headMap[i] = lastNotesHead
+				} else {
+					lastNotesHead = data.headMap[i]
 				}
 			}
 		})
 		expandArray(breakMap, sectionIndex, () => false)
 		const parts: LinkedPart[] = []
 		iterateMap(parts1, (data) => parts.push(data))
+
+		SectionStat.__indexSort(parts, item => item.indexMap)
+
 		return {
 			lineNumber: article.lineNumber,
 			type: 'music',
@@ -500,6 +511,8 @@ export class ColumnStater {
 						sectionPadding[sectionIndex] = Math.max(sectionWeights[sectionIndex], paddingProp.padding)
 					}
 				})
+				// 写入类型
+				mappedNotes.head = part.headMap[sectionPtr]
 				parts.push({
 					lineNumber: part.lineNumber,
 					signature: part.signature,
@@ -524,14 +537,20 @@ export class ColumnStater {
 				}
 			})
 			parts.forEach((part, index) => {
+				function isCompactPart(part: LinedPart) {
+					return part.notes.head == 'Na' || part.notes.head == 'Nc'
+				}
 				// 标记鼓点压行机制中要去掉的边距
-				if(part.notes.head == 'Na' && index != 0) {
-					part.noMargin[0] = true
+				if(isCompactPart(part) && index != 0) {
+					if(part.notes.head == 'Na') { // 鼓点行一律去除上边距
+						part.noMargin[0] = true
+					}
 				}
 				if(index != parts.length - 1) {
 					const nextPart = parts[index + 1]
-					if(part.notes.head == 'Na' && nextPart.notes.head == 'Na') {
+					if(isCompactPart(part) && isCompactPart(nextPart) && part.notes.head == nextPart.notes.head) {
 						part.noMargin[1] = true
+						nextPart.noMargin[0] = true
 					}
 				}
 			})

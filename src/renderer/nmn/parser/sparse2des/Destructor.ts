@@ -137,7 +137,7 @@ export class Destructor {
 		return retData
 	}
 	parsePart(part: LineTree<SparseLine>, context: ScoreContext, issues: LinedIssue[]): DestructedPart {
-		const eatenNotes = this.destructNotes(part.uniqueLines['N'] as any, issues, context, true) as (DestructedLine & {head: 'N' | 'Na'})
+		const eatenNotes = this.destructNotes(part.uniqueLines['N'] as any, issues, context, true) as (DestructedLine & {head: 'N' | 'Na' | 'Nc'})
 
 		// 此部分提取旋律中经过处理的音乐属性，确保正确的音乐属性应用到替代旋律中
 		const musicalPropsOverride = eatenNotes.sections.map(section => {
@@ -193,7 +193,7 @@ export class Destructor {
 		if(['J'].indexOf(line.head) != -1) {
 			return this.destructJumper(line as any, issues)
 		}
-		if(['N'].indexOf(line.head) != -1) {
+		if(['N', 'Na', 'Nc'].indexOf(line.head) != -1) {
 			return this.destructNotes(line as any, issues, context)
 		}
 		if(['Ns'].indexOf(line.head) != -1) {
@@ -384,7 +384,7 @@ export class Destructor {
 			attrs: attrs
 		}
 	}
-	destructNotes(line: SparseLine & {head: 'N' | 'Na'}, issues: LinedIssue[], context: ScoreContext, acceptVariation?: boolean): DestructedLine {
+	destructNotes(line: SparseLine & {head: 'N' | 'Na' | 'Nc'}, issues: LinedIssue[], context: ScoreContext, acceptVariation?: boolean): DestructedLine {
 		return {
 			lineNumber: line.lineNumber,
 			type: 'notes',

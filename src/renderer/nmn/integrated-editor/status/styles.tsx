@@ -12,10 +12,10 @@ export const useRecreatedStyles = (colorScheme: IntegratedEditorColorScheme) => 
 			border: 'none',
 			background: '#0000',
 			color: '#333',
-			'&:hover': {
+			'&:hover:not([disabled])': {
 				background: colorScheme.voidaryHover,
 			},
-			'&:active': {
+			'&:active:not([disabled])': {
 				background: colorScheme.voidaryActive,
 			},
 			'&.active': {

@@ -75,6 +75,15 @@ export module EventFileSystem {
 				return false
 			}
 		})
+		// 写入二进制文件
+		ipcMain.handle('saveBinary', async (evt, path: string, content: Uint8Array) => {
+			try {
+				await fs.promises.writeFile(path, content)
+				return true
+			} catch(err) {
+				return false
+			}
+		})
 		// 获取临时文件夹路径
 		ipcMain.handle('getTempPath', async (evt) => {
 			const dataPath = DataStore.getDataPath()

@@ -6,9 +6,11 @@ import { Button } from '../component/button'
 import { ChipInstrument } from '../../../tone/instrument/tonic/ChipInstrument'
 import { DrumlineToneInstrumentClass, TonicToneInstrument, TonicToneInstrumentClass } from '../../../tone/instrument/ToneInstrument'
 import { iterateMap } from '../../../util/array'
-import { DrumlineInstruments, TonicInstruments } from '../play/control/ControlData'
+import { DrumlineInstruments, TonicInstruments } from '../../../tone/ControlData'
 import { IntegratedEditorContext } from '../../IntegratedEditor'
 import { NMNI18n } from '../../..'
+import { SawInstrument } from '../../../tone/instrument/tonic/SawInstrument'
+import { FlacLibUtil } from '../../../util/flac-encoder'
 
 const useStyles = createUseStyles({
 	root: {
@@ -43,6 +45,26 @@ export function InstrumentTestPanel() {
 			Tone.loaded().then(() => {
 				new instrument().scheduleNote(note, 0, 250)
 			})
+		})
+	}
+	
+	function testOfflineRendering() {
+		Tone.start().then(async () => {
+			const renderer = Tone.Offline(() => {
+				new ChipInstrument().scheduleNote(440, 0, 5)
+			}, 5)
+			const buffer = (await renderer).get()
+			if(!buffer) {
+				return
+			}
+
+			const encData = await FlacLibUtil.encodeBuffer(buffer)
+			const blob = new Blob([encData], {type: 'audio/flac'})
+			const url = URL.createObjectURL(blob)
+			window.open(url)
+			setTimeout(() => {
+				URL.revokeObjectURL(url)
+			}, 10000)
 		})
 	}
 
@@ -89,6 +111,12 @@ export function InstrumentTestPanel() {
 				))}
 			</div>
 		})}
+		<div style={{marginBottom: '12px', fontWeight: 'bold'}}>
+		{NMNI18n.editorText(language, `${i18nPrefix}offline`)}
+		</div>
+		<Button style={{marginRight: '8px'}} small onMouseDown={() => testOfflineRendering()}>
+			Test
+		</Button>
 		<div style={{marginTop: '24px', fontStyle: 'italic'}}>
 			{NMNI18n.editorText(language, `${i18nPrefix}comment`)}
 		</div>

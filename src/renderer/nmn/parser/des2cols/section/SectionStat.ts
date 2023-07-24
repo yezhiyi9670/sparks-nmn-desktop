@@ -369,14 +369,13 @@ export module SectionStat {
 			})
 		}
 	}
-	/**
-	 * 索引排序
-	 */
-	export function indexSort<T extends {index: number[]}>(arr: T[]) {
+	export function __indexSort<T>(arr: T[], getIndex: (item: T) => number[]) {
 		arr.sort((a, b) => {
-			let indexLen = Math.max(a.index.length, b.index.length)
+			const aIndex = getIndex(a)
+			const bIndex = getIndex(b)
+			let indexLen = Math.max(aIndex.length, bIndex.length)
 			for(let i = 0; i < indexLen; i++) {
-				const ia = a.index[i], ib = b.index[i]
+				const ia = aIndex[i], ib = bIndex[i]
 				if(ia === undefined || ia == -1) {
 					return -1
 				}
@@ -392,6 +391,12 @@ export module SectionStat {
 			}
 			return 0
 		})
+	}
+	/**
+	 * 索引排序
+	 */
+	export function indexSort<T extends {index: number[]}>(arr: T[]) {
+		return __indexSort(arr, item => item.index)
 	}
 
 	/**
@@ -487,8 +492,11 @@ export module SectionStat {
 	/**
 	 * 小节是否包含前置/后置小节线属性
 	 */
-	export function hasSeparatorSideAttrs(head: string, section: MusicSection<unknown>, beforeOnly: boolean = false, ignoreOpenRange: boolean = false) {
-		if(head == 'Na') {
+	export function hasSeparatorSideAttrs(partInfo: {
+		notes?: {head?: string}
+		noMargin?: [boolean, boolean]
+	}, section: MusicSection<unknown>, beforeOnly: boolean = false, ignoreOpenRange: boolean = false) {
+		if((partInfo?.notes?.head == 'Na' || partInfo?.notes?.head == 'Nc') && partInfo?.noMargin && partInfo.noMargin[0]) {
 			return false
 		}
 		function checkSeparatorAttrs(attrs: SeparatorAttr[]) {

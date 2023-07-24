@@ -67,9 +67,10 @@ export type LinkedPartBase<LrcType> = DestructedFCA & {
 	lineNumber: number
 	signature: PartSignature
 	decorations: MusicDecorationRange[]
-	notes: DestructedLine & {head: 'N' | 'Na'}
+	notes: DestructedLine & {head: 'N' | 'Na' | 'Nc'}
 	lyricLines: LrcType[]
 	indexMap: number[]
+	headMap: ('N' | 'Na' | 'Nc')[]
 }
 export type LinkedPart = LinkedPartBase<Linked1LyricLine>
 
@@ -208,7 +209,7 @@ export type LinedPart = DestructedFCA & {
 	signature: PartSignature
 	decorations: MusicDecorationRange[]
 	index: number[]
-	notes: DestructedLine & {head: 'N' | 'Na'}
+	notes: DestructedLine & {head: 'N' | 'Na' | 'Nc'}
 	lyricLineSignatures: LyricLineSignature[]
 	lyricLines: LinedLyricLine[]
 	noMargin: [boolean, boolean]
@@ -313,7 +314,7 @@ export function partSignature(head: string, tags: PartAttr[], index: number): Pa
 	} else {
 		hashStr = 'index_' + index.toString()
 	}
-	hashStr = head + '_' + hashStr
+	hashStr = (head == 'Nc' ? 'N' : head) + '_' + hashStr
 	if(tags.length > 0) {
 		return {
 			hash: signatureHash(hashStr),

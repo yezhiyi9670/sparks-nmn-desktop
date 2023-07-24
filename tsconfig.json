@@ -1,17 +1,12 @@
 {
 	"compilerOptions": {
 		"jsx": "react",
-		"module": "commonjs",
+		"module": "CommonJS",
 		"target": "es6",
 		"strict": true,
 		"noImplicitAny": true,
 		"sourceMap": true,
 		"outDir": "dist",
-		"paths": {
-			"*": [
-				"./node_modules/*"
-			]
-		},
 		"strictNullChecks": true,
 		"forceConsistentCasingInFileNames": true,
 		"esModuleInterop": true,
@@ -22,5 +17,9 @@
 		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
 		"moduleResolution": "node",
-	}
+	},
+	"exclude": [
+		"node_modules/*",
+		"dist/*"
+	]
 }

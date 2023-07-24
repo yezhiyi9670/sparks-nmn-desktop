@@ -19,7 +19,8 @@ type SectionsRenderData = {
 	notes: {
 		sections: MusicSection<NoteCharMusic>[]
 	},
-	decorations: MusicDecorationRange[]
+	decorations: MusicDecorationRange[],
+	noMargin?: [boolean, boolean]
 }
 
 type ConnectorStatNote = MusicNote<NoteCharMusic> & {
@@ -59,18 +60,32 @@ export class SectionsRenderer {
 		return `hsl(${hue}deg, 85%, ${lightness}%)`
 	}
 
-	render(currY: number, part: SectionsRenderData, sectionCount: number, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirstPart: boolean, type: 'normal' | 'accompany' | 'substitute') {
-		const isSmall = type != 'normal'
+	render(currY: number, part: SectionsRenderData, sectionCount: number, root: DomPaint, context: RenderContext, hasJumperOverlap: boolean, isFirstPart: boolean, type: 'normal' | 'compact' | 'accompany' | 'substitute') {
+		const isSmall = type == 'substitute' || type == 'accompany'
 
 		const sections = part.notes.sections
 		const msp = new MusicPaint(root)
 		const scale = context.render.scale!
-		const reductionHeight = reductionLineSpace * (isSmall ? 0.8 : 1)
+		const reductionHeight = reductionLineSpace * {
+			'normal': 1,
+			'substitute': 0.8,
+			'accompany': 0.8,
+			'compact': 0.9,
+		}[type]
 		const fieldHeight = {
 			'normal': 5.5,
 			'substitute': 4.5,
 			'accompany': 4.4,
+			'compact': 4.4,
 		}[type]
+		const connectorScale = {
+			'normal': 1,
+			'substitute': 1,
+			'accompany': 1,
+			'compact': 0.8,
+		}[type]
+		const drawTriplet = type == 'normal'
+		const noTopAttr = type == 'substitute' || (part.noMargin && part.noMargin[0])
 
 		// ===== 小节线 =====
 		let firstSection = true
@@ -307,8 +322,8 @@ export class SectionsRenderer {
 				// 画属性
 				const topAttr = findWithKey(section.separator.before.attrs, 'type', 'top')
 				const topAdjust = (topAttr && topAttr.type == 'top') ? topAttr.margin : 0
-				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY - topAdjust, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale, {}, type == 'normal')
-				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY - topAdjust, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale, {}, type == 'normal')
+				msp.drawBeforeAfterAttrs(context, this.columns.startPosition(sectionIndex), currY - topAdjust, fieldHeight, section.separator.before.attrs, section, sectionIndex == 0, 'before', 1, scale, {}, !noTopAttr)
+				msp.drawBeforeAfterAttrs(context, this.columns.endPosition(sectionIndex), currY - topAdjust, fieldHeight, section.separator.after.attrs, section, sectionIndex == 0, 'after', 1, scale, {}, !noTopAttr)
 			} else if(section.type == 'omit') {
 				const omitFontMetric = new FontMetric('CommonBlack/400', 2.16)
 				if(section.count != section.count) {
@@ -439,10 +454,10 @@ export class SectionsRenderer {
 			const octaveHeightOffset = noteMeasure[1] * (0.22 * maxTopOctave + 0.01 + (+!!maxTopOctave) * 0.04)
 			let topY = currY - noteMeasure[1] / 2 - octaveHeightOffset
 
-			let baseHeightMax = noteMeasure[1] * 0.65 * connectorHeightRatio // 换算为真实高度
-			let baseHeightMin = noteMeasure[1] * 0.65 * connectorHeightRatio
-			const heightSpacing = noteMeasure[1] * 0.30 * connectorHeightRatio
-			const separatedSpacing = noteMeasure[1] * 0.25 * connectorHeightRatio
+			let baseHeightMax = noteMeasure[1] * connectorScale * 0.65 * connectorHeightRatio // 换算为真实高度
+			let baseHeightMin = noteMeasure[1] * connectorScale * 0.65 * connectorHeightRatio
+			const heightSpacing = noteMeasure[1] * connectorScale * 0.30 * connectorHeightRatio
+			const separatedSpacing = noteMeasure[1] * connectorScale * 0.25 * connectorHeightRatio
 			if(decor.level == 1 && !isSmall) {
 				baseHeightMax += separatedSpacing
 			} else {
@@ -491,7 +506,7 @@ export class SectionsRenderer {
 				return
 			}
 			// 画三连音
-			if(!isSmall) {
+			if(drawTriplet) {
 				section.decoration.forEach((decor) => {
 					if(decor.char == 'T') {
 						// ==== 确定文本 ====

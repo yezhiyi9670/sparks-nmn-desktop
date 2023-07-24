@@ -29,7 +29,7 @@ export type SparseLine = {
 	content: BracketPair
 	props: string
 } | {
-	head: 'N' | 'Na' | 'Lc' | 'Lw' | 'L' | 'Ns'
+	head: 'N' | 'Na' | 'Nc' | 'Lc' | 'Lw' | 'L' | 'Ns'
 	props: BracketPair
 	content: BracketPair
 })
@@ -155,7 +155,7 @@ export class SparseBuilder {
 				})
 			}
 		}
-		if(['N', 'Na', 'Ns'].indexOf(line.head) != -1) {
+		if(['N', 'Na', 'Nc', 'Ns'].indexOf(line.head) != -1) {
 			return {
 				lineNumber: line.lineNumber,
 				head: line.head as 'N',

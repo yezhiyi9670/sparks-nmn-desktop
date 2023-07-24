@@ -24,6 +24,7 @@ import { DomUtils } from '../util/dom'
 import { MusicSection, NoteCharMusic } from '../parser/sparse2des/types'
 import { RenderSectionPickCallback } from '../renderer/renderer'
 import { InstrumentTestPanel } from './inspector/instrument-test/InstrumentTestPanel'
+import { StatusExporting } from './status/exporting'
 
 const useStyles = createUseStyles({
 	editor: {
@@ -207,6 +208,8 @@ export interface IntegratedEditorPrefs {
 
 	isMobile?: boolean,
 	instrumentSourceUrl?: string,
+
+	onAudioExport?: (data: Uint8Array) => void,
 }
 const defaultEditorPrefs: IntegratedEditorPrefs = {
 	fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', 'Sarasa Mono SC'",
@@ -226,7 +229,8 @@ const defaultEditorPrefs: IntegratedEditorPrefs = {
 	temporarySave: false,
 	logTimeStat: false,
 
-	isMobile: false
+	isMobile: false,
+	onAudioExport: () => {}
 }
 
 interface Context {
@@ -431,6 +435,11 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 			sectionPickRef.current(articleId, section)
 		}
 	})
+	const [ exporting, setExporting ] = useState('')
+	const [ exportProgress, setExportProgress ] = useState<[number, number]>([0, 1])
+	const handleExportFinish = useMethod((data: Uint8Array) => {
+		prefs.onAudioExport && prefs.onAudioExport(data)
+	})
 
 	const previewView = useMemo(() => {
 		const ret = <PreviewView
@@ -502,6 +511,12 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 								getPickReporter={sectionPickRef}
 								code={value}
 								setCode={handleChange}
+								onExportFinish={handleExportFinish}
+
+								exporting={exporting}
+								setExporting={setExporting}
+								exportProgress={exportProgress}
+								setExportProgress={setExportProgress}
 							/>
 						},
 						{
@@ -516,7 +531,9 @@ export const __IntegratedEditor = React.forwardRef<IntegratedEditorApi, __Props>
 			<div className={classes.statusBarGroup}>
 				<StatusDisplayMode value={displayMode} onChange={setDisplayMode} />
 			</div>
-			<div className={classes.statusBarSpacer} />
+			<div className={classes.statusBarSpacer}>
+				<StatusExporting exporting={exporting} exportProgress={exportProgress} />
+			</div>
 			<div className={classes.statusBarGroup}>
 				<StatusDirty
 					filename={filename}

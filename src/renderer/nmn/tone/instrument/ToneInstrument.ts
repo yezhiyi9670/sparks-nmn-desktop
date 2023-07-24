@@ -53,7 +53,7 @@ export abstract class ToneInstrument {
 	 * 设置音量，数值为能量的比例
 	 */
 	setVolume(volumeFrac: number) {
-		this.volumeController.volume.value = Math.max(-114514, 10 * Math.log10(volumeFrac))
+		this.volumeController.volume.value = Math.max(-114514, 20 * Math.log10(volumeFrac))
 	}
 	/**
 	 * 设置声相偏移

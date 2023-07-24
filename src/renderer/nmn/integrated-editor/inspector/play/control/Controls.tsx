@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import React, { memo, useContext } from 'react'
-import { BeatMachineSignature, ControlData, ControlDataPart, DrumlineInstruments, MixingControlUtils, TonicInstruments } from './ControlData'
+import { BeatMachineSignature, ControlData, ControlDataPart, DrumlineInstruments, MixingControlUtils, TonicInstruments } from '../../../../tone/ControlData'
 import { iterateMap } from '../../../../util/array'
 import { PartSignature } from '../../../../parser/des2cols/types'
 import { useMethod } from '../../../../util/hook'

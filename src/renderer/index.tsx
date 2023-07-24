@@ -77,15 +77,19 @@ function AppIn() {
 		}, 1000)
 	})
 
-	const fileFiltersOpen: Electron.FileFilter[] = [
+	const fileFiltersOpen: Electron.FileFilter[] = useMemo(() => [
 		{name: LNG('browse.format.spnmn'), extensions: ['spnmn', 'spnmn.txt']},
 		{name: LNG('browse.format.all'), extensions: ['*']}
-	]
-	const fileFiltersSave: Electron.FileFilter[] = [
+	], [LNG])
+	const fileFiltersSave: Electron.FileFilter[] = useMemo(() => [
 		{name: LNG('browse.format.spnmn'), extensions: ['spnmn']},
 		{name: LNG('browse.format.spnmn_txt'), extensions: ['spnmn.txt']},
 		{name: LNG('browse.format.all'), extensions: ['*']}
-	]
+	], [LNG])
+	const fileFilterSaveAudio: Electron.FileFilter[] = useMemo(() => [
+		{name: LNG('browse.format.flac'), extensions: ['flac']},
+		{name: LNG('browse.format.all'), extensions: ['*']},
+	], [LNG])
 
 	function dirtyConfirm() {
 		return new Promise((resolve) => {
@@ -171,7 +175,6 @@ function AppIn() {
 			if(filename === undefined) {
 				return
 			}
-			console.log(filename)
 			const result = await window.FileSystem.saveText(filename, api.getValue())
 			if(result) {
 				api.triggerSaved(filename)
@@ -181,6 +184,16 @@ function AppIn() {
 			}
 		})
 	}
+	const handleSaveAudio = useMethod(async (data: Uint8Array) => {
+		const filename = await window.FileSystem.browseSave(LNG('browse.save'), fileFilterSaveAudio)
+		if(filename === undefined) {
+			return
+		}
+		const result = await window.FileSystem.saveBinary(filename, data)
+		if(!result) {
+			showToast(LNG('toast.export_fail', window.Path.basename(filename)))
+		}
+	})
 	const autoSave = useMethod(() => {
 		if(prefs.getValue<string>('autoSave') == 'off') {
 			return
@@ -440,10 +453,11 @@ function AppIn() {
 				dirty: LNG('title.dirty')
 			},
 			instrumentSourceUrl: './nmn/resource/audio',
-			inspectorOpen: prefs.getValue<string>('inspectorOpen') == 'on'
+			inspectorOpen: prefs.getValue<string>('inspectorOpen') == 'on',
+			onAudioExport: handleSaveAudio
 		}
 		return editorPrefs
-	}, [prefs, LNG])
+	}, [prefs, LNG, handleSaveAudio])
 
 	return (
 		<div className={classes.main} onDragOver={hackDrag} onDrop={handleDrag}>

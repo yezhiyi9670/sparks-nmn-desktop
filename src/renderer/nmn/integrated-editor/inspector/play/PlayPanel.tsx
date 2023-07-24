@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { IntegratedEditorContext } from '../../IntegratedEditor'
 import { createUseStyles } from 'react-jss'
 import { Button, ButtonGroup, ButtonMargin, ButtonSpacer } from '../component/button'
-import * as Icons from 'react-icons/vsc'
 import { NMNI18n, NMNResult } from '../../..'
 import { ModifierControls } from './modifier/ModifierControls'
 import { ArticleSelector } from './selector/ArticleSelector'
@@ -14,11 +13,16 @@ import { SequenceSection } from '../../../parser/sequence/types'
 import { DomUtils } from '../../../util/dom'
 import { RenderSectionPickCallback } from '../../../renderer/renderer'
 import { SequenceSectionStat } from '../../../parser/sequence/SequenceSectionStat'
-import { BeatMachineSignature, ControlData, MixingControlUtils, controlDataPartBeatMachine, controlDataPartDefault } from './control/ControlData'
+import { BeatMachineSignature, ControlData, MixingControlUtils, controlDataPartBeatMachine, controlDataPartDefault } from '../../../tone/ControlData'
 import { Controls } from './control/Controls'
 import { useOnceEffect } from '../../../util/event'
 import { MetaCommentWriter } from '../../../meta-comment-writer/MetaCommentWriter'
 import { PlayerComponent } from './player/PlayerComponent'
+import { RenderAudio } from './player/RenderAudio'
+
+import * as Icons from 'react-icons/vsc'
+import * as IconsPi from 'react-icons/pi'
+import { randomToken } from '../../../util/random'
 
 const useStyles = createUseStyles({
 	headroom: {
@@ -108,10 +112,17 @@ export const PlayPanel = React.memo(function(props: {
 	pickingSections: boolean
 	onTogglePicker: (state: boolean) => void
 	getPickReporter: React.MutableRefObject<RenderSectionPickCallback | null>
+	onExportFinish?: (flacData: Uint8Array) => void
 
 	// 传递原始代码是为了实现混音设置的保存功能
 	code: string
 	setCode: (val: string) => void
+
+	// 传递由编辑器管理的导出状态
+	exporting: string
+	setExporting: (val: string) => void
+	exportProgress: [number, number]
+	setExportProgress: (val: [number, number]) => void
 }) {
 	const { prefs, language, colorScheme } = useContext(IntegratedEditorContext)
 	const classes = useStyles()
@@ -157,6 +168,10 @@ export const PlayPanel = React.memo(function(props: {
 		setControlData(newData)
 	})
 	const updateControlData = useMethod(setControlData)
+
+	const { exporting, setExporting, exportProgress, setExportProgress } = props
+	const getExporting = useMethod(() => exporting)
+	const getExportProgress = useMethod(() => exportProgress)
 
 	// ===== END STATES =====
 
@@ -364,6 +379,50 @@ export const PlayPanel = React.memo(function(props: {
 			updateNoteHighlight(val)
 		}
 	})
+	// 渲染并导出。这里采用 exportingRef 检验组件状态——如果组件卸载即中断操作。
+	async function renderAndExport() {
+		if(exporting) {
+			stopExport()
+			return
+		}
+		if(!sequence) {
+			return
+		}
+		const token = randomToken(12)
+		setExporting(token)
+		setExportProgress([0, 1])
+		const finishCallback = props.onExportFinish
+
+		const encData = await RenderAudio.renderAudio(
+			sequence, controlData, speedModifier, pitchModifier, iterationIndex, prefs.instrumentSourceUrl!,
+			() => token == getExporting(),
+			(finished, total) => {
+				if(token != getExporting()) {
+					return
+				}
+				setExportProgress([finished, total])
+			}
+		)
+
+		setExporting('')
+
+		if(!encData) {
+			return
+		}
+
+		finishCallback && finishCallback(encData)
+	}
+	// 取消导出（目前不会终止后台运算，没有很好的解决方法）
+	async function stopExport() {
+		setExporting('')
+	}
+	// 导出进度
+	let exportProgressText = (exportProgress[0] / exportProgress[1] * 100).toFixed(0)
+	if(exportProgressText == '100') {
+		exportProgressText = NMNI18n.editorText(language, 'inspector.play.render.progress.encoding')
+	} else {
+		exportProgressText = NMNI18n.editorText(language, 'inspector.play.render.progress.rendering', exportProgressText)
+	}
 
 	// 键盘事件
 	const handleKeyDown = (evt: React.KeyboardEvent) => {
@@ -478,9 +537,22 @@ export const PlayPanel = React.memo(function(props: {
 					<Icons.VscFoldDown style={{transform: 'translateY(0.13em)'}} />
 				</Button>
 				<ButtonSpacer />
-				{/* <Button title={NMNI18n.editorText(language, 'inspector.play.export')}>
-					<Icons.VscSave style={{transform: 'translateY(0.13em)'}} />
-				</Button> */}
+				<Button
+					onClick={() => renderAndExport()}
+					selected={exporting != ''}
+					disabled={!canPlay && !exporting}
+					style={{fontSize: '15px'}}
+					title={exporting ? NMNI18n.editorText(language, 'inspector.play.render.tooltip.progress') : NMNI18n.editorText(language, 'inspector.play.render.tooltip.idle')}
+				>
+					<span style={{paddingRight: '0.4em'}}>
+						{exporting ? (
+							exportProgressText
+						) : (
+							NMNI18n.editorText(language, 'inspector.play.render.idle')
+						)}
+					</span>
+					<IconsPi.PiFileAudio style={{transform: 'translateY(0.1em) scale(1.1)', fontSize: '1.2em'}} />
+				</Button>
 			</ButtonGroup>
 		</div>
 		<div className={classes.contentroom} style={{...(!prefs.isMobile && {flexShrink: 0, height: '', overflowY: 'hidden'})}}>
