@@ -213,11 +213,12 @@ export const PlayerComponent = memo((props: {
 	 * 跳转下一小节（包括结束打拍小节以及终止播放）
 	 */
 	const jumpNextSection = useMethod((now: number) => {
+		timerRef.current!.now = now
 		if(preSection) {
 			preSection = false
-			timerRef.current!.visualDelayed(() => {
+			timerRef.current!.schedule(() => {
 				props.setPreSection(preSection)
-			})
+			}, 0, true)
 			// 初始打拍结束后清空高亮
 			clearHighlight()
 			actuateHighlight()
@@ -225,17 +226,17 @@ export const PlayerComponent = memo((props: {
 		} else {
 			const next = findSection(iterationIndex, sectionIndex).next
 			if(next === undefined) {
-				timerRef.current!.visualDelayed(() => {
+				timerRef.current!.schedule(() => {
 					invokeEnd()
-				})
+				}, 0)
 				return
 			}
 			iterationIndex = next[0]
 			sectionIndex = next[1]
-			timerRef.current!.visualDelayed(() => {
+			timerRef.current!.schedule(() => {
 				props.setIterationIndex(iterationIndex)
 				props.setSectionIndex(sectionIndex)
-			})
+			}, 0, true)
 		}
 		scheduleCurrentSection(now, preSection, iterationIndex, sectionIndex)
 	})

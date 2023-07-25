@@ -14,7 +14,7 @@ export class DisposableAudioTimer {
 
 	resetTime() {
 		this.now = Tone.now()
-		this.visualLatency = Math.max(0, Tone.context.lookAhead * 1000 - 50)
+		this.visualLatency = Math.max(0, Tone.context.lookAhead * 1000 - 60)
 	}
 
 	schedule(func: (time: number) => void, timeMillis: number, delayLookAhead: boolean = false) {
@@ -22,26 +22,8 @@ export class DisposableAudioTimer {
 			if(this.disposed) {
 				return
 			}
-			if(!delayLookAhead) {
-				func(this.now + timeMillis / 1000)
-			} else {
-				setTimeout(() => {
-					if(this.disposed) {
-						return
-					}
-					func(this.now + timeMillis / 1000)
-				}, this.visualLatency)
-			}
-		}, this.now + timeMillis / 1000 - Tone.now())
-	}
-
-	visualDelayed(func: () => void) {
-		setTimeout(() => {
-			if(this.disposed) {
-				return
-			}
-			func()
-		}, this.visualLatency)
+			func(this.now + timeMillis / 1000)
+		}, this.now + timeMillis / 1000 - Tone.now() + (delayLookAhead ? this.visualLatency : 0) / 1000)
 	}
 
 	dispose() {

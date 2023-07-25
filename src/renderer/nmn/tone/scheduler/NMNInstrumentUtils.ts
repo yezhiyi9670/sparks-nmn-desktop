@@ -61,7 +61,7 @@ export module NMNInstrumentUtils {
 		}
 		const synthObj = repo
 		for(let partId in synthObj) {
-			const controlPart = controlData[partId].control
+			const controlPart = controlData[partId]?.control
 			const synthPart = synthObj[partId]
 			if(!controlPart) {
 				return
