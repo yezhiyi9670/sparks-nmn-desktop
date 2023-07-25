@@ -83,8 +83,8 @@ export module NMNToneScheduler {
 		
 		beatMachineInstrument.drumlineInstrument.now = now
 		for(let n = 0; n < (beats.value.x == 0 ? maxBeatPoints : Math.min(maxBeatPoints, beats.value.x)); n++) {
-			visualizerStart && visualizerStart(now + beatNoteLength * n / speedModifier, n)
-			visualizerEnd && visualizerEnd(now + beatNoteLength * (n + 1) / speedModifier, n)
+			visualizerStart && visualizerStart(beatNoteLength * n / speedModifier, n)
+			visualizerEnd && visualizerEnd(beatNoteLength * (n + 1) / speedModifier, n)
 			if(control && control.type == 'beatMachine' && beats.value.y > 4 && n % control.beatModulo != 0) {
 				continue
 			}
@@ -123,8 +123,8 @@ export module NMNToneScheduler {
 				const startTime = quarterLength * Frac.toFloat(note.startPos) / speedModifier
 				const length = quarterLength * Frac.toFloat(note.length) / speedModifier
 
-				visualizerStart && visualizerStart(now + startTime, note)
-				visualizerEnd && visualizerEnd(now + startTime + length, note)
+				visualizerStart && visualizerStart(startTime, note)
+				visualizerEnd && visualizerEnd(startTime + length, note)
 
 				if(note.type != 'note' || note.voided) {
 					return

@@ -36,5 +36,11 @@ const copy = (sd, td, reject = []) => {
 const installDir = 'D:/Program Files (portable)/sparks-nmn-desktop/'
 if(fs.existsSync(installDir)) {
 	fs.copyFileSync('out/sparks-nmn-desktop-win32-x64/sparks-nmn-desktop.exe', installDir + 'sparks-nmn-desktop.exe')
+	if(fs.existsSync(installDir + 'resources')) {
+		fs.rmSync(installDir + 'resources', {
+			recursive: true
+		})
+	}
+	fs.mkdirSync(installDir + 'resources')
 	copy('out/sparks-nmn-desktop-win32-x64/resources', installDir + 'resources')
 }

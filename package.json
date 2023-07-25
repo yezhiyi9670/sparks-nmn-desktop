@@ -65,7 +65,7 @@
     "start:main": "node config/compile.mjs && electron .",
     "clean": "node config/clean.mjs",
     "build": "npm run clean && npm run build:renderer && npm run build:main",
-    "build:renderer": "cross-env ELECTRON_COMPONENT=renderer parcel build --dist-dir dist/public/ --public-url ./ public/template.html",
+    "build:renderer": "cross-env ELECTRON_COMPONENT=renderer parcel build --no-source-maps --dist-dir dist/public/ --public-url ./ public/template.html",
     "build:main": "node config/compile.mjs",
     "package": "npm run build && electron-forge package",
     "make": "npm run build && electron-forge make"

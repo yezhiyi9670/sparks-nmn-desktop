@@ -96,9 +96,6 @@ export module EventFileSystem {
 		// 获取应用资源文件目录
 		ipcMain.on('getResourcePath', (evt) => {
 			let resPath = app.getAppPath()
-			if(app.isPackaged) {
-				resPath += '.unpacked'
-			}
 			evt.returnValue = resPath
 		})
 	}
