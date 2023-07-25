@@ -381,6 +381,7 @@ export const PlayPanel = React.memo(function(props: {
 		}
 	})
 	// 渲染并导出。这里采用 exportingRef 检验组件状态——如果组件卸载即中断操作。
+	const exportCanceller = useRef<() => void>(() => {})
 	async function renderAndExport() {
 		if(exporting) {
 			stopExport()
@@ -394,7 +395,7 @@ export const PlayPanel = React.memo(function(props: {
 		setExportProgress([0, 1])
 		const finishCallback = props.onExportFinish
 
-		const encData = await RenderAudio.renderAudio(
+		const renderRet = RenderAudio.renderAudio(
 			sequence, controlData, speedModifier, pitchModifier, iterationIndex, prefs.instrumentSourceUrl!,
 			() => token == getExporting(),
 			(finished, total) => {
@@ -404,8 +405,11 @@ export const PlayPanel = React.memo(function(props: {
 				setExportProgress([finished, total])
 			}
 		)
+		exportCanceller.current = renderRet.cancel
+		const encData = await renderRet.promise
 
 		setExporting('')
+		exportCanceller.current = () => {}
 
 		if(!encData) {
 			return
@@ -415,8 +419,9 @@ export const PlayPanel = React.memo(function(props: {
 		
 		finishCallback && finishCallback(encData)
 	}
-	// 取消导出（目前不会终止后台运算，没有很好的解决方法）
+	// 取消导出（会试图终止后台运算）
 	async function stopExport() {
+		exportCanceller.current()
 		setExporting('')
 	}
 	// 导出进度

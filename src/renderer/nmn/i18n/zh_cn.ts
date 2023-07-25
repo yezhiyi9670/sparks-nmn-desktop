@@ -296,7 +296,7 @@ export default {
 				"auto_scroll": "自动滚动预览",
 				"render": {
 					"idle": "渲染",
-					"tooltip.idle": "生成音频并导出为 FLAC 文件",
+					"tooltip.idle": "生成音频并导出为 OGG 文件",
 					"progress": {
 						"rendering": "${0}%",
 						"encoding": "编码中"

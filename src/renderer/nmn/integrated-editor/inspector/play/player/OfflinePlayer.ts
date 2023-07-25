@@ -55,6 +55,7 @@ export class OfflinePlayer {
 		await Tone.loaded()
 
 		const duration = this.setSectionIndexes()
+		let progressCheckerHandle: NodeJS.Timer | undefined = undefined
 		const result = await Tone.Offline((context) => {
 			NMNInstrumentUtils.createInstruments(this.repo, this.controlData)
 			NMNInstrumentUtils.updateInstruments(this.repo, this.controlData, false)
@@ -63,7 +64,7 @@ export class OfflinePlayer {
 
 			const baseContext = context.rawContext as OfflineAudioContext
 
-			const progressCheckerHandle = setInterval(() => {
+			progressCheckerHandle = setInterval(() => {
 				const finishMillis = baseContext.currentTime * 1000
 				if(duration == 0) {
 					progressCallback && progressCallback(1, 1)
@@ -76,6 +77,12 @@ export class OfflinePlayer {
 			}, 250)
 		}, 0.5 + duration / 1000 + 1)  // 最后一个音被完全释放至多还需要 1 秒
 		const buffer = result.get()
+
+		progressCallback && progressCallback(duration, duration)
+
+		if(progressCheckerHandle) {
+			clearInterval(progressCheckerHandle)
+		}
 
 		return buffer
 	}
