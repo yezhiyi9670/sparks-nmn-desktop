@@ -19,6 +19,7 @@ import { useOnceEffect } from '../../../util/event'
 import { MetaCommentWriter } from '../../../meta-comment-writer/MetaCommentWriter'
 import { PlayerComponent } from './player/PlayerComponent'
 import { RenderAudio } from './player/RenderAudio'
+import * as Tone from 'tone'
 
 import * as Icons from 'react-icons/vsc'
 import * as IconsPi from 'react-icons/pi'
@@ -410,6 +411,8 @@ export const PlayPanel = React.memo(function(props: {
 			return
 		}
 
+		setPlaying(false)
+		
 		finishCallback && finishCallback(encData)
 	}
 	// 取消导出（目前不会终止后台运算，没有很好的解决方法）

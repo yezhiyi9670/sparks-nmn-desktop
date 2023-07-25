@@ -10,7 +10,7 @@ import { DrumlineInstruments, TonicInstruments } from '../../../tone/ControlData
 import { IntegratedEditorContext } from '../../IntegratedEditor'
 import { NMNI18n } from '../../..'
 import { SawInstrument } from '../../../tone/instrument/tonic/SawInstrument'
-import { FlacLibUtil } from '../../../util/flac-encoder'
+import { AudioEncodingUtils } from '../../../tone/audio-encoder/AudioEncodingUtils'
 
 const useStyles = createUseStyles({
 	root: {
@@ -58,8 +58,8 @@ export function InstrumentTestPanel() {
 				return
 			}
 
-			const encData = await FlacLibUtil.encodeBuffer(buffer)
-			const blob = new Blob([encData], {type: 'audio/flac'})
+			const encData = await AudioEncodingUtils.encodeVorbis(AudioEncodingUtils.unpackBuffer(buffer))
+			const blob = new Blob([encData], {type: 'audio/ogg'})
 			const url = URL.createObjectURL(blob)
 			window.open(url)
 			setTimeout(() => {

@@ -1,6 +1,6 @@
 import register from 'promise-worker/register'
-import { FlacLibUtil } from '../../../../../util/flac-encoder'
+import { AudioEncodingUtils } from '../../../../../tone/audio-encoder/AudioEncodingUtils'
 
-register(function(metadata: FlacLibUtil.AudioBufferMeta) {
-	return FlacLibUtil.encodeMetadata(metadata)
+register(function(metadata: AudioEncodingUtils.AudioBufferMeta) {
+	return AudioEncodingUtils.encodeVorbis(metadata)
 })

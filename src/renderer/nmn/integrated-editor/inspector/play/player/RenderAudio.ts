@@ -4,7 +4,7 @@ import { ControlData } from "../../../../tone/ControlData";
 import { NMNInstrumentUtils } from "../../../../tone/scheduler/NMNInstrumentUtils";
 import * as Tone from 'tone'
 import { NMNToneScheduler } from "../../../../tone/scheduler/NMNToneScheduler";
-import { FlacLibUtil } from "../../../../util/flac-encoder";
+import { AudioEncodingUtils } from "../../../../tone/audio-encoder/AudioEncodingUtils";
 import { randomToken } from "../../../../util/random";
 import PromiseWorker from 'promise-worker'
 import { OfflinePlayer } from "./OfflinePlayer";
@@ -30,7 +30,7 @@ export module RenderAudio {
 		if(!buffer) {
 			return
 		}
-		const bufferMeta = FlacLibUtil.unpackBuffer(buffer)
+		const bufferMeta = AudioEncodingUtils.unpackBuffer(buffer)
 		if(!checkAvailability()) {
 			return
 		}

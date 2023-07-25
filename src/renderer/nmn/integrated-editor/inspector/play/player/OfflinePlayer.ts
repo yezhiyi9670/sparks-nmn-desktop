@@ -74,7 +74,7 @@ export class OfflinePlayer {
 					clearInterval(progressCheckerHandle)
 				}
 			}, 250)
-		}, duration / 1000 + 1)  // 最后一个音被完全释放至多还需要 1 秒
+		}, 0.5 + duration / 1000 + 1)  // 最后一个音被完全释放至多还需要 1 秒
 		const buffer = result.get()
 
 		return buffer
@@ -110,7 +110,7 @@ export class OfflinePlayer {
 	 * 渲染音频
 	 */
 	renderSections() {
-		let totalTime = 0
+		let totalTime = 500
 		let sectionCount = 0
 
 		for(let indexObj of this.indexes) {

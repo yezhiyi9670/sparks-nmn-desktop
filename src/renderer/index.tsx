@@ -87,7 +87,7 @@ function AppIn() {
 		{name: LNG('browse.format.all'), extensions: ['*']}
 	], [LNG])
 	const fileFilterSaveAudio: Electron.FileFilter[] = useMemo(() => [
-		{name: LNG('browse.format.flac'), extensions: ['flac']},
+		{name: LNG('browse.format.ogg'), extensions: ['ogg']},
 		{name: LNG('browse.format.all'), extensions: ['*']},
 	], [LNG])
 

@@ -33,7 +33,7 @@ export default flattenI18nData({
 			"spnmn": "Sparks NMN 乐谱",
 			"spnmn_txt": "Sparks NMN 文本",
 			"all": "所有文件",
-			"flac": "FLAC 音频"
+			"ogg": "Ogg Vorbis"
 		}
 	},
 
