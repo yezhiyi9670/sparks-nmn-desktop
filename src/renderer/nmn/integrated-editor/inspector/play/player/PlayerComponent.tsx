@@ -90,7 +90,7 @@ export const PlayerComponent = memo((props: {
 				}
 				DisposableAudioTimer.init()
 				createInstruments()
-				scheduleCurrentSection(Tone.now())
+				scheduleCurrentSection(Tone.now(), preSection, iterationIndex, sectionIndex)
 			})
 		})
 	})
@@ -168,7 +168,7 @@ export const PlayerComponent = memo((props: {
 	/**
 	 * 计划当前小节（包括预打拍小节）
 	 */
-	const scheduleCurrentSection = useMethod((now: number) => {
+	const scheduleCurrentSection = useMethod((now: number, preSection: boolean, iterationIndex: number, sectionIndex: number) => {
 		const thisSection = findSection(iterationIndex, sectionIndex).section
 		if(!thisSection) {
 			invokeEnd()
@@ -193,15 +193,15 @@ export const PlayerComponent = memo((props: {
 				(time, note) => timerRef.current!.schedule(() => {
 					addHighlight(note.uuid)
 					actuateHighlight()
-				}, time),
+				}, time, true),
 				(time, note) => timerRef.current!.schedule(() => {
 					removeHighlight(note.uuid)
 					actuateHighlight()
-				}, time)
+				}, time, true)
 			)
 		}
 
-		// 准备跳转下一小节
+		// 准备偷看下一小节
 		timerRef.current!.schedule(time => {
 			if(props.playing) {
 				jumpNextSection(time)
@@ -214,21 +214,30 @@ export const PlayerComponent = memo((props: {
 	 */
 	const jumpNextSection = useMethod((now: number) => {
 		if(preSection) {
-			props.setPreSection(preSection = false)
+			preSection = false
+			timerRef.current!.visualDelayed(() => {
+				props.setPreSection(preSection)
+			})
 			// 初始打拍结束后清空高亮
 			clearHighlight()
 			actuateHighlight()
-			// 初始打拍结束后的更新由 effect 处理
+			NMNInstrumentUtils.updateInstruments(synthRef.current, props.controlData, preSection)
 		} else {
 			const next = findSection(iterationIndex, sectionIndex).next
 			if(next === undefined) {
-				invokeEnd()
+				timerRef.current!.visualDelayed(() => {
+					invokeEnd()
+				})
 				return
 			}
-			props.setIterationIndex(iterationIndex = next[0])
-			props.setSectionIndex(sectionIndex = next[1])
+			iterationIndex = next[0]
+			sectionIndex = next[1]
+			timerRef.current!.visualDelayed(() => {
+				props.setIterationIndex(iterationIndex)
+				props.setSectionIndex(sectionIndex)
+			})
 		}
-		scheduleCurrentSection(now)
+		scheduleCurrentSection(now, preSection, iterationIndex, sectionIndex)
 	})
 
 	return <></>
