@@ -1,4 +1,19 @@
 /**
+ * 创建区间迭代值（见 Python range）
+ */
+export function iterationRange(begin: number, end: number, step: number = 1) {
+	if(step == 0) {
+		throw new Error('iterationRange: step cannot be zero')
+	}
+	const ret = []
+	let current = begin
+	while(step > 0 ? (current < end) : (current > end)) {
+		ret.push(current)
+		current += step
+	}
+	return ret
+}
+/**
  * 在数组中找到满足键值关系的项
  */
 export function findWithKey<T>(arr: T[], key: string, value: any): T | null {

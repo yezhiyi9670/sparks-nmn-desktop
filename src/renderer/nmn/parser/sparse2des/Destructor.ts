@@ -277,7 +277,7 @@ export class Destructor {
 							explicitOctave: false
 						}
 					} else {
-						const valParsed = MusicTheory.absName2Pitch(val)
+						const valParsed = MusicTheory.absNameToPitch(val)
 						if(valParsed.value == valParsed.value) {
 							props.base = valParsed
 						} else {

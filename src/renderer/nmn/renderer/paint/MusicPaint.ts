@@ -961,7 +961,7 @@ export class MusicPaint {
 		const accidentalMetrics = new FontMetric('SparksNMN-mscore-20', 2.16 * fontScale)
 		
 		const text1Measure = this.root.measureTextFast('1=', textMetrics, scale)
-		const rootText = MusicTheory.pitch2AbsName(base)
+		const rootText = MusicTheory.pitchToAbsName(base)
 		const delta = base.value - base.baseValue
 		const rootMeasure = this.root.measureTextFast(rootText, textMetrics, scale)
 		let accidentalText = ''
@@ -1003,7 +1003,7 @@ export class MusicPaint {
 				text1 = I18n.renderToken(context.language, 'shift_prop_a_1')
 				text2 = I18n.renderToken(context.language, 'shift_prop_a_2')
 			}
-			const rootText = MusicTheory.pitch2AbsName(shift.value)
+			const rootText = MusicTheory.pitchToAbsName(shift.value)
 			text2 = rootText + text2
 			const delta = shift.value.value - shift.value.baseValue
 			if(delta == delta && delta != 0) {

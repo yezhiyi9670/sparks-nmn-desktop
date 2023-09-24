@@ -58,6 +58,19 @@ export const useRecreatedStyles = (colorScheme: IntegratedEditorColorScheme) => 
 		},
 		buttonSpacer: {
 			flex: 'auto'
+		},
+		copyInfoBox: {
+			width: '100%',
+			height: '32px',
+			background: colorScheme.voidary,
+			border: 'none',
+			outline: 'none',
+			'&:focus': {
+				background: colorScheme.voidaryActive
+			},
+			boxSizing: 'border-box',
+			padding: '0 8px',
+			fontSize: '15px',
 		}
 	}), [colorScheme])
 

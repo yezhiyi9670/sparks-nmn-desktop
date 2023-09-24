@@ -36,6 +36,7 @@ export function Button(props: {
 	index?: number
 	onMouseDown?: () => void
 	onMouseUp?: () => void
+	tabIndex?: number
 }) {
 	const classes = useStyles()
 
@@ -52,6 +53,7 @@ export function Button(props: {
 		data-index={props.index}
 		onMouseDown={props.onMouseDown}
 		onMouseUp={props.onMouseUp}
+		tabIndex={props.tabIndex}
 	>
 		{props.children}
 	</button>

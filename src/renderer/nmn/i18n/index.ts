@@ -90,7 +90,7 @@ class I18nClass {
 	 * 编辑器文本
 	 */
 	editorText(context: LanguageArray, key: string, ...args: string[]) {
-		return getLanguageValue(context.editor[key], ...args)
+		return getLanguageValue(context.editor[key] ?? key, ...args)
 	}
 }
 

@@ -223,7 +223,7 @@ export module AttrMatcher {
 				explicitOctave: false
 			}
 			if(rightPart != '?') {
-				tune = MusicTheory.absName2Pitch(rightPart)
+				tune = MusicTheory.absNameToPitch(rightPart)
 				if(isNaN(tune.value)) {
 					addIssue(issues,
 						lineNumber, tokens[0] ? tokens[0].range[0] : 0,

@@ -79,7 +79,7 @@ export function handleMusicShift(props: MusicProps, attr: AttrShift): MusicProps
 	if(attr.metrics == 'absolute') {
 		props.base = attr.value
 	} else {
-		const delta = MusicTheory.pitchInterval2dKey(attr.value, attr.metrics)
+		const delta = MusicTheory.pitchIntervalToDKey(attr.value, attr.metrics)
 		props.base = {
 			value: props.base!.value + delta,
 			baseValue: props.base!.value + delta,

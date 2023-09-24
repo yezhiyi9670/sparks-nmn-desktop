@@ -6,7 +6,7 @@ export module MusicTheory {
 	 * 
 	 * 音高值：音高与 C4（262Hz）相差的键数（100 音分的数量）。
 	 */
-	export function absName2Pitch(name: string) {
+	export function absNameToPitch(name: string) {
 		let delta = 0
 		while(name[0] == '#' || name[0] == 'b' || name[0] == '$' || name[0] == '%' || name[0] == '=') {
 			delta += {
@@ -56,7 +56,7 @@ export module MusicTheory {
 	/**
 	 * 根据基调（BaseTune）给出绝对名称。
 	 */
-	export function pitch2AbsName(pitch: {baseValue: number, explicitOctave: boolean}) {
+	export function pitchToAbsName(pitch: {baseValue: number, explicitOctave: boolean}) {
 		if(isNaN(pitch.baseValue)) {
 			return '?'
 		}
@@ -70,7 +70,7 @@ export module MusicTheory {
 	/**
 	 * 以“度”衡量的音程转换至 Key
 	 */
-	export function pitchInterval2dKey(value: number, metrics: 'key' | 'thd' | 'thm' | 'th' | 'tha') {
+	export function pitchIntervalToDKey(value: number, metrics: 'key' | 'thd' | 'thm' | 'th' | 'tha') {
 		if(metrics == 'key') {
 			return value
 		}
@@ -124,5 +124,34 @@ export module MusicTheory {
 			throw new Error('Unknown speed metric ' + metrics)
 		}
 		return value * translateSize
+	}
+
+	/**
+	 * 以 Key 衡量的绝对音高翻译为文本名称（字母音名）
+	 */
+	export function absoluteKeysToName(value: number, preferNearFifth: boolean = false) {
+		const octave = Math.floor(value / 12)
+		const remainder = value - octave * 12
+
+		const name = (preferNearFifth ?
+			['C', 'bD', 'D', 'bE', 'E', 'F', '#F', 'G', 'bA', 'A', 'bB', 'B'] :
+			['C', '#C', 'D', 'bE', 'E', 'F', '#F', 'G', 'bA', 'A', 'bB', 'B']
+		)[remainder]
+		const octaveSuffix = '' + (octave + 4)
+
+		return name + octaveSuffix
+	}
+
+	/**
+	 * 以 Key 衡量的相对音高翻译为文本名称（简谱风格）
+	 */
+	export function relativeKeysToName(value: number) {
+		const octave = Math.floor(value / 12)
+		const remainder = value - octave * 12
+
+		const name = ['1', '#1', '2', 'b3', '3', '4', '#4', '5', 'b6', '6', 'b7', '7'][remainder]
+		const octaveSuffix = (octave >= 0) ? ("'".repeat(octave)) : (','.repeat(-octave))
+
+		return name + octaveSuffix
 	}
 }
