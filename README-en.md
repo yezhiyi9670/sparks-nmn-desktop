@@ -6,7 +6,7 @@
 
 Compose Number Music Notation in text format efficiently!
 
-[Website](https://nmn.sparks-lab.art/) · [Playground](https://nmn.sparks-lab.art/playground/) · [Core Project](https://github.com/yezhiyi9670/sparks-nmn-dev) · [Sponsor](https://nmn.sparks-lab.art/donate/)
+[Website](https://notation.sparkslab.art/) · [Playground](https://notation.sparkslab.art/playground/) · [Core Project](https://github.com/yezhiyi9670/sparks-nmn-dev) · [Sponsor](https://notation.sparkslab.art/donate/)
 
 > Since Numbered Music Notation is seemingly not commonly used in English regions, this project does not plan adding English as a display language right now.
 

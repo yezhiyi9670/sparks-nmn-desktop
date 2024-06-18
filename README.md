@@ -6,7 +6,7 @@
 
 使用文本高效地编写简谱！
 
-[官方网站](https://nmn.sparks-lab.art/) · [在线试玩](https://nmn.sparks-lab.art/playground/) · [内核项目](https://github.com/yezhiyi9670/sparks-nmn-dev) · [赞助](https://nmn.sparks-lab.art/donate/)
+[官方网站](https://notation.sparkslab.art/) · [在线试玩](https://notation.sparkslab.art/playground/) · [内核项目](https://github.com/yezhiyi9670/sparks-nmn-dev) · [赞助](https://notation.sparkslab.art/donate/)
 
 > 由于数字简谱在英语国家中似乎并不常用，此项目还没有将英语添加为显示语言的计划（但是有英文歌词的支持）。
 

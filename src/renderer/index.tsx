@@ -21,7 +21,7 @@ import ColorScheme from './ColorScheme'
 import { compareVersions } from 'compare-versions'
 import { IntegratedEditorPrefs } from './nmn/integrated-editor/IntegratedEditor'
 
-const checkUpdateUrl = 'https://nmn.sparks-lab.art/latest-version.json'
+const checkUpdateUrl = 'https://notation.sparkslab.art/latest-version.json'
 
 document.title = 'Sparks NMN Desktop'
 

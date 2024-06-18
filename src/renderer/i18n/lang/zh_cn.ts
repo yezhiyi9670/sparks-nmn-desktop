@@ -320,9 +320,9 @@ export default flattenI18nData({
 
 	// 链接
 	"link": {
-		"official": "https://nmn.sparks-lab.art/",
+		"official": "https://notation.sparkslab.art/",
 		"github": 'https://github.com/yezhiyi9670/sparks-nmn-desktop',
-		"donate": 'https://nmn.sparks-lab.art/donate/',
+		"donate": 'https://notation.sparkslab.art/donate/',
 		"github_core": 'https://github.com/yezhiyi9670/sparks-nmn'
 	},
 })
